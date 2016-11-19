@@ -1,19 +1,30 @@
 # COMPILER = clang++
 FLAGS = -std=c++14 -Wall -Wextra -Wpedantic
 
-all: portal server
+SRCS = Portal.cpp Server.cpp StreamServer.cpp
 
-slice: StreamServer.ice
+OBJS = $(patsubst %.cpp,%.o,$(SRCS))
+
+EXECS = portal server
+
+SLICE = StreamServer.h StreamServer.cpp
+
+all: $(EXECS)
+
+$(SLICE): StreamServer.ice
 	slice2cpp -I . StreamServer.ice
 
-objects: slice
-	$(COMPILER) $(FLAGS) -I . -c Portal.cpp Server.cpp StreamServer.cpp
+%.o: %.cpp
+	$(COMPILER) $(FLAGS) -I . -c -o $@ $+
 
-portal: objects
+portal: $(SLICE) $(OBJS)
 	$(COMPILER) $(FLAGS) -o portal Portal.o StreamServer.o -lIce -lIceUtil -lpthread
 
-server: objects
+server: $(SLICE) $(OBJS)
 	$(COMPILER) $(FLAGS) -o server Server.o StreamServer.o -lIce -lIceUtil -lpthread
 
 clean:
-	rm *.o StreamServer.h StreamServer.cpp portal server
+	rm -rf *.o StreamServer.h StreamServer.cpp $(EXECS)
+
+test:
+	./test.sh
