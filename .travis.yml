@@ -22,21 +22,22 @@ script:
 
 matrix:
   include:
-    - linux:
+    - os: linux
       compiler: gcc
-        addons:
-          apt:
-            sources:
-              - ubuntu-toolchain-r-test
-            packages:
-              - g++-6
-        env: COMPILER=g++-6
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-6
+      env: COMPILER=g++-6
+    - os: linux
       compiler: clang
-        addons:
-          apt:
-            sources:
-              - ubuntu-toolchain-r-test
-              - llvm-toolchain-trusty-3.8
-            packages:
-              - clang-3.8
-        env: COMPILER=clang++-3.8
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-trusty-3.8
+          packages:
+            - clang-3.8
+      env: COMPILER=clang++-3.8
