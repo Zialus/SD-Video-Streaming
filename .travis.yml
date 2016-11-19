@@ -1,9 +1,8 @@
 language: cpp
 sudo: required
 dist: trusty
-os:
-  - linux
-  - osx
+os: osx
+osx_image: xcode8.2
 
 compiler:
   - clang
@@ -20,3 +19,24 @@ before_install:
 
 script:
     make
+
+matrix:
+  include:
+    - linux:
+      compiler: gcc
+        addons:
+          apt:
+            sources:
+              - ubuntu-toolchain-r-test
+            packages:
+              - g++-6
+        env: COMPILER=g++-6
+      compiler: clang
+        addons:
+          apt:
+            sources:
+              - ubuntu-toolchain-r-test
+              - llvm-toolchain-trusty-3.8
+            packages:
+              - clang-3.8
+        env: COMPILER=clang++-3.8
