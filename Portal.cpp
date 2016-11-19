@@ -13,7 +13,7 @@ public:
 
 void Portal::registerStream(const PortalServerCommunication::StringSequence& registrationInfo, const Ice::Current&)
 {
-	for (vector<const string>::iterator it = registrationInfo.begin(); it != registrationInfo.end(); ++it)
+	for (auto it = registrationInfo.begin(); it != registrationInfo.end(); ++it)
 	{
 		cout << ' ' << *it;
 	}

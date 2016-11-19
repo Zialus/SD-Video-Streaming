@@ -1,5 +1,5 @@
 # COMPILER = clang++
-FLAGS = -std=c++11
+FLAGS = -std=c++14 -Wall -Wextra -Wpedantic
 
 all: portal server
 

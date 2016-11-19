@@ -43,6 +43,7 @@ matrix:
       env: COMPILER=g++-6
       before_install:
         - brew update
+        - brew unlink oclint
         - brew install ice gcc
     - os: osx
       osx_image: xcode8.2
@@ -50,5 +51,4 @@ matrix:
       env: COMPILER=clang++
       before_install:
         - brew update
-        - brew unlink oclint
         - brew install ice
