@@ -27,3 +27,7 @@
 *.exe
 *.out
 *.app
+StreamServer.cpp
+StreamServer.h
+portal
+server

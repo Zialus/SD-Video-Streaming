@@ -12,15 +12,15 @@ matrix:
       compiler: gcc
       env: COMPILER=g++-6
       before_install:
-        brew update
-        brew install ice gcc
+        - brew update
+        - brew install ice gcc
     - os: osx
       osx_image: xcode8.2
       compiler: clang
       env: COMPILER=clang++
       before_install:
-        brew update
-        brew install ice
+        - brew update
+        - brew install ice
     - os: linux
       compiler: gcc
       addons:
