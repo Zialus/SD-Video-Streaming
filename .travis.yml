@@ -1,23 +1,26 @@
 language: cpp
 sudo: required
 dist: trusty
-os: osx
-osx_image: xcode8.2
-
-compiler:
-  - clang
-  - gcc
-
-
-before_install:
-    - if [ "${TRAVIS_OS_NAME}" == "osx" ]; then brew update; fi
-    - if [ "${TRAVIS_OS_NAME}" == "osx" ]; then brew install ice; fi
 
 script:
     make
 
 matrix:
   include:
+    - os: osx
+      osx_image: xcode8.2
+      compiler: gcc
+      env: COMPILER=g++-6
+      before_install:
+        brew update
+        brew install ice gcc
+    - os: osx
+      osx_image: xcode8.2
+      compiler: clang
+      env: COMPILER=clang++
+      before_install:
+        brew update
+        brew install ice
     - os: linux
       compiler: gcc
       addons:
@@ -34,16 +37,11 @@ matrix:
         - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev
     - os: linux
       compiler: clang
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-3.8
-          packages:
-            - clang-3.8
-      env: COMPILER=clang++-3.8
+      env: COMPILER=clang++-3.9
       before_install:
         - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 5E6DA83306132997
         - sudo apt-add-repository "deb http://zeroc.com/download/apt/ubuntu$(lsb_release -rs) stable main"
+        - wget -O - http://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+        - sudo apt-add-repository "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-3.9 main"
         - sudo apt-get update
-        - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev
+        - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev clang-3.9
