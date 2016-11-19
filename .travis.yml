@@ -9,20 +9,16 @@ compiler:
   - clang
   - gcc
 
-addons:
- apt:
-  packages:
-   - zeroc-ice-all-runtime
-   - zeroc-ice-all-dev
+
 before_install:
     osx:
-        - brew update
-        - brew install ice
+        - if [ "${TRAVIS_OS_NAME}" == "osx" ]; then brew update; fi
+        - if [ "${TRAVIS_OS_NAME}" == "osx" ]; then brew install ice; fi
     linux:
-        - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 5E6DA83306132997
-        - sudo apt-add-repository "deb http://zeroc.com/download/apt/ubuntu$(lsb_release -rs) stable main"
-        - sudo apt-get update
-        - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev
+        - if [ "${TRAVIS_OS_NAME}" == "linux" ]; sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 5E6DA83306132997; fi
+        - if [ "${TRAVIS_OS_NAME}" == "linux" ]; sudo apt-add-repository "deb http://zeroc.com/download/apt/ubuntu$(lsb_release -rs) stable main"; fi
+        - if [ "${TRAVIS_OS_NAME}" == "linux" ]; sudo apt-get update; fi
+        - if [ "${TRAVIS_OS_NAME}" == "linux" ]; sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev; fi
 
 script:
     make
