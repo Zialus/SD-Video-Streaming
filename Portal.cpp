@@ -11,13 +11,12 @@ public:
     void receiveInfo(const Ice::Current&) override;
 };
 
-void Portal::registerStream(const PortalServerCommunication::StringSequence& registrationInfo, const Ice::Current&)
-{
-	for (auto it = registrationInfo.begin(); it != registrationInfo.end(); ++it)
-	{
-		cout << ' ' << *it;
+void Portal::registerStream(const PortalServerCommunication::StringSequence& registrationInfo, const Ice::Current&){
+	cout << "I'm a portal receiving the message" << endl;
+	for (auto it = registrationInfo.begin(); it != registrationInfo.end(); ++it){
+		cout << *it << ' ';
 	}
-	cout << '\n';
+	cout << endl << "Bye" << endl;
 }
 
 void Portal::closeStream(const Ice::Current&)

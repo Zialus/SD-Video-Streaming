@@ -1,5 +1,5 @@
 #include <Ice/Ice.h>
-#include <StreamServer.h>
+#include "StreamServer.h"
 
 using namespace std;
 using namespace PortalServerCommunication;
@@ -13,13 +13,22 @@ main(int argc, char* argv[])
         ic = Ice::initialize(argc, argv);
         Ice::ObjectPrx base = ic->stringToProxy("Portal:default -p 10000");
         CommunicationPrx portal = CommunicationPrx::checkedCast(base);
-        if (!portal)
-            throw "Invalid proxy";
+				if (!portal){
+					throw "Invalid proxy";
+				}
 
 				StringSequence registrationInfo;
-				registrationInfo.push_back("a");
-				registrationInfo.push_back("b");
-				registrationInfo.push_back("c");
+				registrationInfo.push_back("basketball");
+				registrationInfo.push_back("Cavs");
+				registrationInfo.push_back("indoor");
+				registrationInfo.push_back("sports");
+
+				cout << "I'm a Server sending the message" << endl;
+				for (auto it = registrationInfo.begin(); it != registrationInfo.end(); ++it){
+					cout << *it << ' ';
+				}
+				cout << endl << "Hello" << endl;
+
 				portal->registerStream(registrationInfo);
     } catch (const Ice::Exception& ex) {
         cerr << ex << endl;
@@ -28,7 +37,10 @@ main(int argc, char* argv[])
         cerr << msg << endl;
         status = 1;
     }
-    if (ic)
+
+    if (ic){
         ic->destroy();
+		}
+
     return status;
 }
