@@ -3,7 +3,8 @@ sudo: required
 dist: trusty
 
 script:
-    make
+    - make
+    - make test
 
 matrix:
   include:
@@ -37,14 +38,6 @@ matrix:
         - sudo apt-add-repository "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-3.9 main"
         - sudo apt-get update
         - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev clang-3.9
-    - os: osx
-      osx_image: xcode8.2
-      compiler: gcc
-      env: COMPILER=g++-6
-      before_install:
-        - brew update
-        - brew cask uninstall oclint
-        - brew install ice gcc
     - os: osx
       osx_image: xcode8.2
       compiler: clang
