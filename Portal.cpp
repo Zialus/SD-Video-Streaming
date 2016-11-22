@@ -6,9 +6,9 @@ using namespace FCUP;
 
 class Portal : public ServerPortalCommunication {
 public:
-    void registerStream(const FCUP::StringSequence&, const Ice::Current&) override;
-    void closeStream(const Ice::Current&) override;
-    void receiveInfo(const Ice::Current&) override;
+	void registerStream(const FCUP::StringSequence&, const Ice::Current&) override;
+	void closeStream(const Ice::Current&) override;
+	void receiveInfo(const Ice::Current&) override;
 };
 
 void Portal::registerStream(const FCUP::StringSequence& registrationInfo, const Ice::Current&){
@@ -32,29 +32,29 @@ void Portal::receiveInfo(const Ice::Current&)
 
 int main(int argc, char* argv[])
 {
-    int status = 0;
-    Ice::CommunicatorPtr ic;
-    try {
-        ic = Ice::initialize(argc, argv);
-        Ice::ObjectAdapterPtr adapter = ic->createObjectAdapterWithEndpoints("SimplePrinterAdapter", "default -p 10000");
-        Ice::ObjectPtr object = new Portal;
-        adapter->add(object, ic->stringToIdentity("Portal"));
-        adapter->activate();
-        ic->waitForShutdown();
-    } catch (const Ice::Exception& e) {
-        cerr << e << endl;
-        status = 1;
-    } catch (const char* msg) {
-        cerr << msg << endl;
-        status = 1;
-    }
-    if (ic) {
-        try {
-            ic->destroy();
-        } catch (const Ice::Exception& e) {
-            cerr << e << endl;
-            status = 1;
-        }
-    }
-    return status;
+	int status = 0;
+	Ice::CommunicatorPtr ic;
+	try {
+		ic = Ice::initialize(argc, argv);
+		Ice::ObjectAdapterPtr adapter = ic->createObjectAdapterWithEndpoints("SimplePrinterAdapter", "default -p 10000");
+		Ice::ObjectPtr object = new Portal;
+		adapter->add(object, ic->stringToIdentity("Portal"));
+		adapter->activate();
+		ic->waitForShutdown();
+	} catch (const Ice::Exception& e) {
+		cerr << e << endl;
+		status = 1;
+	} catch (const char* msg) {
+		cerr << msg << endl;
+		status = 1;
+	}
+	if (ic) {
+		try {
+			ic->destroy();
+		} catch (const Ice::Exception& e) {
+			cerr << e << endl;
+			status = 1;
+		}
+	}
+	return status;
 }
