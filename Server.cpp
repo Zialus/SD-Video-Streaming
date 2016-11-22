@@ -1,4 +1,5 @@
 #include <Ice/Ice.h>
+#include <IceUtil/UUID.h>
 #include "StreamServer.h"
 
 using namespace std;
@@ -17,19 +18,14 @@ main(int argc, char* argv[])
 			throw "Invalid proxy";
 		}
 
-		StringSequence registrationInfo;
-		registrationInfo.push_back("basketball");
-		registrationInfo.push_back("Cavs");
-		registrationInfo.push_back("indoor");
-		registrationInfo.push_back("sports");
+		StreamServerEntry allMyInfo;
 
-		cout << "I'm a Server sending the message" << endl;
-		for (auto it = registrationInfo.begin(); it != registrationInfo.end(); ++it){
-			cout << *it << ' ';
-		}
-		cout << endl << "Hello" << endl;
+		StringSequence keywords = {"basketball","Cavs","indoor","sports"};
+		allMyInfo.keywords = keywords;
+		allMyInfo.name = IceUtil::generateUUID();
 
-		portal->registerStream(registrationInfo);
+		portal->registerStreamServer(allMyInfo);
+
 	} catch (const Ice::Exception& ex) {
 		cerr << ex << endl;
 		status = 1;

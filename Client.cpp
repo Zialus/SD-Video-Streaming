@@ -17,7 +17,14 @@ main(int argc, char* argv[])
 			throw "Invalid proxy";
 		}
 
-		portal->receiveInfo();
+		StringSequence streamList = portal->sendStreamServersList();
+
+		cout << "---CLIENT START------" << endl;
+		for (auto it = streamList.begin(); it != streamList.end(); ++it) {
+			cout << *it << ' ';
+		}
+		cout << endl << "----CLIENT END-------" << endl;
+
 	} catch (const Ice::Exception& ex) {
 		cerr << ex << endl;
 		status = 1;

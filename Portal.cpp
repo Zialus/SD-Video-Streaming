@@ -9,19 +9,24 @@ StringSequence list_of_stream_servers;
 class Portal : public PortalCommunication
 {
 public:
-	void registerStream(const FCUP::StringSequence&, const Ice::Current&) override;
+	void registerStreamServer(const FCUP::StreamServerEntry&, const Ice::Current&) override;
 	void closeStream(const Ice::Current&) override;
 	void receiveInfo(const Ice::Current&) override;
 
 	StringSequence sendStreamServersList(const Ice::Current&) override;
 };
 
-void Portal::registerStream(const FCUP::StringSequence& registrationInfo, const Ice::Current&){
-	cout << "I'm a portal receiving the message" << endl;
-	for (auto it = registrationInfo.begin(); it != registrationInfo.end(); ++it){
+void Portal::registerStreamServer(const FCUP::StreamServerEntry& sse, const Ice::Current&){
+
+	string server_name = sse.name;
+	list_of_stream_servers.push_back(server_name);
+
+	cout << "I'm a portal printing some keywords for the lulz" << endl;
+	for (auto it = sse.keywords.begin(); it != sse.keywords.end(); ++it){
 		cout << *it << ' ';
 	}
 	cout << endl << "Bye" << endl;
+
 }
 
 void Portal::closeStream(const Ice::Current&)

@@ -16,12 +16,18 @@ module FCUP{
 		StringSequence keywords;
 	};
 
-	interface PortalCommunication {
-		void registerStream(StringSequence sr);
+	interface PortalServerCommunication {
+		void registerStreamServer(StreamServerEntry sse);
 		void closeStream();
 		void receiveInfo();
+	};
 
+	interface PortalClientCommunication {
 		StringSequence sendStreamServersList();
+	};
+
+	interface PortalCommunication extends PortalServerCommunication, PortalClientCommunication {
+
 	};
 
 };
