@@ -31,3 +31,4 @@ StreamServer.cpp
 StreamServer.h
 portal
 server
+client
