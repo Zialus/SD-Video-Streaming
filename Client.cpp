@@ -17,19 +17,7 @@ main(int argc, char* argv[])
 			throw "Invalid proxy";
 		}
 
-		StringSequence registrationInfo;
-		registrationInfo.push_back("basketball");
-		registrationInfo.push_back("Cavs");
-		registrationInfo.push_back("indoor");
-		registrationInfo.push_back("sports");
-
-		cout << "I'm a Server sending the message" << endl;
-		for (auto it = registrationInfo.begin(); it != registrationInfo.end(); ++it){
-			cout << *it << ' ';
-		}
-		cout << endl << "Hello" << endl;
-
-		portal->registerStream(registrationInfo);
+		portal->receiveInfo();
 	} catch (const Ice::Exception& ex) {
 		cerr << ex << endl;
 		status = 1;

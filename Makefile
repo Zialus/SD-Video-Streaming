@@ -1,7 +1,7 @@
 # COMPILER = clang++
 FLAGS = -std=c++14 -Wall -Wextra -Wpedantic
 
-SRCS = Portal.cpp Server.cpp StreamServer.cpp
+SRCS = Portal.cpp Server.cpp Client.cpp StreamServer.cpp
 
 OBJS = $(patsubst %.cpp,%.o,$(SRCS))
 
@@ -22,6 +22,9 @@ portal: $(SLICE) $(OBJS)
 
 server: $(SLICE) $(OBJS)
 	$(COMPILER) $(FLAGS) -o server Server.o StreamServer.o -lIce -lIceUtil -lpthread
+
+client: $(SLICE) $(OBJS)
+	$(COMPILER) $(FLAGS) -o client Client.o StreamServer.o -lIce -lIceUtil -lpthread
 
 clean:
 	rm -rf *.o StreamServer.h StreamServer.cpp $(EXECS)

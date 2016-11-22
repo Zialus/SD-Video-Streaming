@@ -4,11 +4,16 @@
 using namespace std;
 using namespace FCUP;
 
-class Portal : public ServerPortalCommunication {
+StringSequence list_of_stream_servers;
+
+class Portal : public PortalCommunication
+{
 public:
 	void registerStream(const FCUP::StringSequence&, const Ice::Current&) override;
 	void closeStream(const Ice::Current&) override;
 	void receiveInfo(const Ice::Current&) override;
+
+	StringSequence sendStreamServersList(const Ice::Current&) override;
 };
 
 void Portal::registerStream(const FCUP::StringSequence& registrationInfo, const Ice::Current&){
@@ -29,6 +34,11 @@ void Portal::receiveInfo(const Ice::Current&)
 
 }
 
+StringSequence Portal::sendStreamServersList(const Ice::Current&)
+{
+	return list_of_stream_servers;
+}
+
 
 int main(int argc, char* argv[])
 {
@@ -36,7 +46,7 @@ int main(int argc, char* argv[])
 	Ice::CommunicatorPtr ic;
 	try {
 		ic = Ice::initialize(argc, argv);
-		Ice::ObjectAdapterPtr adapter = ic->createObjectAdapterWithEndpoints("SimplePrinterAdapter", "default -p 10000");
+		Ice::ObjectAdapterPtr adapter = ic->createObjectAdapterWithEndpoints("PortalAdapter", "default -p 10000");
 		Ice::ObjectPtr object = new Portal;
 		adapter->add(object, ic->stringToIdentity("Portal"));
 		adapter->activate();
