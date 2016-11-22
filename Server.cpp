@@ -2,7 +2,7 @@
 #include "StreamServer.h"
 
 using namespace std;
-using namespace PortalServerCommunication;
+using namespace FCUP;
 
 int
 main(int argc, char* argv[])
@@ -12,7 +12,7 @@ main(int argc, char* argv[])
     try {
         ic = Ice::initialize(argc, argv);
         Ice::ObjectPrx base = ic->stringToProxy("Portal:default -p 10000");
-        CommunicationPrx portal = CommunicationPrx::checkedCast(base);
+        ServerPortalCommunicationPrx portal = ServerPortalCommunicationPrx::checkedCast(base);
 				if (!portal){
 					throw "Invalid proxy";
 				}

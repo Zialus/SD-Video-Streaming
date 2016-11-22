@@ -2,16 +2,16 @@
 #include "StreamServer.h"
 
 using namespace std;
-using namespace PortalServerCommunication;
+using namespace FCUP;
 
-class Portal : public Communication {
+class Portal : public ServerPortalCommunication {
 public:
-    void registerStream(const PortalServerCommunication::StringSequence&, const Ice::Current&) override;
+    void registerStream(const FCUP::StringSequence&, const Ice::Current&) override;
     void closeStream(const Ice::Current&) override;
     void receiveInfo(const Ice::Current&) override;
 };
 
-void Portal::registerStream(const PortalServerCommunication::StringSequence& registrationInfo, const Ice::Current&){
+void Portal::registerStream(const FCUP::StringSequence& registrationInfo, const Ice::Current&){
 	cout << "I'm a portal receiving the message" << endl;
 	for (auto it = registrationInfo.begin(); it != registrationInfo.end(); ++it){
 		cout << *it << ' ';

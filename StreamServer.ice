@@ -1,4 +1,4 @@
-module PortalServerCommunication{
+module FCUP{
 
     sequence<string> StringSequence;
 
@@ -8,7 +8,7 @@ module PortalServerCommunication{
         string port;
     };
 
-    struct StreamerRegistration {
+    struct StreamServerEntry {
         string name;
         Endpoint endpoint;
         string videoSize;
@@ -16,10 +16,14 @@ module PortalServerCommunication{
         StringSequence keywords;
     };
 
-    interface Communication {
+    interface ServerPortalCommunication {
         void registerStream(StringSequence sr);
         void closeStream();
         void receiveInfo();
     };
+
+		interface ClientPortalCommunication{
+			void getStreams();
+		};
 
 };
