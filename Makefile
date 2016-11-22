@@ -5,7 +5,7 @@ SRCS = Portal.cpp Server.cpp Client.cpp StreamServer.cpp
 
 OBJS = $(patsubst %.cpp,%.o,$(SRCS))
 
-EXECS = portal server
+EXECS = portal server client
 
 SLICE = StreamServer.h StreamServer.cpp
 
