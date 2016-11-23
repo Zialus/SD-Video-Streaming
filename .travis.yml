@@ -18,7 +18,7 @@ matrix:
             - g++-6
       env:
         - COMPILER=g++-6
-        - LIBS=-stdlib=libstdc++6
+        - EXTRAFLAGS=-stdlib=libstdc++6
       before_install:
         - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 5E6DA83306132997
         - sudo apt-add-repository "deb http://zeroc.com/download/apt/ubuntu$(lsb_release -rs) stable main"
@@ -39,7 +39,7 @@ matrix:
         - wget -O - http://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
         - sudo apt-add-repository "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-3.9 main"
         - sudo apt-get update
-        - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev clang-3.9 libc++dev
+        - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev clang-3.9 libc++-dev
     - os: osx
       osx_image: xcode8.2
       compiler: clang
