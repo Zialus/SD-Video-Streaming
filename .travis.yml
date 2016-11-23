@@ -21,10 +21,10 @@ matrix:
       before_install:
         - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 5E6DA83306132997
         - sudo apt-add-repository "deb http://zeroc.com/download/apt/ubuntu$(lsb_release -rs) stable main"
-        - sudo add-apt-repository ppa:mc3man/trusty-media
-        - sudo apt-get update
+        - sudo add-apt-repository ppa:mc3man/trusty-media -y
+        - sudo apt-get update -y
         - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev ffmpeg
-        - sudo apt-get upgrade
+        - sudo apt-get upgrade -y
     - os: linux
       compiler: clang
       addons:
@@ -42,10 +42,10 @@ matrix:
         - sudo apt-add-repository "deb http://zeroc.com/download/apt/ubuntu$(lsb_release -rs) stable main"
         - wget -O - http://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
         - sudo apt-add-repository "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-3.9 main"
-        - sudo add-apt-repository ppa:mc3man/trusty-media
-        - sudo apt-get update
+        - sudo add-apt-repository ppa:mc3man/trusty-media -y
+        - sudo apt-get update -y
         - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev clang-3.9 libc++-dev ffmpeg
-        - sudo apt-get upgrade
+        - sudo apt-get upgrade -y
 
     - os: osx
       osx_image: xcode8.2
