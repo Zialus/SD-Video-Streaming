@@ -42,7 +42,7 @@ matrix:
         - sudo apt-add-repository "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-3.9 main"
         - sudo add-apt-repository ppa:mc3man/trusty-media -y
         - sudo apt-get update -y
-        - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev clang-3.9 libc++-dev ffmpeg
+        - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev clang-3.9 libc++-dev libc++abi-dev ffmpeg
     - os: osx
       osx_image: xcode8.2
       compiler: clang
