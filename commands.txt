@@ -1,0 +1,1 @@
+ffmpeg -i /home/tiaghoul/Downloads/Popeye_forPresident_512kb.mp4 -loglevel warning -analyzeduration 500k -probesize 500k -r 30 -s 640x360 -c:v libx264 -preset ultrafast -pix_fmt yuv420p -tune zerolatency -preset ultrafast -b:v 500k -g 30 -c:a flac -profile:a aac_he -b:a 32k -f mpegts tcp://127.0.0.1:10000?listen=1

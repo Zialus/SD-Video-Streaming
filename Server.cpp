@@ -1,6 +1,9 @@
 #include <Ice/Ice.h>
 #include <IceUtil/UUID.h>
+#include <sys/wait.h>
+#include <fstream>
 #include "StreamServer.h"
+#include "Auxiliary.h"
 
 using namespace std;
 using namespace FCUP;
@@ -34,13 +37,29 @@ main(int argc, char* argv[])
 
 		if ( pid == 0 ) {
 
-			char* argv[200] = {"ffmpeg","-i","~/Downloads/Popeye_forPresident_512kb.mp4","-loglevel","warning","-analyzeduration","500k","-probesize","500k","-r","30","-s","640x360","-c:v","libx264","-preset","ultrafast","-pix_fmt","yuv420p","-tune","zerolatency","-preset","ultrafast","-b:v","500k","-g","30","-c:a","flac","-profile:a","aac_he","-b:a","32k","-f","mpegts","tcp://127.0.0.1:10000?listen=1",NULL};
-
-			for (int i = 0; argv[i] != NULL; ++i)
-			{
-				printf("|%s|\n",argv[i]);
+			char** strings = NULL;
+			size_t count = 0;
+			char string[1000];
+			ifstream file(argv[1]);
+			if(file.is_open()){
+				file >> string;
+				while (!file.eof() ) {
+					AddString(&strings, &count, string);
+					file >> string;
+				}
+				file.close();
+			} else{
+				cout << "File could not be opened." << endl;
 			}
-			execvp(argv[0], argv);
+			AddString(&strings, &count, NULL);
+
+			// char* argv[200] = {"ffmpeg","-i","/home/tiaghoul/Downloads/Popeye_forPresident_512kb.mp4","-loglevel","warning","-analyzeduration","500k","-probesize","500k","-r","30","-s","640x360","-c:v","libx264","-preset","ultrafast","-pix_fmt","yuv420p","-tune","zerolatency","-preset","ultrafast","-b:v","500k","-g","30","-c:a","flac","-profile:a","aac_he","-b:a","32k","-f","mpegts","tcp://127.0.0.1:10000?listen=1",NULL};
+
+			for (int i = 0; strings[i] != NULL; ++i)
+			{
+				printf("|%s|\n",strings[i]);
+			}
+			execvp(strings[0], strings);
 		} else {
 			wait(NULL);
 		}

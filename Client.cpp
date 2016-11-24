@@ -1,5 +1,7 @@
 #include <Ice/Ice.h>
 #include "StreamServer.h"
+#include "Auxiliary.h"
+#include <sys/wait.h>
 
 using namespace std;
 using namespace FCUP;
@@ -30,16 +32,22 @@ main(int argc, char* argv[])
 			perror("fork failed");
 			return 1;
 		}
-		
+
 		if ( pid == 0 ) {
 
-			char* argv[3] = {"ffplay","tcp://127.0.0.1:10000",NULL};
+			char** strings = NULL;
+			size_t count = 0;
+			AddString(&strings, &count, "ffplay");
+			AddString(&strings, &count, "tcp://127.0.0.1:10000");
+			AddString(&strings, &count, NULL);
 
-			for (int i = 0; argv[i] != NULL; ++i)
+			// char* argv[3] = {"ffplay","tcp://127.0.0.1:10000",NULL};
+
+			for (int i = 0; strings[i] != NULL; ++i)
 			{
-				printf("|%s|\n",argv[i]);
+				printf("|%s|\n",strings[i]);
 			}
-			execvp(argv[0], argv);
+			execvp(strings[0], strings);
 		} else {
 			wait(NULL);
 		}
