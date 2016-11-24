@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
 	Ice::CommunicatorPtr ic;
 	try {
 		ic = Ice::initialize(argc, argv);
-		Ice::ObjectAdapterPtr adapter = ic->createObjectAdapterWithEndpoints("PortalAdapter", "default -p 10000");
+		Ice::ObjectAdapterPtr adapter = ic->createObjectAdapterWithEndpoints("PortalAdapter", "default -p 9999");
 		Ice::ObjectPtr object = new Portal;
 		adapter->add(object, ic->stringToIdentity("Portal"));
 		adapter->activate();
