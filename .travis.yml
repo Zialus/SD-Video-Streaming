@@ -49,4 +49,5 @@ matrix:
       env: COMPILER=clang++
       before_install:
         - brew update
-        - brew install ice ffmpeg
+        - brew install ice
+        - brew install ffmpeg --with-sdl2
