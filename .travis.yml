@@ -16,6 +16,7 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-6
+            - g++-4.9
       env:
         - COMPILER=g++-6
       before_install:
@@ -32,6 +33,7 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-6
+            - g++-4.9
       env:
         - COMPILER=clang++-3.9
         - EXTRAFLAGS=-stdlib=libc++
@@ -50,4 +52,4 @@ matrix:
       before_install:
         - brew update
         - brew install ice
-        - brew install ffmpeg --with-sdl2
+        - brew install ffmpeg
