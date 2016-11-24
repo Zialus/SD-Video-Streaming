@@ -26,7 +26,11 @@ main(int argc, char* argv[])
 		cout << endl << "----CLIENT END-------" << endl;
 
 		int pid = fork();
-
+		if ( pid < 0 ) {
+			perror("fork failed");
+			return 1;
+		}
+		
 		if ( pid == 0 ) {
 
 			char* argv[3] = {"ffplay","tcp://127.0.0.1:10000",NULL};
