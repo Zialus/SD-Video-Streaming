@@ -24,7 +24,6 @@ matrix:
         - sudo add-apt-repository ppa:mc3man/trusty-media -y
         - sudo apt-get update -y
         - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev ffmpeg
-        - sudo apt-get upgrade -y
     - os: linux
       compiler: clang
       addons:
@@ -33,7 +32,6 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-6
-            - ffmpeg
       env:
         - COMPILER=clang++-3.9
         - EXTRAFLAGS=-stdlib=libc++
@@ -45,8 +43,6 @@ matrix:
         - sudo add-apt-repository ppa:mc3man/trusty-media -y
         - sudo apt-get update -y
         - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev clang-3.9 libc++-dev ffmpeg
-        - sudo apt-get upgrade -y
-
     - os: osx
       osx_image: xcode8.2
       compiler: clang
