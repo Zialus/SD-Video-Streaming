@@ -10,12 +10,12 @@ cd
 
 ./portal 1> /dev/null 2> ~/VideoStreamerFCUP_Logs/portal.txt &
 sleep 1
-./server commands.txt 1> /dev/null 2> ~/VideoStreamerFCUP_Logs/server.txt &
+./server localhost 10002 commands.txt # 1> /dev/null 2> ~/VideoStreamerFCUP_Logs/server.txt &
 sleep 1
 ./client 1> /dev/null 2> ~/VideoStreamerFCUP_Logs/client.txt &
 sleep 4
-killall portal
-killall server
-killall client
-sleep 2
-killall ffplay
+# killall portal
+# killall server
+# killall client
+# sleep 2
+# killall ffplay
