@@ -18,7 +18,7 @@ matrix:
             - g++-6
       env:
         - COMPILER=g++-6
-        - EXTRAFLAGS=-L /usr/lib/x86_64-linux-gnu/c++11/
+        - EXTRALIBS=-L /usr/lib/x86_64-linux-gnu/c++11/
       before_install:
         - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 5E6DA83306132997
         - sudo apt-add-repository "deb http://zeroc.com/download/apt/ubuntu$(lsb_release -rs) stable main"
@@ -35,7 +35,7 @@ matrix:
             - g++-6
       env:
         - COMPILER=clang++-3.9
-        - EXTRAFLAGS=-L /usr/lib/x86_64-linux-gnu/c++11/
+        - EXTRALIBS=-L /usr/lib/x86_64-linux-gnu/c++11/
       before_install:
         - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 5E6DA83306132997
         - sudo apt-add-repository "deb http://zeroc.com/download/apt/ubuntu$(lsb_release -rs) stable main"
