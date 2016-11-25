@@ -1,6 +1,6 @@
 # COMPILER = clang++
-FLAGS = -std=c++14 -Wall -Wextra -Wpedantic $(EXTRAFLAGS)
-LIBS = -lIce -lIceUtil -lpthread
+FLAGS = -std=c++11 -Wall -Wextra -Wpedantic $(EXTRAFLAGS)
+LIBS = -lIce -lIceUtil -lpthread (EXTRALIBS)
 SRCS = Portal.cpp Server.cpp Client.cpp StreamServer.cpp
 
 OBJS = $(patsubst %.cpp,%.o,$(SRCS))

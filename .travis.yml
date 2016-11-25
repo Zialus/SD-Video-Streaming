@@ -16,9 +16,9 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-6
-            - g++-4.9
       env:
         - COMPILER=g++-6
+        - EXTRAFLAGS=-L /usr/lib/x86_64-linux-gnu/c++11/
       before_install:
         - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 5E6DA83306132997
         - sudo apt-add-repository "deb http://zeroc.com/download/apt/ubuntu$(lsb_release -rs) stable main"
@@ -33,10 +33,9 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-6
-            - g++-4.9
       env:
         - COMPILER=clang++-3.9
-        - EXTRAFLAGS=-stdlib=libc++
+        - EXTRAFLAGS=-L /usr/lib/x86_64-linux-gnu/c++11/
       before_install:
         - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 5E6DA83306132997
         - sudo apt-add-repository "deb http://zeroc.com/download/apt/ubuntu$(lsb_release -rs) stable main"
