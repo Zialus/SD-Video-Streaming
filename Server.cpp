@@ -86,12 +86,14 @@ main(int argc, char* argv[])
 
 		} else { // Parent will only start executing after child calls execvp because we are using vfork()
 
+			sleep(2);
+
 			int socket_to_receive_video_fd, port_number_to_receive_video;
 			int number_of_written_elements;
 			struct sockaddr_in ffmpeg_server_address;
 			struct hostent *ffmpeg_server;
 
-			char buffer[256];
+			char ffmpeg_buffer[256];
 
 			// argv[2] contains port number for the server
 			port_number_to_receive_video = atoi(argv[2]);
@@ -124,57 +126,61 @@ main(int argc, char* argv[])
 				exit(1);
 			}
 
-			number_of_written_elements = read(socket_to_receive_video_fd,buffer,255);
-			if (number_of_written_elements < 0){
-				perror("ERROR reading from socket");
+
+//-------------------------------//
+
+			//SERVER PART
+			int server_socket_fd, new_socket_fd;
+			socklen_t client_adress_size;
+			struct sockaddr_in server_address, client_address;
+
+			//open socket
+			server_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+			if (server_socket_fd < 0){
+				perror("ERROR opening socket");
 				exit(1);
 			}
-			printf("%s",buffer);
 
-			// //SERVER PART
-			// int socket_fd, new_socket_fd, port_number, n;
-			// socklen_t client_adress_size;
-			// char buffer[256];
-			// struct sockaddr_in server_address, client_address;
-			
-			// //open socket
-			// socket_fd = socket(AF_INET, SOCK_STREAM, 0);
-			// if (socket_fd < 0){
-			// 	perror("ERROR opening socket");
-			// 	exit(1);
-			// }
+			// set all values in server_adress to 0
+			bzero((char *) &server_address, sizeof(server_address));
+			// argv[1] contains port number for the server
+			int port_number = 10066;
+			server_address.sin_family = AF_INET;
+			server_address.sin_port = htons(port_number);
+			server_address.sin_addr.s_addr = INADDR_ANY;
 
-			// // set all values in server_adress to 0
-			// bzero((char *) &server_address, sizeof(server_address));
-			// // argv[1] contains port number for the server
-			// port_number = atoi(argv[1]);
-			// server_address.sin_family = AF_INET;
-			// server_address.sin_port = htons(port_number);
-			// server_address.sin_addr.s_addr = INADDR_ANY;
+			int bind_result = bind(server_socket_fd, (struct sockaddr *) &server_address, sizeof(server_address));
 
-			// int bind_result = bind(socket_fd, (struct sockaddr *) &server_address, sizeof(server_address));
+			if ( bind_result < 0 ){
+				perror("ERROR on binding");
+				exit(1);
+			}
 
-			// if ( bind_result < 0 ){
-			// 	perror("ERROR on binding");
-			// 	exit(1);
-			// }
+			listen(server_socket_fd,5);
 
-			// listen(socket_fd,5);
+			client_adress_size = sizeof(client_address);
+			new_socket_fd = accept(server_socket_fd, (struct sockaddr *) &client_address, &client_adress_size);
+			if (new_socket_fd < 0){
+				perror("ERROR on accept");
+				exit(1);
+			}
 
-			// client_adress_size = sizeof(client_address);
-			// new_socket_fd = accept(socket_fd, (struct sockaddr *) &client_address, &client_adress_size);
-			// if (new_socket_fd < 0){
-			// 	perror("ERROR on accept");
-			// 	exit(1);
-			// }
 
-			// bzero(buffer,256);
-			// n = read(new_socket_fd,buffer,255);
-			// if (n < 0){
-			// 	perror("ERROR reading from socket");
-			// 	exit(1);
-			// }
-			// printf("Here is the message: %s",buffer);
+			while (true) {
+
+				number_of_written_elements = read(socket_to_receive_video_fd,ffmpeg_buffer,255);
+				if (number_of_written_elements < 0){
+					perror("ERROR reading from socket");
+					exit(1);
+				}
+
+
+				number_of_written_elements = write(new_socket_fd,ffmpeg_buffer,255);
+				if (number_of_written_elements < 0){
+					perror("ERROR reading from socket");
+					exit(1);
+				}
+			}
 
 		}
 
