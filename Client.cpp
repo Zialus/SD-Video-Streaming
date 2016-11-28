@@ -38,7 +38,16 @@ main(int argc, char* argv[])
 			char** strings = NULL;
 			size_t count = 0;
 			AddString(&strings, &count, "ffplay");
-			AddString(&strings, &count, "tcp://127.0.0.1:10000");
+
+			char* hostname = argv[1];
+			int port = atoi(argv[2]);
+			stringstream ss;
+			ss << "tcp://" << hostname << ":" << port;
+
+			const std::string& tmp = ss.str();
+			const char* cstr = tmp.c_str();
+
+			AddString(&strings, &count, cstr );
 			AddString(&strings, &count, NULL);
 
 			// char* argv[3] = {"ffplay","tcp://127.0.0.1:10000",NULL};
