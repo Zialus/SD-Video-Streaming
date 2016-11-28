@@ -89,21 +89,23 @@ main(int argc, char* argv[])
 			int socket_to_receive_video_fd, port_number_to_receive_video;
 			int number_of_written_elements;
 			struct sockaddr_in ffmpeg_server_address;
-			struct hostent *server;
+			struct hostent *ffmpeg_server;
 
 			char buffer[256];
 
-			// argv[1] contains port number for the server
+			// argv[2] contains port number for the server
 			port_number_to_receive_video = atoi(argv[2]);
 
 			socket_to_receive_video_fd = socket(AF_INET, SOCK_STREAM, 0);
-			if (socket_to_receive_video_fd < 0){
+			if (socket_to_receive_video_fd < 0)
+			{
 				perror("ERROR opening socket");
 				exit(1);
 			}
 
-			server = gethostbyname(argv[1]);
-			if (server == NULL)
+			// argv[1] contains name of the server
+			ffmpeg_server = gethostbyname(argv[1]);
+			if (ffmpeg_server == NULL)
 			{
 				fprintf(stderr,"ERROR, no such host");
 				exit(0);
@@ -111,10 +113,13 @@ main(int argc, char* argv[])
 
 			bzero( (char *) &ffmpeg_server_address, sizeof(ffmpeg_server_address) );
 			ffmpeg_server_address.sin_family = AF_INET;
-			bcopy( (char *)server->h_addr, (char *)&ffmpeg_server_address.sin_addr.s_addr, server->h_length );
+			bcopy( (char *) ffmpeg_server->h_addr, (char *) &ffmpeg_server_address.sin_addr.s_addr, ffmpeg_server->h_length );
 			ffmpeg_server_address.sin_port = htons(port_number_to_receive_video);
 
-			if ( connect(socket_to_receive_video_fd, (const struct sockaddr *) &ffmpeg_server_address,sizeof(ffmpeg_server_address) ) < 0){
+			printf("|%u|\n", ffmpeg_server_address.sin_addr.s_addr);
+
+			if ( connect(socket_to_receive_video_fd, (struct sockaddr *) &ffmpeg_server_address, sizeof(ffmpeg_server_address) ) < 0)
+			{
 				perror("ERROR connecting");
 				exit(1);
 			}
