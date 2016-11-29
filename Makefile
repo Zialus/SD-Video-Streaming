@@ -1,5 +1,5 @@
 # COMPILER = clang++
-FLAGS = -std=c++11 -Wall -Wextra -Wpedantic $(EXTRAFLAGS)
+FLAGS = -std=c++11 -Wall -Wextra -Wpedantic $(EXTRAFLAGS) -g
 LIBS = -lIce -lIceUtil -lpthread $(EXTRALIBS)
 SRCS = Portal.cpp Server.cpp Client.cpp StreamServer.cpp
 

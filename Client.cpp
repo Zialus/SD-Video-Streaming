@@ -50,8 +50,6 @@ main(int argc, char* argv[])
 			AddString(&strings, &count, cstr );
 			AddString(&strings, &count, NULL);
 
-			// char* argv[3] = {"ffplay","tcp://127.0.0.1:10000",NULL};
-
 			for (int i = 0; strings[i] != NULL; ++i)
 			{
 				printf("|%s|\n",strings[i]);

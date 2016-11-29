@@ -8,6 +8,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <fcntl.h> /* Added for the nonblocking socket */
 
 // C++
 #include <fstream>
@@ -18,8 +19,15 @@
 
 using namespace FCUP;
 
-int
-main(int argc, char* argv[])
+void sendVideoTo(int socket, char* ffmpeg_buffer) {
+	int number_of_written_elements = write(socket,ffmpeg_buffer,255);
+	if (number_of_written_elements < 0){
+		perror("ERROR reading from socket");
+		exit(1);
+	}
+}
+
+int main(int argc, char* argv[])
 {
 
 	if (argc < 4)
@@ -58,7 +66,7 @@ main(int argc, char* argv[])
 			size_t count = 0;
 			char string[1000];
 
-			// argv[2] contains txt file with ffmpeg options
+			// argv[3] contains txt file with ffmpeg options
 			std::ifstream file(argv[3]);
 
 			if(file.is_open()){
@@ -86,7 +94,7 @@ main(int argc, char* argv[])
 
 		} else { // Parent will only start executing after child calls execvp because we are using vfork()
 
-			sleep(2);
+			sleep(5);
 
 			int socket_to_receive_video_fd, port_number_to_receive_video;
 			int number_of_written_elements;
@@ -127,10 +135,10 @@ main(int argc, char* argv[])
 			}
 
 
-//-------------------------------//
+			//-------------------------------//
 
 			//SERVER PART
-			int server_socket_fd, new_socket_fd;
+			int server_socket_fd;
 			socklen_t client_adress_size;
 			struct sockaddr_in server_address, client_address;
 
@@ -158,15 +166,21 @@ main(int argc, char* argv[])
 
 			listen(server_socket_fd,5);
 
-			client_adress_size = sizeof(client_address);
-			new_socket_fd = accept(server_socket_fd, (struct sockaddr *) &client_address, &client_adress_size);
-			if (new_socket_fd < 0){
-				perror("ERROR on accept");
-				exit(1);
-			}
+			std::vector<int> socketlist;
 
+			client_adress_size = sizeof(client_address);
 
 			while (true) {
+
+				int new_socket_fd = accept(server_socket_fd, (struct sockaddr *) &client_address, &client_adress_size);
+				if (new_socket_fd < 0){
+					perror("ERROR on accept");
+					exit(1);
+				}
+
+				fcntl(new_socket_fd, F_SETFL, O_NONBLOCK); /* Change the socket into non-blocking state	*/
+
+				socketlist.push_back(new_socket_fd);
 
 				number_of_written_elements = read(socket_to_receive_video_fd,ffmpeg_buffer,255);
 				if (number_of_written_elements < 0){
@@ -174,12 +188,10 @@ main(int argc, char* argv[])
 					exit(1);
 				}
 
-
-				number_of_written_elements = write(new_socket_fd,ffmpeg_buffer,255);
-				if (number_of_written_elements < 0){
-					perror("ERROR reading from socket");
-					exit(1);
+				for(int socket: socketlist){
+					sendVideoTo(socket, ffmpeg_buffer);
 				}
+
 			}
 
 		}

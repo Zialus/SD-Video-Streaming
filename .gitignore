@@ -32,3 +32,5 @@ StreamServer.h
 portal
 server
 client
+.idea/
+cmake-build-debug/
