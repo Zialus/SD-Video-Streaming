@@ -3,7 +3,6 @@
 #include "Auxiliary.h"
 #include <sys/wait.h>
 
-using namespace std;
 using namespace FCUP;
 
 int
@@ -21,11 +20,11 @@ main(int argc, char* argv[])
 
 		StringSequence streamList = portal->sendStreamServersList();
 
-		cout << "---CLIENT START------" << endl;
+		std::cout << "---CLIENT START------" << std::endl;
 		for (auto it = streamList.begin(); it != streamList.end(); ++it) {
-			cout << *it << ' ';
+			std::cout << *it << ' ';
 		}
-		cout << endl << "----CLIENT END-------" << endl;
+		std::cout << std::endl << "----CLIENT END-------" << std::endl;
 
 		int pid = fork();
 		if ( pid < 0 ) {
@@ -41,7 +40,7 @@ main(int argc, char* argv[])
 
 			char* hostname = argv[1];
 			int port = atoi(argv[2]);
-			stringstream ss;
+			std::stringstream ss;
 			ss << "tcp://" << hostname << ":" << port;
 
 			const std::string& tmp = ss.str();
@@ -60,10 +59,10 @@ main(int argc, char* argv[])
 		}
 
 	} catch (const Ice::Exception& ex) {
-		cerr << ex << endl;
+		std::cerr << ex << std::endl;
 		status = 1;
 	} catch (const char* msg) {
-		cerr << msg << endl;
+		std::cerr << msg << std::endl;
 		status = 1;
 	}
 

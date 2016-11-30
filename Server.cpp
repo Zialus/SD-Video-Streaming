@@ -94,8 +94,6 @@ int main(int argc, char* argv[])
 
 		} else { // Parent will only start executing after child calls execvp because we are using vfork()
 
-			sleep(5);
-
 			int socket_to_receive_video_fd, port_number_to_receive_video;
 			int number_of_written_elements;
 			struct sockaddr_in ffmpeg_server_address;
@@ -128,16 +126,16 @@ int main(int argc, char* argv[])
 
 			printf("|%u|\n", ffmpeg_server_address.sin_addr.s_addr);
 
-			if ( connect(socket_to_receive_video_fd, (struct sockaddr *) &ffmpeg_server_address, sizeof(ffmpeg_server_address) ) < 0)
+
+			while ( connect(socket_to_receive_video_fd, (struct sockaddr *) &ffmpeg_server_address, sizeof(ffmpeg_server_address) ) < 0)
 			{
 				perror("ERROR connecting");
-				exit(1);
+				sleep(2);
 			}
 
 
-			//-------------------------------//
+			//--------------SERVER PART-----------------//
 
-			//SERVER PART
 			int server_socket_fd;
 			socklen_t client_adress_size;
 			struct sockaddr_in server_address, client_address;
@@ -166,7 +164,7 @@ int main(int argc, char* argv[])
 
 			listen(server_socket_fd,5);
 
-			std::vector<int> socketlist;
+			std::list<int> socketList;
 
 			client_adress_size = sizeof(client_address);
 
@@ -180,7 +178,7 @@ int main(int argc, char* argv[])
 
 				fcntl(new_socket_fd, F_SETFL, O_NONBLOCK); /* Change the socket into non-blocking state	*/
 
-				socketlist.push_back(new_socket_fd);
+				socketList.push_back(new_socket_fd);
 
 				number_of_written_elements = read(socket_to_receive_video_fd,ffmpeg_buffer,255);
 				if (number_of_written_elements < 0){
@@ -188,7 +186,7 @@ int main(int argc, char* argv[])
 					exit(1);
 				}
 
-				for(int socket: socketlist){
+				for(int socket: socketList){
 					sendVideoTo(socket, ffmpeg_buffer);
 				}
 
