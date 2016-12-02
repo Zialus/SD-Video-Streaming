@@ -4,12 +4,11 @@ project(VideoStreaming-SD)
 
 set(CMAKE_VERBOSE_MAKEFILE true)
 
-message("COMPILER defined as:" ENV{COMPILER})
+message("COMPILER defined as:" $ENV{COMPILER})
 if(NOT DEFINED ENV{COMPILER})
     set(ENV{COMPILER} clang++)
     message(STATUS "COMPILER environment variable defined as clang++")
 endif()
-
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_COMPILER $ENV{COMPILER})
@@ -45,8 +44,6 @@ add_executable(server ${server_HDR} ${server_SRC} ${ice_HDR} ${ice_SRC})
 add_executable(client ${client_HDR} ${client_SRC} ${ice_HDR} ${ice_SRC})
 add_executable(portal ${portal_HDR} ${portal_SRC} ${ice_HDR} ${ice_SRC})
 
-LINK_DIRECTORIES(/usr/lib/x86_64-linux-gnu/c++11/)
-
-target_link_libraries(server ${Ice_LIBRARIES} pthread)
-target_link_libraries(client ${Ice_LIBRARIES} pthread)
-target_link_libraries(portal ${Ice_LIBRARIES} pthread)
+target_link_libraries(server ${Ice_LIBRARIES} pthread ${EXTRALIBS})
+target_link_libraries(client ${Ice_LIBRARIES} pthread ${EXTRALIBS})
+target_link_libraries(portal ${Ice_LIBRARIES} pthread ${EXTRALIBS})
