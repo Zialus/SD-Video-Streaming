@@ -5,6 +5,8 @@ project(VideoStreaming-SD)
 set(CMAKE_VERBOSE_MAKEFILE true)
 
 message("COMPILER defined as:" $ENV{COMPILER})
+message("EXTRALIBS defined as:" $ENV{EXTRALIBS})
+
 if(NOT DEFINED ENV{COMPILER})
     set(ENV{COMPILER} clang++)
     message(STATUS "COMPILER environment variable defined as clang++")
@@ -44,6 +46,6 @@ add_executable(server ${server_HDR} ${server_SRC} ${ice_HDR} ${ice_SRC})
 add_executable(client ${client_HDR} ${client_SRC} ${ice_HDR} ${ice_SRC})
 add_executable(portal ${portal_HDR} ${portal_SRC} ${ice_HDR} ${ice_SRC})
 
-target_link_libraries(server ${Ice_LIBRARIES} pthread ${EXTRALIBS})
-target_link_libraries(client ${Ice_LIBRARIES} pthread ${EXTRALIBS})
-target_link_libraries(portal ${Ice_LIBRARIES} pthread ${EXTRALIBS})
+target_link_libraries(server ${Ice_LIBRARIES} pthread $ENV{EXTRALIBS})
+target_link_libraries(client ${Ice_LIBRARIES} pthread $ENV{EXTRALIBS})
+target_link_libraries(portal ${Ice_LIBRARIES} pthread $ENV{EXTRALIBS})
