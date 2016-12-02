@@ -4,8 +4,15 @@ project(VideoStreaming-SD)
 
 set(CMAKE_VERBOSE_MAKEFILE true)
 
+message("COMPILER defined as:" ENV{COMPILER})
+if(NOT DEFINED ENV{COMPILER})
+    set(COMPILER clang++)
+    message(STATUS "COMPILER environment variable defined as clang++")
+endif()
+
+
 set(CMAKE_CXX_STANDARD 14)
-#set(CMAKE_CXX_COMPILER clang++)
+set(CMAKE_CXX_COMPILER ${COMPILER})
 
 find_package(Ice REQUIRED Ice IceUtil IceStorm)
 
@@ -37,6 +44,8 @@ SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/executables)
 add_executable(server ${server_HDR} ${server_SRC} ${ice_HDR} ${ice_SRC})
 add_executable(client ${client_HDR} ${client_SRC} ${ice_HDR} ${ice_SRC})
 add_executable(portal ${portal_HDR} ${portal_SRC} ${ice_HDR} ${ice_SRC})
+
+LINK_DIRECTORIES(/usr/lib/x86_64-linux-gnu/c++11/)
 
 target_link_libraries(server ${Ice_LIBRARIES} pthread)
 target_link_libraries(client ${Ice_LIBRARIES} pthread)
