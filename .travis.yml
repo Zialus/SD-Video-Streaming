@@ -3,8 +3,9 @@ sudo: required
 dist: trusty
 
 script:
-    - make
-    - make test
+    - mkdir build && cd build
+    - cmake .. && make
+    - cd .. && ./test.sh
 
 matrix:
   include:

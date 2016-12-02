@@ -15,7 +15,7 @@
 
 // My stuff
 #include "StreamServer.h"
-#include "Auxiliary.h"
+#include "../auxiliary/Auxiliary.h"
 
 using namespace FCUP;
 

@@ -27,10 +27,9 @@
 *.exe
 *.out
 *.app
-StreamServer.cpp
-StreamServer.h
-portal
-server
-client
+
 .idea/
 cmake-build-debug/
+executables/
+StreamServer.cpp
+StreamServer.h

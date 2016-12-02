@@ -1,7 +1,10 @@
 #include <Ice/Ice.h>
-#include "StreamServer.h"
-#include "Auxiliary.h"
+
 #include <sys/wait.h>
+
+// My stuff
+#include "StreamServer.h"
+#include "../auxiliary/Auxiliary.h"
 
 using namespace FCUP;
 
