@@ -6,13 +6,13 @@ set(CMAKE_VERBOSE_MAKEFILE true)
 
 message("COMPILER defined as:" ENV{COMPILER})
 if(NOT DEFINED ENV{COMPILER})
-    set(COMPILER clang++)
+    set(ENV{COMPILER} clang++)
     message(STATUS "COMPILER environment variable defined as clang++")
 endif()
 
 
 set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_COMPILER ${COMPILER})
+set(CMAKE_CXX_COMPILER $ENV{COMPILER})
 
 find_package(Ice REQUIRED Ice IceUtil IceStorm)
 
