@@ -10,7 +10,7 @@ cd -
 
 ./executables/portal 1> /dev/null 2> ~/VideoStreamerFCUP_Logs/portal.txt &
 sleep 1
-./executables/server localhost 10002 commands.txt # 1> /dev/null 2> ~/VideoStreamerFCUP_Logs/server.txt &
+./executables/server localhost 10002 commands.txt 1> /dev/null 2> ~/VideoStreamerFCUP_Logs/server.txt &
 sleep 1
 ./executables/client 1> /dev/null 2> ~/VideoStreamerFCUP_Logs/client.txt &
 # sleep 4
