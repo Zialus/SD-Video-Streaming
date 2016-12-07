@@ -12,6 +12,7 @@
 
 // C++
 #include <fstream>
+#include <stdlib.h>
 
 // My stuff
 #include "StreamServer.h"
@@ -62,6 +63,7 @@ int main(int argc, char* argv[])
 
 		if ( pid == 0 ) { // Child process
 
+
 			char** strings = NULL;
 			size_t count = 0;
 			char string[1000];
@@ -94,45 +96,49 @@ int main(int argc, char* argv[])
 
 		} else { // Parent will only start executing after child calls execvp because we are using vfork()
 
-			int socket_to_receive_video_fd, port_number_to_receive_video;
-			int number_of_written_elements;
-			struct sockaddr_in ffmpeg_server_address;
-			struct hostent *ffmpeg_server;
+			int socketToReceiveVideoFD, portToReceiveVideo;
+			int numberOfWrittenElements;
+			struct sockaddr_in ffmpegServerAddress;
+			struct hostent *ffmpegServer;
 
-			char ffmpeg_buffer[256];
+			char ffmpegBuffer[256];
 
 			// argv[2] contains port number for the server
-			port_number_to_receive_video = atoi(argv[2]);
+			portToReceiveVideo = atoi(argv[2]);
 
-			socket_to_receive_video_fd = socket(AF_INET, SOCK_STREAM, 0);
-			if (socket_to_receive_video_fd < 0)
+            printf("CARALHOOO %d FDXXX\n", portToReceiveVideo);
+
+			socketToReceiveVideoFD = socket(AF_INET, SOCK_STREAM, 0);
+			if (socketToReceiveVideoFD < 0)
 			{
 				perror("ERROR opening socket");
 				exit(1);
 			}
 
 			// argv[1] contains name of the server
-			ffmpeg_server = gethostbyname(argv[1]);
-			if (ffmpeg_server == NULL)
+			ffmpegServer = gethostbyname(argv[1]);
+			if (ffmpegServer == NULL)
 			{
 				fprintf(stderr,"ERROR, no such host");
 				exit(0);
 			}
 
-			bzero( (char *) &ffmpeg_server_address, sizeof(ffmpeg_server_address) );
-			ffmpeg_server_address.sin_family = AF_INET;
-			bcopy( (char *) ffmpeg_server->h_addr, (char *) &ffmpeg_server_address.sin_addr.s_addr, ffmpeg_server->h_length );
-			ffmpeg_server_address.sin_port = htons(port_number_to_receive_video);
+			bzero( (char *) &ffmpegServerAddress, sizeof(ffmpegServerAddress) );
+			ffmpegServerAddress.sin_family = AF_INET;
 
-			printf("|%u|\n", ffmpeg_server_address.sin_addr.s_addr);
+			bcopy( (char *) ffmpegServer->h_addr, (char *) &ffmpegServerAddress.sin_addr.s_addr, ffmpegServer->h_length );
+			ffmpegServerAddress.sin_port = htons(portToReceiveVideo);
+
+			printf("|%u|\n", ffmpegServerAddress.sin_addr.s_addr);
 
 
-			while ( connect(socket_to_receive_video_fd, (struct sockaddr *) &ffmpeg_server_address, sizeof(ffmpeg_server_address) ) < 0)
+			while ( connect(socketToReceiveVideoFD, (struct sockaddr *) &ffmpegServerAddress, sizeof(ffmpegServerAddress) ) < 0)
 			{
 				perror("ERROR connecting");
 				sleep(2);
 			}
 
+            sleep(2);
 
 			//--------------SERVER PART-----------------//
 
@@ -144,7 +150,7 @@ int main(int argc, char* argv[])
 			server_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 			if (server_socket_fd < 0){
 				perror("ERROR opening socket");
-				exit(1);
+				std::exit(1);
 			}
 
 			// set all values in server_adress to 0
@@ -168,26 +174,37 @@ int main(int argc, char* argv[])
 
 			client_adress_size = sizeof(client_address);
 
+            printf("AALLLAAAAHA AKBAR\n");
+
 			while (true) {
 
-				int new_socket_fd = accept(server_socket_fd, (struct sockaddr *) &client_address, &client_adress_size);
+                int new_socket_fd;
+                fcntl(new_socket_fd, F_SETFL, O_NONBLOCK); /* Change the socket into non-blocking state	*/
+
+                int yes=1;
+                if(setsockopt(server_socket_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) ==-1){
+                    perror("setsockopt");
+                    exit(1);
+                }
+
+                new_socket_fd = accept4(server_socket_fd, (struct sockaddr *) &client_address, &client_adress_size, O_NONBLOCK);
 				if (new_socket_fd < 0){
 					perror("ERROR on accept");
 					exit(1);
 				}
 
-				fcntl(new_socket_fd, F_SETFL, O_NONBLOCK); /* Change the socket into non-blocking state	*/
 
 				socketList.push_back(new_socket_fd);
 
-				number_of_written_elements = read(socket_to_receive_video_fd,ffmpeg_buffer,255);
-				if (number_of_written_elements < 0){
+				numberOfWrittenElements = read(socketToReceiveVideoFD,ffmpegBuffer,255);
+				if (numberOfWrittenElements < 0){
 					perror("ERROR reading from socket");
 					exit(1);
 				}
 
 				for(int socket: socketList){
-					sendVideoTo(socket, ffmpeg_buffer);
+                    printf("SOCKET -> %d !!!\n", socket);
+					sendVideoTo(socket, ffmpegBuffer);
 				}
 
 			}

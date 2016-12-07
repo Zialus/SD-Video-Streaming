@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 project(VideoStreaming-SD)
 
-set(CMAKE_VERBOSE_MAKEFILE true)
+#set(CMAKE_VERBOSE_MAKEFILE true)
 
 message("COMPILER defined as:" $ENV{COMPILER})
 message("EXTRALIBS defined as:" $ENV{EXTRALIBS})
