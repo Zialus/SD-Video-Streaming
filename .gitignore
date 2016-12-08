@@ -31,5 +31,6 @@
 .idea/
 cmake-build-debug/
 executables/
-StreamServer.cpp
-StreamServer.h
+cmake-build-release/
+/ice/StreamServer.cpp
+/ice/StreamServer.h

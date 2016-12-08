@@ -37,9 +37,9 @@ add_custom_command(
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/ice
 )
 
-include_directories(server ${PROJECT_SOURCE_DIR}/ice ${PROJECT_SOURCE_DIR}/server ${Ice_INCLUDE_DIRS})
-include_directories(client ${PROJECT_SOURCE_DIR}/ice ${PROJECT_SOURCE_DIR}/client ${Ice_INCLUDE_DIRS})
-include_directories(portal ${PROJECT_SOURCE_DIR}/ice ${PROJECT_SOURCE_DIR}/client ${Ice_INCLUDE_DIRS})
+include_directories(server ${PROJECT_SOURCE_DIR}/ice ${Ice_INCLUDE_DIRS})
+include_directories(client ${PROJECT_SOURCE_DIR}/ice ${Ice_INCLUDE_DIRS})
+include_directories(portal ${PROJECT_SOURCE_DIR}/ice ${Ice_INCLUDE_DIRS})
 
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/executables)
 add_executable(server ${server_HDR} ${server_SRC} ${ice_HDR} ${ice_SRC})
