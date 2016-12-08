@@ -8,7 +8,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
-#include <fcntl.h> /* Added for the nonblocking socket */
+#include <fcntl.h>
 
 // C++
 #include <fstream>
@@ -21,9 +21,9 @@
 using namespace FCUP;
 
 void sendVideoTo(int socket, char* ffmpeg_buffer) {
-	int number_of_written_elements = write(socket,ffmpeg_buffer,255);
+	int number_of_written_elements = (int) write(socket, ffmpeg_buffer, 255);
 	if (number_of_written_elements < 0){
-		perror("ERROR reading from socket");
+		perror("ERROR writing to socket");
 		exit(1);
 	}
 }
@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
 			// argv[2] contains port number for the server
 			portToReceiveVideo = atoi(argv[2]);
 
-            printf("CARALHOOO %d FDXXX\n", portToReceiveVideo);
+			printf("CARALHOOO %d FDXXX\n", portToReceiveVideo);
 
 			socketToReceiveVideoFD = socket(AF_INET, SOCK_STREAM, 0);
 			if (socketToReceiveVideoFD < 0)
@@ -126,7 +126,7 @@ int main(int argc, char* argv[])
 			bzero( (char *) &ffmpegServerAddress, sizeof(ffmpegServerAddress) );
 			ffmpegServerAddress.sin_family = AF_INET;
 
-			bcopy( (char *) ffmpegServer->h_addr, (char *) &ffmpegServerAddress.sin_addr.s_addr, ffmpegServer->h_length );
+			bcopy(ffmpegServer->h_addr, (char *) &ffmpegServerAddress.sin_addr.s_addr, (size_t) ffmpegServer->h_length);
 			ffmpegServerAddress.sin_port = htons(portToReceiveVideo);
 
 			printf("|%u|\n", ffmpegServerAddress.sin_addr.s_addr);
@@ -138,7 +138,7 @@ int main(int argc, char* argv[])
 				sleep(2);
 			}
 
-            sleep(2);
+			sleep(2);
 
 			//--------------SERVER PART-----------------//
 
@@ -174,36 +174,35 @@ int main(int argc, char* argv[])
 
 			client_adress_size = sizeof(client_address);
 
-            printf("AALLLAAAAHA AKBAR\n");
+			printf("AALLLAAAAHA AKBAR\n");
 
 			while (true) {
 
-                int new_socket_fd;
-                fcntl(new_socket_fd, F_SETFL, O_NONBLOCK); /* Change the socket into non-blocking state	*/
 
-                int yes=1;
-                if(setsockopt(server_socket_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) ==-1){
-                    perror("setsockopt");
-                    exit(1);
-                }
+				int yes=1;
+				if(setsockopt(server_socket_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) ==-1){
+					perror("setsockopt");
+					exit(1);
+				}
 
-                new_socket_fd = accept4(server_socket_fd, (struct sockaddr *) &client_address, &client_adress_size, O_NONBLOCK);
+				int new_socket_fd = accept(server_socket_fd, (struct sockaddr *) &client_address, &client_adress_size);
 				if (new_socket_fd < 0){
 					perror("ERROR on accept");
 					exit(1);
 				}
 
+				fcntl(new_socket_fd, F_SETFL, O_NONBLOCK); /* Change the socket into non-blocking state	*/
 
 				socketList.push_back(new_socket_fd);
 
-				numberOfWrittenElements = read(socketToReceiveVideoFD,ffmpegBuffer,255);
+				numberOfWrittenElements = (int) read(socketToReceiveVideoFD, ffmpegBuffer, 255);
 				if (numberOfWrittenElements < 0){
 					perror("ERROR reading from socket");
 					exit(1);
 				}
 
 				for(int socket: socketList){
-                    printf("SOCKET -> %d !!!\n", socket);
+					printf("SOCKET -> %d !!!\n", socket);
 					sendVideoTo(socket, ffmpegBuffer);
 				}
 
