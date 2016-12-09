@@ -96,48 +96,59 @@ int main(int argc, char* argv[])
 
 		} else { // Parent will only start executing after child calls execvp because we are using vfork()
 
-			int socketToReceiveVideoFD, portToReceiveVideo;
+            sleep(1);
+
+            int n;
+			int socketToReceiveVideoFD;
 			int numberOfWrittenElements;
-			struct sockaddr_in ffmpegServerAddress;
-			struct hostent *ffmpegServer;
+            struct addrinfo hints, *res, *ressave;
+
+            char *portToReceiveVideo;
+            char *ffmpegServer;
 
 			char ffmpegBuffer[256];
 
-			// argv[2] contains port number for the server
-			portToReceiveVideo = atoi(argv[2]);
-
-			printf("CARALHOOO %d FDXXX\n", portToReceiveVideo);
-
-			socketToReceiveVideoFD = socket(AF_INET, SOCK_STREAM, 0);
-			if (socketToReceiveVideoFD < 0)
-			{
-				perror("ERROR opening socket");
-				exit(1);
-			}
-
 			// argv[1] contains name of the server
-			ffmpegServer = gethostbyname(argv[1]);
-			if (ffmpegServer == NULL)
-			{
-				fprintf(stderr,"ERROR, no such host");
-				exit(0);
-			}
-
-			bzero( (char *) &ffmpegServerAddress, sizeof(ffmpegServerAddress) );
-			ffmpegServerAddress.sin_family = AF_INET;
-
-			bcopy(ffmpegServer->h_addr, (char *) &ffmpegServerAddress.sin_addr.s_addr, (size_t) ffmpegServer->h_length);
-			ffmpegServerAddress.sin_port = htons(portToReceiveVideo);
-
-			printf("|%u|\n", ffmpegServerAddress.sin_addr.s_addr);
+			ffmpegServer = argv[1];
+            // argv[2] contains port number for the server
+            portToReceiveVideo = argv[2];
 
 
-			while ( connect(socketToReceiveVideoFD, (struct sockaddr *) &ffmpegServerAddress, sizeof(ffmpegServerAddress) ) < 0)
-			{
-				perror("ERROR connecting");
-				sleep(2);
-			}
+            printf("Video vai ser recebido na porta %s e no adress %s\n", portToReceiveVideo, argv[1]);
 
+            bzero( (char *) &hints, sizeof(addrinfo) );
+
+            bzero(&hints, sizeof(struct addrinfo));
+            hints.ai_family=AF_UNSPEC;
+            hints.ai_socktype=SOCK_STREAM;
+            hints.ai_protocol=IPPROTO_TCP;
+
+            if((n=getaddrinfo(ffmpegServer, portToReceiveVideo, &hints, &res))!=0)
+                printf("getaddrinfo error for %s, %s; %s", ffmpegServer, portToReceiveVideo, gai_strerror(n));
+
+            ressave=res;
+
+            do{
+                socketToReceiveVideoFD=socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+
+                if(socketToReceiveVideoFD<0)
+                    continue;  /*ignore this returned Ip addr*/
+
+                if(connect(socketToReceiveVideoFD, res->ai_addr, res->ai_addrlen)==0)
+                { printf("connection ok!\n"); /* success*/
+                    break;
+                }
+                else  {
+                    perror("connecting stream socket");
+                }
+
+
+            } while ((res=res->ai_next)!= NULL);
+
+            freeaddrinfo(ressave);
+
+
+            printf("DID IT!!!");
 			sleep(2);
 
 			//--------------SERVER PART-----------------//
@@ -174,7 +185,7 @@ int main(int argc, char* argv[])
 
 			client_adress_size = sizeof(client_address);
 
-			printf("AALLLAAAAHA AKBAR\n");
+			printf("BULLSHIT\n");
 
 			while (true) {
 
