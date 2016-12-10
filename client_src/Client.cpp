@@ -1,6 +1,9 @@
 // Ice includes
 #include <Ice/Ice.h>
 
+// C
+#include <sys/wait.h>
+
 // My stuff
 #include "StreamServer.h"
 #include "../auxiliary/Auxiliary.h"
