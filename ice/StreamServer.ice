@@ -18,7 +18,7 @@ module FCUP{
 
 	interface PortalServerCommunication {
 		void registerStreamServer(StreamServerEntry sse);
-		void closeStream();
+		void closeStream(string serverName);
 		void receiveInfo();
 	};
 

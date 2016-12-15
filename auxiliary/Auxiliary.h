@@ -1,6 +1,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
+#include <unistd.h>
 
 int AddString(char*** strings, size_t* count, const char* newStr)
 {
@@ -38,7 +40,7 @@ void PrintStrings(char** strings, size_t count)
 {
 	printf("BEGIN\n");
 	if (strings != NULL)
-	while (count--)
-	printf("  %s\n", *strings++);
+		while (count--)
+			printf("  %s\n", *strings++);
 	printf("END\n");
 }

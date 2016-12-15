@@ -21,6 +21,15 @@
 
 using namespace FCUP;
 
+std::string nomeServer;
+
+void my_handler(int s, PortalCommunicationPrx portal){
+    printf("Caught signal %d\n",s);
+    portal->closeStream(nomeServer);
+    exit(1);
+}
+
+
 void sendVideoTo(int socket, char* ffmpeg_buffer) {
     int number_of_written_elements = (int) write(socket, ffmpeg_buffer, 63);
     if (number_of_written_elements < 0){
@@ -48,11 +57,18 @@ int main(int argc, char* argv[])
             throw "Invalid proxy";
         }
 
+        struct sigaction sigIntHandler;
+        sigIntHandler.sa_handler = my_handler;
+        sigemptyset(&sigIntHandler.sa_mask);
+        sigIntHandler.sa_flags = 0;
+        sigaction(SIGINT, &sigIntHandler, NULL);
+
         StreamServerEntry allMyInfo;
 
         StringSequence keywords = {"basketball","Cavs","indoor","sports"};
         allMyInfo.keywords = keywords;
-        allMyInfo.name = IceUtil::generateUUID();
+        nomeServer = IceUtil::generateUUID();
+        allMyInfo.name = nomeServer;
 
         portal->registerStreamServer(allMyInfo);
 

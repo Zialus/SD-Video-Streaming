@@ -1,5 +1,6 @@
 // Ice includes
 #include <Ice/Ice.h>
+#include <sys/wait.h>
 
 // C
 #include <sys/wait.h>

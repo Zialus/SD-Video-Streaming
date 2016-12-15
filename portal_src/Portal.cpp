@@ -1,6 +1,11 @@
 #include <Ice/Ice.h>
 #include "StreamServer.h"
 
+#include <signal.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+
 using namespace FCUP;
 
 StringSequence list_of_stream_servers;
@@ -28,7 +33,7 @@ void Portal::registerStreamServer(const FCUP::StreamServerEntry& sse, const Ice:
 
 }
 
-void Portal::closeStream(const Ice::Current&)
+void Portal::closeStream(const Ice::Current&, const FCUP::string&)
 {
 
 }
