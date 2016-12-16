@@ -34,13 +34,13 @@ string(REPLACE ".ice" ".h" ice_HDR ${ice_SLICE})
 add_custom_command(
         OUTPUT ${ice_HDR} ${ice_SRC}
         COMMAND ${Ice_SLICE2CPP_EXECUTABLE} ${ice_SLICE}
+        COMMENT "Running SLICE2CPP..."
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/ice
 )
 
 add_custom_target(
     IceGenerated
     DEPENDS ${ice_HDR} ${ice_SRC}
-    COMMENT "Running SLICE2CPP..."
     SOURCES ${ice_SLICE}
 )
 
