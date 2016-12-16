@@ -21,14 +21,20 @@
 
 using namespace FCUP;
 
-std::string nomeServer;
 
-void my_handler(int s, PortalCommunicationPrx portal){
-    printf("Caught signal %d\n",s);
-    portal->closeStream(nomeServer);
-    exit(1);
+std::string serverName;
+PortalCommunicationPrx portal;
+
+
+void closeStream(){
+    portal->closeStream(serverName);
 }
 
+void my_handler(int s){
+    printf("Caught ctrl+c Bye! %d\n",s);
+    closeStream();
+    exit(0);
+}
 
 void sendVideoTo(int socket, char* ffmpeg_buffer) {
     int number_of_written_elements = (int) write(socket, ffmpeg_buffer, 63);
@@ -67,8 +73,8 @@ int main(int argc, char* argv[])
 
         StringSequence keywords = {"basketball","Cavs","indoor","sports"};
         allMyInfo.keywords = keywords;
-        nomeServer = IceUtil::generateUUID();
-        allMyInfo.name = nomeServer;
+        serverName = IceUtil::generateUUID();
+        allMyInfo.name = serverName;
 
         portal->registerStreamServer(allMyInfo);
 

@@ -14,7 +14,7 @@ class Portal : public PortalCommunication
 {
 public:
     void registerStreamServer(const FCUP::StreamServerEntry&, const Ice::Current&) override;
-    void closeStream(const Ice::Current&) override;
+    void closeStream(const std::string&, const Ice::Current&) override;
     void receiveInfo(const Ice::Current&) override;
 
     StringSequence sendStreamServersList(const Ice::Current&) override;
@@ -33,7 +33,7 @@ void Portal::registerStreamServer(const FCUP::StreamServerEntry& sse, const Ice:
 
 }
 
-void Portal::closeStream(const Ice::Current&, const FCUP::string&)
+void Portal::closeStream(const std::string&, const Ice::Current&)
 {
 
 }
