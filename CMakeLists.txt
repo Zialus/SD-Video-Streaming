@@ -37,15 +37,26 @@ add_custom_command(
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/ice
 )
 
-include_directories(server ${PROJECT_SOURCE_DIR}/ice ${Ice_INCLUDE_DIRS})
-include_directories(client ${PROJECT_SOURCE_DIR}/ice ${Ice_INCLUDE_DIRS})
-include_directories(portal ${PROJECT_SOURCE_DIR}/ice ${Ice_INCLUDE_DIRS})
+add_custom_target(
+    IceGenerated
+    DEPENDS ${ice_HDR} ${ice_SRC}
+    COMMENT "Running SLICE2CPP..."
+    SOURCES ${ice_SLICE}
+)
 
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/executables)
 add_executable(server ${server_HDR} ${server_SRC} ${ice_HDR} ${ice_SRC})
 add_executable(client ${client_HDR} ${client_SRC} ${ice_HDR} ${ice_SRC})
 add_executable(portal ${portal_HDR} ${portal_SRC} ${ice_HDR} ${ice_SRC})
 
+include_directories(server ${PROJECT_SOURCE_DIR}/ice ${Ice_INCLUDE_DIRS})
+include_directories(client ${PROJECT_SOURCE_DIR}/ice ${Ice_INCLUDE_DIRS})
+include_directories(portal ${PROJECT_SOURCE_DIR}/ice ${Ice_INCLUDE_DIRS})
+
 target_link_libraries(server ${Ice_LIBRARIES} pthread $ENV{EXTRALIBS})
 target_link_libraries(client ${Ice_LIBRARIES} pthread $ENV{EXTRALIBS})
 target_link_libraries(portal ${Ice_LIBRARIES} pthread $ENV{EXTRALIBS})
+
+add_dependencies(server IceGenerated)
+add_dependencies(client IceGenerated)
+add_dependencies(portal IceGenerated)
