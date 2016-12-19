@@ -33,7 +33,7 @@ void closeStream(){
 }
 
 void my_handler(int s){
-    printf("Caught ctrl+c Bye! %d\n",s);
+    printf("Caught signal %d\n",s);
     closeStream();
     exit(0);
 }
@@ -75,6 +75,9 @@ int main(int argc, char* argv[])
         sigemptyset(&sigIntHandler.sa_mask);
         sigIntHandler.sa_flags = 0;
         sigaction(SIGINT, &sigIntHandler, NULL);
+        sigaction(SIGSTOP, &sigIntHandler, NULL);
+        sigaction(SIGKILL, &sigIntHandler, NULL);
+        sigaction(SIGTERM, &sigIntHandler, NULL);
 
         StreamServerEntry allMyInfo;
 
