@@ -24,10 +24,12 @@ using namespace FCUP;
 
 std::string serverName;
 PortalCommunicationPrx portal;
-
+std::list<int> clientsSocketList;
 
 void closeStream(){
+    printf("HI HELLO\n");
     portal->closeStream(serverName);
+    printf("MY NAME IS JOE\n");
 }
 
 void my_handler(int s){
@@ -40,7 +42,12 @@ void sendVideoTo(int socket, char* ffmpeg_buffer) {
     int number_of_written_elements = (int) write(socket, ffmpeg_buffer, 63);
     if (number_of_written_elements < 0){
         perror("ERROR writing to socket");
-        exit(1);
+        auto elem = std::find(clientsSocketList.begin(), clientsSocketList.end(), socket);
+        if(elem != clientsSocketList.end()){
+            clientsSocketList.erase(elem);
+        }
+
+        std::cout << "Removed client " << socket << "------" << std::endl;
     }
 }
 
@@ -58,7 +65,7 @@ int main(int argc, char* argv[])
     try {
         ic = Ice::initialize(argc, argv);
         Ice::ObjectPrx base = ic->stringToProxy("Portal:default -p 9999");
-        PortalCommunicationPrx portal = PortalCommunicationPrx::checkedCast(base);
+        portal = PortalCommunicationPrx::checkedCast(base);
         if (!portal){
             throw "Invalid proxy";
         }
@@ -189,7 +196,7 @@ int main(int argc, char* argv[])
             // set all values in server_adress to 0
             bzero((char *) &server_address, sizeof(server_address));
             // argv[1] contains port number for the server
-            int port_number = 10066;
+            int port_number = atoi(argv[4]);
             server_address.sin_family = AF_INET;
             server_address.sin_port = htons(port_number);
             server_address.sin_addr.s_addr = INADDR_ANY;
@@ -210,7 +217,6 @@ int main(int argc, char* argv[])
                 exit(1);
             }
 
-            std::list<int> socketList;
 
             printf("Ready to send to clients!\n");
 
@@ -218,7 +224,7 @@ int main(int argc, char* argv[])
 
                 int new_socket_fd = accept(server_socket_fd, NULL, NULL);
                 if (new_socket_fd > 0){
-                    socketList.push_back(new_socket_fd);
+                    clientsSocketList.push_back(new_socket_fd);
                 }
 
                 numberOfWrittenElements = (int) read(socketToReceiveVideoFD, ffmpegBuffer, 63);
@@ -229,7 +235,7 @@ int main(int argc, char* argv[])
                     printf("Number -> %d\n", numberOfWrittenElements);
                 }
 
-                for(int socket: socketList){
+                for(int socket: clientsSocketList){
                     printf("SOCKET -> %d !!!\n", socket);
                     sendVideoTo(socket, ffmpegBuffer);
                 }
