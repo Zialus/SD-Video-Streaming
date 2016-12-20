@@ -1,11 +1,13 @@
 // Ice includes
 #include <Ice/Ice.h>
+#include <IceStorm/IceStorm.h>
+#include <IceUtil/IceUtil.h>
 #include <sys/wait.h>
 
 // C
-//#include <sys/wait.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <err.h>
 
 // My stuff
 #include "StreamServer.h"
@@ -17,12 +19,14 @@ PortalCommunicationPrx portal;
 
 char **command_name_completion(const char *, int, int);
 char *command_name_generator(const char *, int);
+char *escape(const char *);
+int quote_detector(char *, int);
 
 char *command_names[] = {
-        "stream list",
-        "stream search",
-        "stream play",
-        "exit",
+        (char*) "list",
+        (char*) "search",
+        (char*) "play",
+        (char*) "exit",
         NULL
 };
 
@@ -86,8 +90,51 @@ void searchKeyword(std::string keyword) {
 
 }
 
+class Subscriber : public Ice::Application {
+public:
+
+    virtual int run(int, char*[]);
+};
+
+int Subscriber::run(int argc, char* argv[]) {
+
+    std::string topicName = "streams";
+
+    IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
+            communicator()->propertyToProxy("TopicManager.Proxy"));
+    if(!manager)
+    {
+        std::cerr << appName() << ": invalid proxy" << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    IceStorm::TopicPrx topic;
+    try
+    {
+        topic = manager->retrieve(topicName);
+    }
+    catch(const IceStorm::NoSuchTopic&)
+    {
+        try
+        {
+            topic = manager->create(topicName);
+        }
+        catch(const IceStorm::TopicExists&)
+        {
+            std::cerr << appName() << ": temporary failure. try again." << std::endl;
+            return EXIT_FAILURE;
+        }
+    }
+
+    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Clock.Subscriber");
+    return EXIT_SUCCESS;
+}
+
 int main(int argc, char* argv[])
 {
+//    Subscriber app;
+//    app.run(argc,argv);
+
     int status = 0;
     Ice::CommunicatorPtr ic;
     try {
@@ -134,7 +181,7 @@ int main(int argc, char* argv[])
                 //por os comandos disponiveis
                 std::cout << "Can't find that command" << std::endl;
             }
-
+            free(input);
         }
 
     } catch (const Ice::Exception& ex) {
@@ -153,13 +200,15 @@ int main(int argc, char* argv[])
 }
 
 
-char ** command_name_completion(const char *text, int start, int end)
+char **
+command_name_completion(const char *text, int start, int end)
 {
     rl_attempted_completion_over = 1;
     return rl_completion_matches(text, command_name_generator);
 }
 
-char * command_name_generator(const char *text, int state)
+char *
+command_name_generator(const char *text, int state)
 {
     static int list_index, len;
     char *name;
@@ -170,10 +219,60 @@ char * command_name_generator(const char *text, int state)
     }
 
     while ((name = command_names[list_index++])) {
+        if (rl_completion_quote_character) {
+            name = strdup(name);
+        } else {
+            name = escape(name);
+        }
+
         if (strncmp(name, text, len) == 0) {
-            return strdup(name);
+            return name;
+        } else {
+            free(name);
         }
     }
 
     return NULL;
+}
+
+char *escape(const char *original)
+{
+    size_t original_len;
+    int i, j;
+    char *escaped, *resized_escaped;
+
+    original_len = strlen(original);
+
+    if (original_len > SIZE_MAX / 2) {
+        errx(1, "string too long to escape");
+    }
+
+    if ((escaped = (char *) malloc(2 * original_len + 1)) == NULL) {
+        err(1, NULL);
+    }
+
+    for (i = 0, j = 0; i < original_len; ++i, ++j) {
+        if (original[i] == ' ') {
+            escaped[j++] = '\\';
+        }
+        escaped[j] = original[i];
+    }
+    escaped[j] = '\0';
+
+    if ((resized_escaped = (char *) realloc(escaped, j)) == NULL) {
+        free(escaped);
+        resized_escaped = NULL;
+        err(1, NULL);
+    }
+
+    return resized_escaped;
+}
+
+int quote_detector(char *line, int index)
+{
+    return (
+            index > 0 &&
+            line[index - 1] == '\\' &&
+            !quote_detector(line, index - 1)
+    );
 }

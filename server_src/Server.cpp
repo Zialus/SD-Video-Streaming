@@ -88,7 +88,8 @@ int main(int argc, char* argv[])
         const char* whereToListen = tmp.c_str();
         char* videosize= argv[4];
         char* bitrate = argv[5];
-        char* filename = argv[6];
+        char* encoder = argv[6];
+        char* filename = argv[7];
         std::cout << whereToListen << " !! " << filename << std::endl;
         
         
@@ -138,7 +139,7 @@ int main(int argc, char* argv[])
             
 
             execlp("ffmpeg","ffmpeg","-re","-i",filename,"-loglevel","warning",
-                   "-analyzeduration","500k","-probesize","500k","-r","30","-s",videosize,"-c:v","libx264","-preset","ultrafast","-pix_fmt",
+                   "-analyzeduration","500k","-probesize","500k","-r","30","-s",videosize,"-c:v",encoder,"-preset","ultrafast","-pix_fmt",
                    "yuv420p","-tune","zerolatency","-preset","ultrafast","-b:v", bitrate,"-g","30","-c:a","flac","-profile:a","aac_he","-b:a",
                    "32k","-f","mpegts",whereToListen,NULL);
 

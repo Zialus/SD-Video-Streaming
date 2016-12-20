@@ -27,6 +27,10 @@ module FCUP{
 		StreamsMap sendStreamServersList();
 	};
 
+    interface StreamWatcher{
+        void report(StreamServerEntry sse);
+    };
+
 	interface PortalCommunication extends PortalServerCommunication, PortalClientCommunication {
 
 	};
