@@ -8,22 +8,21 @@
 
 using namespace FCUP;
 
-StringSequence list_of_stream_servers;
+StreamsMap list_of_stream_servers;
+
 
 class Portal : public PortalCommunication
 {
 public:
     void registerStreamServer(const FCUP::StreamServerEntry&, const Ice::Current&) override;
     void closeStream(const std::string&, const Ice::Current&) override;
-    void receiveInfo(const Ice::Current&) override;
 
-    StringSequence sendStreamServersList(const Ice::Current&) override;
+    StreamsMap sendStreamServersList(const Ice::Current&) override;
 };
 
 void Portal::registerStreamServer(const FCUP::StreamServerEntry& sse, const Ice::Current&)
 {
-    std::string server_name = sse.name;
-    list_of_stream_servers.push_back(server_name);
+    list_of_stream_servers[sse.name] = sse;
 
     std::cout << "I'm a portal printing some keywords for the lulz" << std::endl;
     for (auto it = sse.keywords.begin(); it != sse.keywords.end(); ++it){
@@ -35,19 +34,18 @@ void Portal::registerStreamServer(const FCUP::StreamServerEntry& sse, const Ice:
 
 void Portal::closeStream(const std::string& serverName, const Ice::Current&) {
     std::cout << "Going to close the stream -> " << serverName << std::endl;
-    auto elem = std::find(list_of_stream_servers.begin(), list_of_stream_servers.end(), serverName);
+    auto elem = list_of_stream_servers.find(serverName);
     if(elem != list_of_stream_servers.end()){
         list_of_stream_servers.erase(elem);
+        std::cout << "Closed stream -> " << serverName << std::endl;
     }
-    std::cout << "Closed stream -> " << serverName << std::endl;
+    else{
+        std::cout << "Couldn't close/find stream -> " << serverName << std::endl;
+    }
 }
 
-void Portal::receiveInfo(const Ice::Current&)
-{
 
-}
-
-StringSequence Portal::sendStreamServersList(const Ice::Current&)
+StreamsMap Portal::sendStreamServersList(const Ice::Current&)
 {
     return list_of_stream_servers;
 }

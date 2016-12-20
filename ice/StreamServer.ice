@@ -1,6 +1,6 @@
 module FCUP{
 
-	sequence<string> StringSequence;
+    sequence<string> StringSequence;
 
 	struct Endpoint {
 		string transport;
@@ -16,14 +16,15 @@ module FCUP{
 		StringSequence keywords;
 	};
 
+	dictionary<string, StreamServerEntry> StreamsMap;
+
 	interface PortalServerCommunication {
 		void registerStreamServer(StreamServerEntry sse);
 		void closeStream(string serverName);
-		void receiveInfo();
 	};
 
 	interface PortalClientCommunication {
-		StringSequence sendStreamServersList();
+		StreamsMap sendStreamServersList();
 	};
 
 	interface PortalCommunication extends PortalServerCommunication, PortalClientCommunication {

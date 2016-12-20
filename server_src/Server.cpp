@@ -79,12 +79,28 @@ int main(int argc, char* argv[])
         sigaction(SIGKILL, &sigIntHandler, NULL);
         sigaction(SIGTERM, &sigIntHandler, NULL);
 
+        char* hostname = argv[1];
+        int port = atoi(argv[2]);
+        int portForClients = atoi(argv[3]);
+        std::stringstream ss;
+        ss << "tcp://" << hostname << ":" << port << "?listen=1";
+        const std::string& tmp = ss.str();
+        const char* whereToListen = tmp.c_str();
+        char* videosize= argv[4];
+        char* bitrate = argv[5];
+        char* filename = argv[6];
+        std::cout << whereToListen << " !! " << filename << std::endl;
+        
+        
         StreamServerEntry allMyInfo;
 
         StringSequence keywords = {"basketball","Cavs","indoor","sports"};
         allMyInfo.keywords = keywords;
         serverName = IceUtil::generateUUID();
         allMyInfo.name = serverName;
+        allMyInfo.videoSize = videosize;
+        allMyInfo.bitrate = bitrate;
+        //falta keywords
 
         portal->registerStreamServer(allMyInfo);
 
@@ -95,35 +111,37 @@ int main(int argc, char* argv[])
         }
 
         if ( pid == 0 ) { // Child process
+//
+//            char** strings = NULL;
+//            size_t count = 0;
+//            char string[1000];
+//
+//            argv[3] contains txt file with ffmpeg options
+//            std::ifstream file(argv[3]);
+//
+//            if(file.is_open()){
+//                file >> string;
+//                while (!file.eof() ) {
+//                    AddString(&strings, &count, string);
+//                    file >> string;
+//                }
+//                file.close();
+//            } else{
+//                std::cout << "File could not be opened." << std::endl;
+//            }
+//            AddString(&strings, &count, NULL);
+//
+//            for (int i = 0; strings[i] != NULL; ++i) {
+//                printf("|%s|\n",strings[i]);
+//            }
+//            execvp(strings[0], strings);
+            
 
-            char** strings = NULL;
-            size_t count = 0;
-            char string[1000];
+            execlp("ffmpeg","ffmpeg","-re","-i",filename,"-loglevel","warning",
+                   "-analyzeduration","500k","-probesize","500k","-r","30","-s",videosize,"-c:v","libx264","-preset","ultrafast","-pix_fmt",
+                   "yuv420p","-tune","zerolatency","-preset","ultrafast","-b:v", bitrate,"-g","30","-c:a","flac","-profile:a","aac_he","-b:a",
+                   "32k","-f","mpegts",whereToListen,NULL);
 
-            // argv[3] contains txt file with ffmpeg options
-            std::ifstream file(argv[3]);
-
-            if(file.is_open()){
-                file >> string;
-                while (!file.eof() ) {
-                    AddString(&strings, &count, string);
-                    file >> string;
-                }
-                file.close();
-            } else{
-                std::cout << "File could not be opened." << std::endl;
-            }
-            AddString(&strings, &count, NULL);
-
-            /* char* argv[200] = {"ffmpeg","-i","/home/tiaghoul/Downloads/Popeye_forPresident_512kb.mp4","-loglevel","warning",
-            "-analyzeduration","500k","-probesize","500k","-r","30","-s","640x360","-c:v","libx264","-preset","ultrafast","-pix_fmt",
-            "yuv420p","-tune","zerolatency","-preset","ultrafast","-b:v","500k","-g","30","-c:a","flac","-profile:a","aac_he","-b:a",
-            "32k","-f","mpegts","tcp://127.0.0.1:10000?listen=1",NULL};*/
-
-            for (int i = 0; strings[i] != NULL; ++i) {
-                printf("|%s|\n",strings[i]);
-            }
-            execvp(strings[0], strings);
 
         } else { // Parent will only start executing after child calls execvp because we are using vfork()
 
@@ -180,8 +198,7 @@ int main(int argc, char* argv[])
 
             //--------------SERVER PART-----------------//
 
-            socklen_t client_adress_size;
-            struct sockaddr_in server_address, client_address;
+            struct sockaddr_in server_address;
 
             //open socket
             int server_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -199,12 +216,10 @@ int main(int argc, char* argv[])
             // set all values in server_adress to 0
             bzero((char *) &server_address, sizeof(server_address));
             // argv[1] contains port number for the server
-            int port_number = atoi(argv[4]);
             server_address.sin_family = AF_INET;
-            server_address.sin_port = htons(port_number);
+            server_address.sin_port = htons((uint16_t) portForClients);
             server_address.sin_addr.s_addr = INADDR_ANY;
 
-            int yes=1;
 
             int bind_result = bind(server_socket_fd, (struct sockaddr *) &server_address, sizeof(server_address));
             if ( bind_result < 0 ) {

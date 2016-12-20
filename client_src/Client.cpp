@@ -3,7 +3,9 @@
 #include <sys/wait.h>
 
 // C
-#include <sys/wait.h>
+//#include <sys/wait.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 
 // My stuff
 #include "StreamServer.h"
@@ -12,6 +14,20 @@
 using namespace FCUP;
 
 PortalCommunicationPrx portal;
+
+char **command_name_completion(const char *, int, int);
+char *command_name_generator(const char *, int);
+
+char *command_names[] = {
+        "stream list",
+        "stream search",
+        "stream play",
+        "exit",
+        NULL
+};
+
+
+
 
 void playStream(char* argvzinho[]){
 
@@ -50,18 +66,24 @@ void playStream(char* argvzinho[]){
 
 void getStreamsList(){
 
-    StringSequence streamList = portal->sendStreamServersList();
-    int siz = streamList.size();
-    if(siz > 0) {
-        std::cout << siz << " streams available:" << std::endl;
-        for (auto it = streamList.begin(); it != streamList.end(); ++it) {
-            std::cout << " - " << *it << std::endl;
+    StreamsMap streamList = portal->sendStreamServersList();
+    int size = (int) streamList.size();
+    if(size > 0) {
+        std::cout << size << " streams available:" << std::endl;
+        int counter = 1;
+        for (auto const& stream : streamList) {
+            std::cout << "\t" << counter << ". " << stream.first << " Video Size: " << stream.second.videoSize << " Bit Rate: " << stream.second.bitrate << std::endl;
+            counter++;
         }
         std::cout << std::endl << "-------------------" << std::endl;
     }
     else{
         std::cout << "No available streams atm." << std::endl;
     }
+}
+
+void searchKeyword(std::string keyword) {
+
 }
 
 int main(int argc, char* argv[])
@@ -76,20 +98,40 @@ int main(int argc, char* argv[])
             throw "Invalid proxy";
         }
 
+        rl_attempted_completion_function = command_name_completion;
+
         while(true){
-            std::string input;
-            std::cout << "-> ";
-            std::cin >> input;
-            if (input == "list"){
-                getStreamsList();
+            char *input;
+            input = readline("-> ");
+            printf("|%s|\n",input );
+            add_history(input);
+
+            std::string str(input);
+
+            std::vector<std::string> userCommands = split(input, ' ');
+
+            if(userCommands[0] == "stream") {
+
+                if (userCommands[1] == "list") {
+                    getStreamsList();
+                } else if (userCommands[1] == "play") {
+                    playStream(argv);
+                } else if (userCommands[1] == "search") {
+                    if(userCommands.size()>2) {
+                        searchKeyword(userCommands[2]);
+                    } else {
+                        std::cout << "You need to pass one or more keywords.." << std::endl;
+                    }
+                } else{
+                    //por os comandos disponiveis
+                    std::cout << "Can't find that command" << std::endl;
+                }
             }
-            else if(input == "play"){
-                playStream(argv);
-            }
-            else if(input == "exit"){
+            else if (userCommands[0] == "exit") {
                 return 0;
             }
             else{
+                //por os comandos disponiveis
                 std::cout << "Can't find that command" << std::endl;
             }
 
@@ -108,4 +150,30 @@ int main(int argc, char* argv[])
     }
 
     return status;
+}
+
+
+char ** command_name_completion(const char *text, int start, int end)
+{
+    rl_attempted_completion_over = 1;
+    return rl_completion_matches(text, command_name_generator);
+}
+
+char * command_name_generator(const char *text, int state)
+{
+    static int list_index, len;
+    char *name;
+
+    if (!state) {
+        list_index = 0;
+        len = strlen(text);
+    }
+
+    while ((name = command_names[list_index++])) {
+        if (strncmp(name, text, len) == 0) {
+            return strdup(name);
+        }
+    }
+
+    return NULL;
 }

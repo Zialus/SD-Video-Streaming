@@ -54,7 +54,7 @@ include_directories(client ${PROJECT_SOURCE_DIR}/ice ${Ice_INCLUDE_DIRS})
 include_directories(portal ${PROJECT_SOURCE_DIR}/ice ${Ice_INCLUDE_DIRS})
 
 target_link_libraries(server ${Ice_LIBRARIES} pthread $ENV{EXTRALIBS})
-target_link_libraries(client ${Ice_LIBRARIES} pthread $ENV{EXTRALIBS})
+target_link_libraries(client ${Ice_LIBRARIES} pthread readline $ENV{EXTRALIBS})
 target_link_libraries(portal ${Ice_LIBRARIES} pthread $ENV{EXTRALIBS})
 
 add_dependencies(server IceGenerated)
