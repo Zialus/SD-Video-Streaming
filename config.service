@@ -1,7 +1,7 @@
 #
 # The IceStorm service instance name.
 #
-IceStorm.InstanceName=DemoIceStorm
+IceStorm.InstanceName=FCUPIceStorm
 
 #
 # This property defines the endpoints on which the IceStorm

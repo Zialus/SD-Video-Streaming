@@ -8,6 +8,8 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <err.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 // My stuff
 #include "StreamServer.h"
@@ -16,6 +18,8 @@
 using namespace FCUP;
 
 PortalCommunicationPrx portal;
+std::string IceStormInterfaceName = "StreamNotifications";
+
 
 char **command_name_completion(const char *, int, int);
 char *command_name_generator(const char *, int);
@@ -30,12 +34,10 @@ char *command_names[] = {
         NULL
 };
 
+void playStream(std::string name){
+    printf("ENTRA NO PLAYSTREAM\n");
 
-
-
-void playStream(char* argvzinho[]){
-
-    int pid = fork();
+    int pid = vfork();
     if ( pid < 0 ) {
         perror("fork failed");
         exit(1);
@@ -43,28 +45,42 @@ void playStream(char* argvzinho[]){
 
     if ( pid == 0 ) {
 
-        char** strings = NULL;
-        size_t strings_size = 0;
-        AddString(&strings, &strings_size, "ffplay");
+        StreamsMap streamList = portal->sendStreamServersList();
+        auto elem = streamList.find(name);
+        printf("ALLAAAAH AKBAR\n");
+        std::cout << "-------->" << elem->second.name << std::endl;
 
-        char* hostname = argvzinho[1];
-        int port = atoi(argvzinho[2]);
-        std::stringstream ss;
-        ss << "tcp://" << hostname << ":" << port;
-        const std::string& tmp = ss.str();
-        const char* cstr = tmp.c_str();
 
-        AddString(&strings, &strings_size, cstr );
-        AddString(&strings, &strings_size, NULL);
+        if(elem != streamList.end()) {
+            char **strings = NULL;
+            size_t strings_size = 0;
+            AddString(&strings, &strings_size, "ffplay");
 
-        for (int i = 0; strings[i] != NULL; ++i) {
-            printf("|%s|\n",strings[i]);
+            std::string hostname = elem->second.endpoint.ip;
+            std::string port = elem->second.endpoint.port;
+            std::string transport = elem->second.endpoint.transport;
+            std::stringstream ss;
+            ss << transport << "://" << hostname << ":" << port;
+            const std::string &tmp = ss.str();
+            const char *cstr = tmp.c_str();
+
+            AddString(&strings, &strings_size, cstr);
+            AddString(&strings, &strings_size, NULL);
+
+            for (int i = 0; strings[i] != NULL; ++i) {
+                printf("|%s|\n", strings[i]);
+            }
+
+            int fd = open("/home/tiaghoul/lixooo", O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+            dup2(fd, 1);
+            dup2(fd, 2);
+            close(fd);
+
+            execvp(strings[0], strings);
         }
 
-        execvp(strings[0], strings);
-
     } else {
-        wait(NULL);
+        printf("ffplay running...\n");
     }
 }
 
@@ -96,54 +112,88 @@ public:
     virtual int run(int, char*[]);
 };
 
+class StreamNotificationsI : virtual public StreamNotifications{
+public:
+    virtual void reportAddition(const FCUP::StreamServerEntry& sse, const Ice::Current& ){
+        std::cout << "STREAM COMECOU-> " << sse.name << std::endl;
+    }
+    virtual void reportRemoval(const FCUP::StreamServerEntry& sse, const Ice::Current&){
+        std::cout << "STREAM ACABOU-> " << sse.name << std::endl;
+    }
+};
+
+
 int Subscriber::run(int argc, char* argv[]) {
 
-    std::string topicName = "streams";
-
-    IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
-            communicator()->propertyToProxy("TopicManager.Proxy"));
-    if(!manager)
-    {
-        std::cerr << appName() << ": invalid proxy" << std::endl;
-        return EXIT_FAILURE;
-    }
-
+    int status = 0;
     IceStorm::TopicPrx topic;
-    try
-    {
-        topic = manager->retrieve(topicName);
-    }
-    catch(const IceStorm::NoSuchTopic&)
-    {
-        try
+
+    try {
+
+        IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
+                communicator()->propertyToProxy("TopicManager.Proxy"));
+        if(!manager)
         {
-            topic = manager->create(topicName);
-        }
-        catch(const IceStorm::TopicExists&)
-        {
-            std::cerr << appName() << ": temporary failure. try again." << std::endl;
+            std::cerr << appName() << ": invalid proxy" << std::endl;
             return EXIT_FAILURE;
         }
-    }
 
-    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Clock.Subscriber");
-    return EXIT_SUCCESS;
-}
+        try
+        {
+            topic = manager->retrieve(IceStormInterfaceName);
+        }
+        catch(const IceStorm::NoSuchTopic&)
+        {
+            try
+            {
+                topic = manager->create(IceStormInterfaceName);
+            }
+            catch(const IceStorm::TopicExists&)
+            {
+                std::cerr << appName() << ": temporary failure. try again." << std::endl;
+                return EXIT_FAILURE;
+            }
+        }
 
-int main(int argc, char* argv[])
-{
-//    Subscriber app;
-//    app.run(argc,argv);
+        Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("StreamNotifications.Subscriber");
 
-    int status = 0;
-    Ice::CommunicatorPtr ic;
-    try {
-        ic = Ice::initialize(argc, argv);
-        Ice::ObjectPrx base = ic->stringToProxy("Portal:default -p 9999");
+
+        Ice::Identity subId;
+        subId.name = IceUtil::generateUUID();
+
+        Ice::ObjectPrx subscriber = adapter->add(new StreamNotificationsI, subId);
+
+        adapter->activate();
+        IceStorm::QoS qos;
+
+        subscriber = subscriber->ice_oneway();
+
+        try
+        {
+            topic->subscribeAndGetPublisher(qos, subscriber);
+        }
+        catch(const IceStorm::AlreadySubscribed&)
+        {
+
+        }
+
+        shutdownOnInterrupt();
+
+
+//        IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
+//
+//                streamNotifier = StreamNotificationsPrx::uncheckedCast(obj);
+
+        Ice::ObjectPrx base = communicator()->stringToProxy("Portal:default -p 9999");
         portal = PortalCommunicationPrx::checkedCast(base);
         if (!portal){
             throw "Invalid proxy";
         }
+
+//        Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter(IceStormInterfaceName);
+//        adapter->add(, Ice::stringToIdentity(IceStormInterfaceName));
+//        adapter->activate();
+
 
         rl_attempted_completion_function = command_name_completion;
 
@@ -162,7 +212,8 @@ int main(int argc, char* argv[])
                 if (userCommands[1] == "list") {
                     getStreamsList();
                 } else if (userCommands[1] == "play") {
-                    playStream(argv);
+                    printf("ENTRA NO PLAY\n");
+                    playStream(userCommands[2]);
                 } else if (userCommands[1] == "search") {
                     if(userCommands.size()>2) {
                         searchKeyword(userCommands[2]);
@@ -175,6 +226,7 @@ int main(int argc, char* argv[])
                 }
             }
             else if (userCommands[0] == "exit") {
+                topic->unsubscribe(subscriber);
                 return 0;
             }
             else{
@@ -192,11 +244,20 @@ int main(int argc, char* argv[])
         status = 1;
     }
 
-    if (ic){
-        ic->destroy();
+    if (communicator()){
+        communicator()->destroy();
     }
 
+    communicator()->waitForShutdown();
     return status;
+
+}
+
+int main(int argc, char* argv[])
+{
+    Subscriber app;
+    app.main(argc,argv, "config.sub");
+
 }
 
 

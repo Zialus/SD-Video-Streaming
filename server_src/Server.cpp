@@ -38,19 +38,6 @@ void my_handler(int s){
     exit(0);
 }
 
-void sendVideoTo(int socket, char* ffmpeg_buffer) {
-    int number_of_written_elements = (int) write(socket, ffmpeg_buffer, 63);
-    if (number_of_written_elements < 0){
-        perror("ERROR writing to socket");
-        auto elem = std::find(clientsSocketList.begin(), clientsSocketList.end(), socket);
-        if(elem != clientsSocketList.end()){
-            clientsSocketList.erase(elem);
-        }
-
-        std::cout << "Removed client " << socket << "------" << std::endl;
-    }
-}
-
 int main(int argc, char* argv[])
 {
 
@@ -90,6 +77,7 @@ int main(int argc, char* argv[])
         char* bitrate = argv[5];
         char* encoder = argv[6];
         char* filename = argv[7];
+        char* transportType = argv[8];
         std::cout << whereToListen << " !! " << filename << std::endl;
         
         
@@ -102,8 +90,14 @@ int main(int argc, char* argv[])
         allMyInfo.videoSize = videosize;
         allMyInfo.bitrate = bitrate;
         //falta keywords
+        allMyInfo.endpoint.ip = hostname;
+        allMyInfo.endpoint.port = argv[3];
+        allMyInfo.endpoint.transport = transportType;
 
+
+        printf("PRINT ANTES\n");
         portal->registerStreamServer(allMyInfo);
+        printf("PRINT DEPOIS\n");
 
         pid_t pid = vfork();
         if ( pid < 0 ) {
@@ -254,10 +248,17 @@ int main(int argc, char* argv[])
                     printf("Number -> %d\n", numberOfWrittenElements);
                 }
 
-                for(int socket: clientsSocketList){
-                    printf("SOCKET -> %d !!!\n", socket);
-                    sendVideoTo(socket, ffmpegBuffer);
-                }
+                clientsSocketList.remove_if([ffmpegBuffer](int clientSocket)  {
+
+                    auto bytesWritten = write(clientSocket, ffmpegBuffer, 63);
+                    if (bytesWritten < 0) {
+                        printf("SOCKET DENIED ---> %d !!!\n", clientSocket);
+                        return true;
+                    }
+
+                    printf("SOCKET -> %d !!!\n", clientSocket);
+                    return false;
+                });
 
             }
 

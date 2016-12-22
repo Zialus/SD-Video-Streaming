@@ -1,7 +1,7 @@
 #
 # This property is used by the clients to connect to IceStorm.
 #
-TopicManager.Proxy=DemoIceStorm/TopicManager:default -h localhost -p 10000
+TopicManager.Proxy=FCUPIceStorm/TopicManager:default -h localhost -p 10000
 
 #
 # Network Tracing
@@ -13,10 +13,3 @@ TopicManager.Proxy=DemoIceStorm/TopicManager:default -h localhost -p 10000
 #
 #Ice.Trace.Network=1
 
-#
-# IceMX configuration.
-#
-#Ice.Admin.Endpoints=tcp -h localhost -p 10003
-Ice.Admin.InstanceName=publisher
-IceMX.Metrics.Debug.GroupBy=id
-IceMX.Metrics.ByParent.GroupBy=parent

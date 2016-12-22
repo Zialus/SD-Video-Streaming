@@ -11,16 +11,54 @@
 using namespace FCUP;
 
 StreamsMap list_of_stream_servers;
-StreamWatcherPrx streamzPubz;
+StreamNotificationsPrx streamNotifier;
 
-class Portal : public PortalCommunication
+std::string IceStormInterfaceName = "StreamNotifications";
+
+class Portal : public PortalCommunication,  public Ice::Application
 {
 public:
     void registerStreamServer(const FCUP::StreamServerEntry&, const Ice::Current&) override;
     void closeStream(const std::string&, const Ice::Current&) override;
 
     StreamsMap sendStreamServersList(const Ice::Current&) override;
+
+    virtual int run(int, char*[]) override;
+
+private:
+    int CheckRecheck();
 };
+
+
+int Portal::CheckRecheck() {
+
+    IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
+            communicator()->propertyToProxy("TopicManager.Proxy"));
+    if(!manager)
+    {
+        std::cerr << appName() << ": invalid proxy" << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    IceStorm::TopicPrx topic;
+    try {
+        topic = manager->retrieve(IceStormInterfaceName);
+    }
+    catch (const IceStorm::NoSuchTopic &) {
+        try {
+            topic = manager->create(IceStormInterfaceName);
+        }
+        catch (const IceStorm::TopicExists &) {
+            std::cerr << appName() << ": topic exists, please try again." << std::endl;
+            return EXIT_FAILURE;
+        }
+    }
+
+    Ice::ObjectPrx obj = topic->getPublisher();
+    streamNotifier = StreamNotificationsPrx::uncheckedCast(obj);
+    return EXIT_SUCCESS;
+}
+
 
 void Portal::registerStreamServer(const FCUP::StreamServerEntry& sse, const Ice::Current&)
 {
@@ -34,16 +72,15 @@ void Portal::registerStreamServer(const FCUP::StreamServerEntry& sse, const Ice:
     std::cout << std::endl << "Bye" << std::endl;
 
     std::cout << "publishing something." << std::endl;
+
+    CheckRecheck();
+
     try {
-        streamzPubz->report(sse);
+        streamNotifier->reportAddition(sse);
     }
     catch(const Ice::CommunicatorDestroyedException&) {
         // Ignore
     }
-
-
-
-
 
 }
 
@@ -53,7 +90,7 @@ void Portal::closeStream(const std::string& serverName, const Ice::Current&) {
     if(elem != list_of_stream_servers.end()){
         std::cout << "publishing something." << std::endl;
         try {
-            streamzPubz->report(elem->second);
+            streamNotifier->reportRemoval(elem->second);
         }
         catch(const Ice::CommunicatorDestroyedException&) {
             // Ignore
@@ -72,73 +109,23 @@ StreamsMap Portal::sendStreamServersList(const Ice::Current&)
     return list_of_stream_servers;
 }
 
-class Publisher : public Ice::Application
-{
-public:
 
-    virtual int run(int, char*[]);
-};
+int Portal::run(int argc, char* argv[]) {
 
-int Publisher::run(int argc, char* argv[]) {
-    std::string topicName = "streams";
-
-    IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
-            communicator()->propertyToProxy("TopicManager.Proxy"));
-    if (!manager) {
-        std::cerr << appName() << ": invalid proxy" << std::endl;
+    if(argc > 1)
+    {
+        std::cerr << appName() << ": too many arguments" << std::endl;
         return EXIT_FAILURE;
     }
 
-    IceStorm::TopicPrx topic;
-    try
-    {
-        topic = manager->retrieve(topicName);
-    }
-    catch(const IceStorm::NoSuchTopic&)
-    {
-        try
-        {
-            topic = manager->create(topicName);
-        }
-        catch(const IceStorm::TopicExists&)
-        {
-            std::cerr << appName() << ": temporary failure. try again." << std::endl;
-            return EXIT_FAILURE;
-        }
-    }
-
-    //
-    // Get the topic's publisher object, and create a Clock proxy with
-    // the mode specified as an argument of this application.
-    //
-    Ice::ObjectPrx publisher = topic->getPublisher()->ice_oneway();
-
-
-    streamzPubz = StreamWatcherPrx::uncheckedCast(publisher);
-
-
-    return EXIT_SUCCESS;
-
-
-}
-
-int main(int argc, char* argv[])
-{
-
-    Publisher app;
-    app.main(argc, argv,"config.pub");
-
-    printf("lol");
+    Portal::CheckRecheck();
 
     int status = 0;
-    Ice::CommunicatorPtr ic;
     try {
-        ic = Ice::initialize(argc, argv);
-        Ice::ObjectAdapterPtr adapter = ic->createObjectAdapterWithEndpoints("PortalAdapter", "default -p 9999");
+        Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints("PortalAdapter", "default -p 9999");
         Ice::ObjectPtr object = new Portal;
-        adapter->add(object, ic->stringToIdentity("Portal"));
+        adapter->add(object, communicator()->stringToIdentity("Portal"));
         adapter->activate();
-        ic->waitForShutdown();
     } catch (const Ice::Exception& e) {
         std::cerr << e << std::endl;
         status = 1;
@@ -146,13 +133,19 @@ int main(int argc, char* argv[])
         std::cerr << msg << std::endl;
         status = 1;
     }
-    if (ic) {
-        try {
-            ic->destroy();
-        } catch (const Ice::Exception& e) {
-            std::cerr << e << std::endl;
-            status = 1;
-        }
-    }
+
+    communicator()->waitForShutdown();
+
     return status;
+
+}
+
+
+
+int main(int argc, char* argv[])
+{
+
+    Portal app;
+    return app.main(argc, argv,"config.pub");
+
 }
