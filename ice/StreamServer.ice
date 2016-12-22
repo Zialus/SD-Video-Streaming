@@ -27,7 +27,7 @@ module FCUP{
 		StreamsMap sendStreamServersList();
 	};
 
-    interface StreamNotifications{
+    interface StreamMonitor{
         void reportAddition(StreamServerEntry sse);
         void reportRemoval(StreamServerEntry sse);
     };

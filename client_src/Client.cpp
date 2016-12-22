@@ -4,27 +4,19 @@
 #include <IceUtil/IceUtil.h>
 
 // C
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <readline/readline.h>
-
-
 #include <readline/readline.h>
 #include <readline/history.h>
-#include <err.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <sys/wait.h>
 
 // My stuff
-#include "StreamServer.h"
+#include <StreamServer.h>
 #include "../auxiliary/Auxiliary.h"
 
 using namespace FCUP;
 
 PortalCommunicationPrx portal;
-std::string IceStormInterfaceName = "StreamNotifications";
+std::string topicName = "Streams";
 
 char **command_name_completion(const char *, int, int);
 char *command_name_generator(const char *, int);
@@ -38,23 +30,21 @@ char *command_names[] = {
 };
 
 void playStream(std::string name){
-    printf("ENTRA NO PLAYSTREAM\n");
 
-    int pid = vfork();
-    if ( pid < 0 ) {
-        perror("fork failed");
-        exit(1);
-    }
+    StreamsMap streamList = portal->sendStreamServersList();
+    auto elem = streamList.find(name);
 
-    if ( pid == 0 ) {
+    if(elem != streamList.end()) {
 
-        StreamsMap streamList = portal->sendStreamServersList();
-        auto elem = streamList.find(name);
-        printf("ALLAAAAH AKBAR\n");
-        std::cout << "-------->" << elem->second.name << std::endl;
+        int pid = vfork();
 
+        if (pid < 0) {
+            perror("fork failed");
+            return;
+        }
 
-        if(elem != streamList.end()) {
+        if (pid == 0) {
+
             char **strings = NULL;
             size_t strings_size = 0;
             AddString(&strings, &strings_size, "ffplay");
@@ -70,20 +60,20 @@ void playStream(std::string name){
             AddString(&strings, &strings_size, cstr);
             AddString(&strings, &strings_size, NULL);
 
-            for (int i = 0; strings[i] != NULL; ++i) {
-                printf("|%s|\n", strings[i]);
-            }
-
-            int fd = open("/home/tiaghoul/lixooo", O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+            int fd = fileno( fopen("~/VideoStreamerFCUP_Logs/ffplay.txt", "w+"));
             dup2(fd, 1);
             dup2(fd, 2);
             close(fd);
 
             execvp(strings[0], strings);
+
+
+        } else {
+            printf("ffplay should start soon...\n");
         }
 
     } else {
-        printf("ffplay running...\n");
+        printf("There is no stream with that name..\n");
     }
 }
 
@@ -115,13 +105,14 @@ public:
     virtual int run(int, char*[]);
 };
 
-class StreamNotificationsI : virtual public StreamNotifications{
+class StreamMonitorI : virtual public StreamMonitor{
 public:
     virtual void reportAddition(const FCUP::StreamServerEntry& sse, const Ice::Current& ){
-        std::cout << "STREAM COMECOU-> " << sse.name << std::endl;
+        std::cout << std::endl <<  "A new stream was created -> " << sse.name << std::endl;
     }
     virtual void reportRemoval(const FCUP::StreamServerEntry& sse, const Ice::Current&){
-        std::cout << "STREAM ACABOU-> " << sse.name << std::endl;
+        std::cout << std::endl << "A stream was deleted.. rip -> " << sse.name << std::endl;
+
     }
 };
 
@@ -143,13 +134,13 @@ int Subscriber::run(int argc, char* argv[]) {
 
         try
         {
-            topic = manager->retrieve(IceStormInterfaceName);
+            topic = manager->retrieve(topicName);
         }
         catch(const IceStorm::NoSuchTopic&)
         {
             try
             {
-                topic = manager->create(IceStormInterfaceName);
+                topic = manager->create(topicName);
             }
             catch(const IceStorm::TopicExists&)
             {
@@ -164,7 +155,7 @@ int Subscriber::run(int argc, char* argv[]) {
         Ice::Identity subId;
         subId.name = IceUtil::generateUUID();
 
-        Ice::ObjectPrx subscriber = adapter->add(new StreamNotificationsI, subId);
+        Ice::ObjectPrx subscriber = adapter->add(new StreamMonitorI, subId);
 
         adapter->activate();
         IceStorm::QoS qos;
@@ -193,8 +184,8 @@ int Subscriber::run(int argc, char* argv[]) {
             throw "Invalid proxy";
         }
 
-//        Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter(IceStormInterfaceName);
-//        adapter->add(, Ice::stringToIdentity(IceStormInterfaceName));
+//        Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter(topicName);
+//        adapter->add(, Ice::stringToIdentity(topicName));
 //        adapter->activate();
 
 
@@ -219,7 +210,6 @@ int Subscriber::run(int argc, char* argv[]) {
                 if (userCommands[1] == "list") {
                     getStreamsList();
                 } else if (userCommands[1] == "play") {
-                    printf("ENTRA NO PLAY\n");
                     playStream(userCommands[2]);
                 } else if (userCommands[1] == "search") {
                     if(userCommands.size()>2) {

@@ -1,124 +1,114 @@
 #include <Ice/Ice.h>
-#include <IceUtil/IceUtil.h>
 #include <IceStorm/IceStorm.h>
 #include <StreamServer.h>
-
-#include <signal.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
 
 using namespace FCUP;
 
 StreamsMap list_of_stream_servers;
-StreamNotificationsPrx streamNotifier;
+StreamMonitorPrx streamNotifier;
 
-std::string IceStormInterfaceName = "StreamNotifications";
+std::string topicName = "Streams";
 
-class Portal : public PortalCommunication,  public Ice::Application
-{
+class Portal : public PortalCommunication,  public Ice::Application {
 public:
     void registerStreamServer(const FCUP::StreamServerEntry&, const Ice::Current&) override;
     void closeStream(const std::string&, const Ice::Current&) override;
-
     StreamsMap sendStreamServersList(const Ice::Current&) override;
 
-    virtual int run(int, char*[]) override;
-
 private:
-    int CheckRecheck();
+    int run(int, char*[]) override;
+    int refreshTopicManager();
 };
 
-
-int Portal::CheckRecheck() {
+int Portal::refreshTopicManager() {
 
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
             communicator()->propertyToProxy("TopicManager.Proxy"));
-    if(!manager)
-    {
+
+    if(!manager) {
         std::cerr << appName() << ": invalid proxy" << std::endl;
         return EXIT_FAILURE;
     }
 
     IceStorm::TopicPrx topic;
+
     try {
-        topic = manager->retrieve(IceStormInterfaceName);
-    }
-    catch (const IceStorm::NoSuchTopic &) {
+        topic = manager->retrieve(topicName);
+    } catch (const IceStorm::NoSuchTopic&) {
         try {
-            topic = manager->create(IceStormInterfaceName);
-        }
-        catch (const IceStorm::TopicExists &) {
+            topic = manager->create(topicName);
+        } catch (const IceStorm::TopicExists&) {
             std::cerr << appName() << ": topic exists, please try again." << std::endl;
             return EXIT_FAILURE;
         }
     }
 
     Ice::ObjectPrx obj = topic->getPublisher();
-    streamNotifier = StreamNotificationsPrx::uncheckedCast(obj);
+    streamNotifier = StreamMonitorPrx::uncheckedCast(obj);
     return EXIT_SUCCESS;
 }
 
+void Portal::registerStreamServer(const FCUP::StreamServerEntry& sse, const Ice::Current&) {
 
-void Portal::registerStreamServer(const FCUP::StreamServerEntry& sse, const Ice::Current&)
-{
     list_of_stream_servers[sse.name] = sse;
 
+    std::cout << std::endl << "_________" << std::endl;
+    std::cout << "Added a new stream server: " << sse.name << std::endl;
 
-    std::cout << "I'm a portal printing some keywords for the lulz" << std::endl;
+    std::cout << "Video keywords:  ";
     for (auto it = sse.keywords.begin(); it != sse.keywords.end(); ++it){
         std::cout << *it << ' ';
     }
-    std::cout << std::endl << "Bye" << std::endl;
+    std::cout << std::endl << "---------" << std::endl;
 
-    std::cout << "publishing something." << std::endl;
-
-    CheckRecheck();
+    refreshTopicManager();
 
     try {
         streamNotifier->reportAddition(sse);
-    }
-    catch(const Ice::CommunicatorDestroyedException&) {
-        // Ignore
+        std::cout << "Publishing a stream addition." << std::endl;
+    } catch (const Ice::Exception& e) {
+        std::cerr << e << std::endl;
+    } catch (const char* msg) {
+        std::cerr << msg << std::endl;
     }
 
 }
 
 void Portal::closeStream(const std::string& serverName, const Ice::Current&) {
-    std::cout << "Going to close the stream -> " << serverName << std::endl;
+
+    std::cout << "Closing the stream: " << serverName << std::endl;
     auto elem = list_of_stream_servers.find(serverName);
+
     if(elem != list_of_stream_servers.end()){
-        std::cout << "publishing something." << std::endl;
-        try {
-            streamNotifier->reportRemoval(elem->second);
-        }
-        catch(const Ice::CommunicatorDestroyedException&) {
-            // Ignore
-        }
         list_of_stream_servers.erase(elem);
         std::cout << "Closed stream -> " << serverName << std::endl;
-    }
-    else{
+
+        try {
+            streamNotifier->reportRemoval(elem->second);
+            std::cout << "Publishing a stream removal." << std::endl;
+        } catch (const Ice::Exception& e) {
+            std::cerr << e << std::endl;
+        } catch (const char* msg) {
+            std::cerr << msg << std::endl;
+        }
+
+    } else{
         std::cout << "Couldn't close/find stream -> " << serverName << std::endl;
     }
 }
 
-
-StreamsMap Portal::sendStreamServersList(const Ice::Current&)
-{
+StreamsMap Portal::sendStreamServersList(const Ice::Current&) {
     return list_of_stream_servers;
 }
 
-
 int Portal::run(int argc, char* argv[]) {
 
-    if(argc > 1)
-    {
+    if(argc > 1) {
         std::cerr << appName() << ": too many arguments" << std::endl;
         return EXIT_FAILURE;
     }
 
-    Portal::CheckRecheck();
+    Portal::refreshTopicManager();
 
     int status = 0;
     try {
@@ -137,15 +127,10 @@ int Portal::run(int argc, char* argv[]) {
     communicator()->waitForShutdown();
 
     return status;
-
 }
 
-
-
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
 
     Portal app;
     return app.main(argc, argv,"config.pub");
-
 }
