@@ -207,6 +207,10 @@ int Subscriber::run(int argc, char* argv[]) {
 
             std::vector<std::string> userCommands = split(input, ' ');
 
+            if (userCommands.empty()){
+                continue;
+            }
+
             if(userCommands[0] == "stream") {
 
                 if (userCommands[1] == "list") {
