@@ -36,12 +36,12 @@ add_custom_command(
         COMMAND ${Ice_SLICE2CPP_EXECUTABLE} ${ice_SLICE}
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/ice
         DEPENDS ${ice_SLICE}
+        COMMENT "Running SLICE2CPP..."
 )
 
 add_custom_target(
         IceGenerated
         DEPENDS ${ice_HDR} ${ice_SRC}
-        COMMENT "Gotta run SLICE2CPP..."
 )
 
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/executables)
