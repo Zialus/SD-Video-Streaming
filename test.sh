@@ -2,6 +2,8 @@
 
 set -x
 
+mkdr db
+
 mkdir -p ~/VideoStreamerFCUP_Logs
 
 cd ~/Downloads
