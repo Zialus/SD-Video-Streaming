@@ -22,11 +22,9 @@
 
 using namespace FCUP;
 
-
 std::string serverName;
 PortalCommunicationPrx portal;
 std::list<int> clientsSocketList;
-
 
 class Server : public Ice::Application {
 public:
@@ -40,13 +38,14 @@ void my_handler(int s){
     printf("Caught signal %d\n",s);
     Server::closeStream();
     Server::destroyComm();
+    printf("Exiting now\n");
     exit(0);
 }
 
 void Server::closeStream(){
-    printf("HI HELLO\n");
+    printf("Gonna close the stream\n");
     portal->closeStream(serverName);
-    printf("MY NAME IS JOE\n");
+    printf("Stream closed\n");
 }
 
 
@@ -151,7 +150,7 @@ int Server::run(int argc, char* argv[]) {
 
             char *portToReceiveVideo;
             char *ffmpegServer;
-            char ffmpegBuffer[1024];
+            char ffmpegBuffer[64];
 
             // argv[1] contains name of the server
             ffmpegServer = argv[1];
@@ -241,14 +240,14 @@ int Server::run(int argc, char* argv[]) {
                     clientsSocketList.push_back(new_socket_fd);
                 }
 
-                numberOfWrittenElements = (int) read(socketToReceiveVideoFD, ffmpegBuffer, 1023);
+                numberOfWrittenElements = (int) read(socketToReceiveVideoFD, ffmpegBuffer, 63);
 
                 if (numberOfWrittenElements < 0){
                     perror("ERROR reading from socket");
                     exit(1);
                 }   else if (numberOfWrittenElements == 0){
-                    printf("Stream is over..");
-                    break;
+                    printf("Stream is over..\n");
+                    //break;
                 }
                 else{
                     printf("Number -> %d\n", numberOfWrittenElements);
@@ -256,13 +255,13 @@ int Server::run(int argc, char* argv[]) {
 
                 clientsSocketList.remove_if([ffmpegBuffer](int clientSocket)  {
 
-                    auto bytesWritten = write(clientSocket, ffmpegBuffer, 1023);
+                    auto bytesWritten = write(clientSocket, ffmpegBuffer, 63);
                     if (bytesWritten < 0) {
                         printf("SOCKET DENIED ---> %d !!!\n", clientSocket);
                         return true;
                     }
 
-                    printf("SOCKET -> %d !!!\n", clientSocket);
+                    printf("SOCKET -> %d | %ld !!!\n", clientSocket, bytesWritten);
                     return false;
                 });
 
