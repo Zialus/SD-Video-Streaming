@@ -14,6 +14,7 @@
 #include <fstream>
 #include <stdlib.h>
 #include <sys/ioctl.h>
+#include <IceUtil/CtrlCHandler.h>
 
 // My stuff
 #include "StreamServer.h"
@@ -26,45 +27,65 @@ std::string serverName;
 PortalCommunicationPrx portal;
 std::list<int> clientsSocketList;
 
-void closeStream(){
+
+class Server : public Ice::Application {
+public:
+    Server();
+    virtual int run(int, char*[]);
+    static void destroyComm();
+    static void closeStream();
+};
+
+void my_handler(int s){
+    printf("Caught signal %d\n",s);
+    Server::closeStream();
+    Server::destroyComm();
+    exit(0);
+}
+
+void Server::closeStream(){
     printf("HI HELLO\n");
     portal->closeStream(serverName);
     printf("MY NAME IS JOE\n");
 }
 
-void my_handler(int s){
-    printf("Caught signal %d\n",s);
-    closeStream();
-    exit(0);
+
+Server::Server() : Ice::Application(Ice::NoSignalHandling){
+    struct sigaction sigIntHandler;
+    sigIntHandler.sa_handler = my_handler;
+    sigemptyset(&sigIntHandler.sa_mask);
+    sigIntHandler.sa_flags = 0;
+    sigaction(SIGINT, &sigIntHandler, NULL);
+    sigaction(SIGSTOP, &sigIntHandler, NULL);
+    sigaction(SIGKILL, &sigIntHandler, NULL);
+    sigaction(SIGTERM, &sigIntHandler, NULL);
+};
+
+void Server::destroyComm() {
+    if (communicator()){
+        communicator()->destroy();
+    }
 }
 
-int main(int argc, char* argv[])
-{
+int Server::run(int argc, char* argv[]) {
 
-    if (argc < 4)
+    if (argc < 9)
     {
         fprintf(stderr,"ERROR, you need to provide 3 arguments: a file with the ffmpeg options, a port to start ffmpeg on and a file with commands");
         exit(1);
     }
 
     int status = 0;
-    Ice::CommunicatorPtr ic;
+
     try {
-        ic = Ice::initialize(argc, argv);
-        Ice::ObjectPrx base = ic->stringToProxy("Portal:default -p 9999");
+
+        Ice::ObjectPrx base = communicator()->stringToProxy("Portal:default -p 9999");
         portal = PortalCommunicationPrx::checkedCast(base);
         if (!portal){
             throw "Invalid proxy";
         }
 
-        struct sigaction sigIntHandler;
-        sigIntHandler.sa_handler = my_handler;
-        sigemptyset(&sigIntHandler.sa_mask);
-        sigIntHandler.sa_flags = 0;
-        sigaction(SIGINT, &sigIntHandler, NULL);
-        sigaction(SIGSTOP, &sigIntHandler, NULL);
-        sigaction(SIGKILL, &sigIntHandler, NULL);
-        sigaction(SIGTERM, &sigIntHandler, NULL);
+
 
         char* hostname = argv[1];
         int port = atoi(argv[2]);
@@ -99,7 +120,6 @@ int main(int argc, char* argv[])
         allMyInfo.name = serverName;
         allMyInfo.videoSize = videosize;
         allMyInfo.bitrate = bitrate;
-        //falta keywords
         allMyInfo.endpoint.ip = hostname;
         allMyInfo.endpoint.port = argv[3];
         allMyInfo.endpoint.transport = transportType;
@@ -122,10 +142,7 @@ int main(int argc, char* argv[])
                    "yuv420p","-tune","zerolatency","-preset","ultrafast","-b:v", bitrate,"-g","30","-c:a","flac","-profile:a","aac_he","-b:a",
                    "32k","-f","mpegts",whereToListen,NULL);
 
-
         } else { // Parent will only start executing after child calls execvp because we are using vfork()
-
-            sleep(1);
 
             int n;
             int socketToReceiveVideoFD;
@@ -134,7 +151,7 @@ int main(int argc, char* argv[])
 
             char *portToReceiveVideo;
             char *ffmpegServer;
-            char ffmpegBuffer[64];
+            char ffmpegBuffer[1024];
 
             // argv[1] contains name of the server
             ffmpegServer = argv[1];
@@ -155,7 +172,7 @@ int main(int argc, char* argv[])
             }
 
             ressave=res;
-
+            sleep(1); //waiting for ffserver
             do{
                 socketToReceiveVideoFD=socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 
@@ -165,7 +182,7 @@ int main(int argc, char* argv[])
                 if(connect(socketToReceiveVideoFD, res->ai_addr, res->ai_addrlen)==0) {
                     printf("connection ok!\n"); /* success*/
                     break;
-                } else  {
+                } else{
                     perror("connecting stream socket");
                 }
 
@@ -173,8 +190,7 @@ int main(int argc, char* argv[])
 
             freeaddrinfo(ressave);
 
-            printf("Connection to FFMPEG succeded!!");
-            sleep(1);
+            printf("Connection to FFMPEG succeded!!\n");
 
             //--------------SERVER PART-----------------//
 
@@ -225,17 +241,22 @@ int main(int argc, char* argv[])
                     clientsSocketList.push_back(new_socket_fd);
                 }
 
-                numberOfWrittenElements = (int) read(socketToReceiveVideoFD, ffmpegBuffer, 63);
+                numberOfWrittenElements = (int) read(socketToReceiveVideoFD, ffmpegBuffer, 1023);
+
                 if (numberOfWrittenElements < 0){
                     perror("ERROR reading from socket");
                     exit(1);
-                } else{
+                }   else if (numberOfWrittenElements == 0){
+                    printf("Stream is over..");
+                    break;
+                }
+                else{
                     printf("Number -> %d\n", numberOfWrittenElements);
                 }
 
                 clientsSocketList.remove_if([ffmpegBuffer](int clientSocket)  {
 
-                    auto bytesWritten = write(clientSocket, ffmpegBuffer, 63);
+                    auto bytesWritten = write(clientSocket, ffmpegBuffer, 1023);
                     if (bytesWritten < 0) {
                         printf("SOCKET DENIED ---> %d !!!\n", clientSocket);
                         return true;
@@ -246,7 +267,7 @@ int main(int argc, char* argv[])
                 });
 
             }
-
+            closeStream();
         }
 
     } catch (const Ice::Exception& ex) {
@@ -257,9 +278,15 @@ int main(int argc, char* argv[])
         status = 1;
     }
 
-    if (ic){
-        ic->destroy();
-    }
-
+    destroyComm();
     return status;
+
+}
+
+
+
+int main(int argc, char* argv[])
+{
+    Server app;
+    app.main(argc,argv, NULL);
 }
