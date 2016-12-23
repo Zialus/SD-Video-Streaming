@@ -60,7 +60,12 @@ void playStream(std::string name){
             AddString(&strings, &strings_size, cstr);
             AddString(&strings, &strings_size, NULL);
 
-            int fd = fileno( fopen("~/VideoStreamerFCUP_Logs/ffplay.txt", "w+"));
+            FILE *ffPlayLog = fopen("/dev/null", "w+");
+
+            if(ffPlayLog == NULL){
+                printf("Error opening file ffPlayLog..\n");
+            }
+            int fd = fileno( ffPlayLog );
             dup2(fd, 1);
             dup2(fd, 2);
             close(fd);
