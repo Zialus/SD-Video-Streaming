@@ -80,7 +80,6 @@ void Portal::closeStream(const std::string& serverName, const Ice::Current&) {
     auto elem = list_of_stream_servers.find(serverName);
 
     if(elem != list_of_stream_servers.end()){
-        list_of_stream_servers.erase(elem);
         std::cout << "Closed stream -> " << serverName << std::endl;
 
         try {
@@ -91,6 +90,8 @@ void Portal::closeStream(const std::string& serverName, const Ice::Current&) {
         } catch (const char* msg) {
             std::cerr << msg << std::endl;
         }
+        list_of_stream_servers.erase(elem);
+
 
     } else{
         std::cout << "Couldn't close/find stream -> " << serverName << std::endl;
