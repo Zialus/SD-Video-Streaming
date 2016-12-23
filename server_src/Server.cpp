@@ -79,11 +79,21 @@ int main(int argc, char* argv[])
         char* filename = argv[7];
         char* transportType = argv[8];
         std::cout << whereToListen << " !! " << filename << std::endl;
-        
-        
+
         StreamServerEntry allMyInfo;
 
-        StringSequence keywords = {"basketball","Cavs","indoor","sports"};
+        char* keywordsWithCommas = argv[9];
+
+        std::string str(keywordsWithCommas);
+
+        std::vector<std::string> keywordVector = split(keywordsWithCommas, ',');
+
+        StringSequence keywords;
+
+        for (std::string keyword: keywordVector) {
+            keywords.push_back(keyword);
+        }
+
         allMyInfo.keywords = keywords;
         serverName = IceUtil::generateUUID();
         allMyInfo.name = serverName;
@@ -106,31 +116,6 @@ int main(int argc, char* argv[])
         }
 
         if ( pid == 0 ) { // Child process
-//
-//            char** strings = NULL;
-//            size_t count = 0;
-//            char string[1000];
-//
-//            argv[3] contains txt file with ffmpeg options
-//            std::ifstream file(argv[3]);
-//
-//            if(file.is_open()){
-//                file >> string;
-//                while (!file.eof() ) {
-//                    AddString(&strings, &count, string);
-//                    file >> string;
-//                }
-//                file.close();
-//            } else{
-//                std::cout << "File could not be opened." << std::endl;
-//            }
-//            AddString(&strings, &count, NULL);
-//
-//            for (int i = 0; strings[i] != NULL; ++i) {
-//                printf("|%s|\n",strings[i]);
-//            }
-//            execvp(strings[0], strings);
-            
 
             execlp("ffmpeg","ffmpeg","-re","-i",filename,"-loglevel","warning",
                    "-analyzeduration","500k","-probesize","500k","-r","30","-s",videosize,"-c:v",encoder,"-preset","ultrafast","-pix_fmt",
