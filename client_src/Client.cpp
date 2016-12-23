@@ -101,7 +101,29 @@ void getStreamsList(){
 }
 
 void searchKeyword(std::string keyword) {
-
+    StreamsMap streamList = portal->sendStreamServersList();
+    int size = (int) streamList.size();
+    if(size > 0){
+        int counter=0;
+        for(auto const& stream : streamList){
+            if(!stream.second.keywords.empty()){
+                for(std::string key : stream.second.keywords){
+                    if(key == keyword){
+                        std::cout << "\t" << counter+1 << ". " << stream.first << " Video Size: " << stream.second.videoSize << " Bit Rate: " << stream.second.bitrate << std::endl;
+                        counter++;
+                        break;
+                    }
+                }
+            }
+        }
+        if(counter == 0){
+            std::cout << "There is no stream with that given keyword.." << std::endl;
+        }
+    }
+    else{
+        std::cout << "No available streams atm." << std::endl;
+    }
+    return;
 }
 
 class Subscriber : public Ice::Application {
@@ -167,12 +189,10 @@ int Subscriber::run(int argc, char* argv[]) {
 
         subscriber = subscriber->ice_oneway();
 
-        try
-        {
+        try {
             topic->subscribeAndGetPublisher(qos, subscriber);
         }
-        catch(const IceStorm::AlreadySubscribed&)
-        {
+        catch(const IceStorm::AlreadySubscribed&) {
 
         }
 
@@ -215,7 +235,11 @@ int Subscriber::run(int argc, char* argv[]) {
                 if (userCommands[1] == "list") {
                     getStreamsList();
                 } else if (userCommands[1] == "play") {
-                    playStream(userCommands[2]);
+                    if(userCommands.size()==3) {
+                        playStream(userCommands[2]);
+                    } else{
+                        std::cout << "Must include one (and only one) stream name.." << std::endl;
+                    }
                 } else if (userCommands[1] == "search") {
                     if(userCommands.size()>2) {
                         searchKeyword(userCommands[2]);
@@ -223,8 +247,8 @@ int Subscriber::run(int argc, char* argv[]) {
                         std::cout << "You need to pass one or more keywords.." << std::endl;
                     }
                 } else{
-                    //por os comandos disponiveis
-                    std::cout << "Can't find that command" << std::endl;
+
+                    std::cout << "Can't find that command. Press tab (2x) to see the available commands.." << std::endl;
                 }
             }
             else if (userCommands[0] == "exit") {
@@ -255,20 +279,17 @@ int Subscriber::run(int argc, char* argv[]) {
     return status;
 }
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
     Subscriber app;
     app.main(argc,argv, "config.sub");
 }
 
-char **command_name_completion(const char *text, int start, int end)
-{
+char **command_name_completion(const char *text, int start, int end) {
     rl_attempted_completion_over = 1;
     return rl_completion_matches(text, command_name_generator);
 }
 
-char *command_name_generator(const char *text, int state)
-{
+char *command_name_generator(const char *text, int state) {
     static int list_index, len;
     char *name;
 
