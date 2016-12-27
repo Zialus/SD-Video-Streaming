@@ -5,7 +5,10 @@ dist: trusty
 script:
     - mkdir build && cd build
     - cmake .. && make
-    - cd .. && ./test.sh
+    - cd ..
+    - ./download_videos.sh
+    - ./set_things_up.sh
+    - ./run_basic.test.sh
 
 matrix:
   include:
