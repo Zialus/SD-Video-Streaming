@@ -21,13 +21,7 @@ std::string topicName = "Streams";
 char **command_name_completion(const char *, int, int);
 char *command_name_generator(const char *, int);
 
-char *command_names[] = {
-        (char*) "stream list",
-        (char*) "stream search",
-        (char*) "stream play",
-        (char*) "exit",
-        NULL
-};
+
 
 void playStream(std::string name){
 
@@ -126,25 +120,41 @@ void searchKeyword(std::string keyword) {
     return;
 }
 
-class Subscriber : public Ice::Application {
+class Client : public Ice::Application {
 public:
-
-    virtual int run(int, char*[]);
+    virtual void interruptCallback(int) override;
+    virtual int run(int, char*[]) override;
+    void killFFPlay();
 };
 
 class StreamMonitorI : virtual public StreamMonitor{
 public:
     virtual void reportAddition(const FCUP::StreamServerEntry& sse, const Ice::Current& ){
-        std::cout << std::endl <<  "A new stream was created -> " << sse.name << std::endl;
+        std::cout << std::endl << "A new stream was created... -> " << sse.name << std::endl;
     }
     virtual void reportRemoval(const FCUP::StreamServerEntry& sse, const Ice::Current&){
-        std::cout << std::endl << "A stream was deleted.. rip -> " << sse.name << std::endl;
+        std::cout << std::endl << "A stream was deleted... -> " << sse.name << std::endl;
 
     }
 };
 
+void Client::killFFPlay(){
+    printf("Killing the ffplay processes...\n");
+    //NOT IMPLEMENTED YET
+}
 
-int Subscriber::run(int argc, char* argv[]) {
+
+void Client::interruptCallback(int signal) {
+    printf("Caught the signal: %d!!\n",signal);
+
+    Client::killFFPlay();
+
+    printf("Trying to exit now...\n");
+    _exit(0);
+}
+
+
+int Client::run(int argc, char* argv[]) {
 
     int status = 0;
     IceStorm::TopicPrx topic;
@@ -280,9 +290,18 @@ int Subscriber::run(int argc, char* argv[]) {
 }
 
 int main(int argc, char* argv[]) {
-    Subscriber app;
+    Client app;
     app.main(argc,argv, "config.sub");
 }
+
+
+char *command_names[] = {
+        (char*) "stream list",
+        (char*) "stream search",
+        (char*) "stream play",
+        (char*) "exit",
+        NULL
+};
 
 char **command_name_completion(const char *text, int start, int end) {
     rl_attempted_completion_over = 1;

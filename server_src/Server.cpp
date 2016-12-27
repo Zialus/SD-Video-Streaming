@@ -20,53 +20,48 @@
 #include "StreamServer.h"
 #include "../auxiliary/Auxiliary.h"
 
+
 using namespace FCUP;
 
 std::string serverName;
 PortalCommunicationPrx portal;
 std::list<int> clientsSocketList;
+pid_t ffmpegID;
 
 class Server : public Ice::Application {
 public:
-    Server();
-    virtual int run(int, char*[]);
-    static void destroyComm();
-    static void closeStream();
+    virtual void interruptCallback(int) override;
+    virtual int run(int, char *[]) override;
+    void closeStream();
+    void killFFMpeg();
 };
 
-void my_handler(int s){
-    printf("Caught signal %d\n",s);
-    Server::closeStream();
-    Server::destroyComm();
-    printf("Exiting now\n");
-    exit(0);
+void Server::killFFMpeg(){
+    printf("Killing the ffmpeg process...\n");
+    kill( ffmpegID, SIGTERM );
 }
 
 void Server::closeStream(){
-    printf("Gonna close the stream\n");
+    printf("Trying to close the stream...\n");
     portal->closeStream(serverName);
     printf("Stream closed\n");
 }
 
+void Server::interruptCallback(int signal) {
+    printf("Caught the signal: %d!!\n",signal);
 
-Server::Server() : Ice::Application(Ice::NoSignalHandling){
-    struct sigaction sigIntHandler;
-    sigIntHandler.sa_handler = my_handler;
-    sigemptyset(&sigIntHandler.sa_mask);
-    sigIntHandler.sa_flags = 0;
-    sigaction(SIGINT, &sigIntHandler, NULL);
-    sigaction(SIGSTOP, &sigIntHandler, NULL);
-    sigaction(SIGKILL, &sigIntHandler, NULL);
-    sigaction(SIGTERM, &sigIntHandler, NULL);
-};
+    Server::closeStream();
 
-void Server::destroyComm() {
-    if (communicator()){
-        communicator()->destroy();
-    }
+    Server::killFFMpeg();
+
+    printf("Trying to exit now...\n");
+    _exit(0);
 }
 
+
 int Server::run(int argc, char* argv[]) {
+
+    callbackOnInterrupt();
 
     if (argc < 9)
     {
@@ -143,6 +138,7 @@ int Server::run(int argc, char* argv[]) {
 
         } else { // Parent will only start executing after child calls execvp because we are using vfork()
 
+            ffmpegID = pid;
             int n;
             int socketToReceiveVideoFD;
             int numberOfWrittenElements;
@@ -250,7 +246,7 @@ int Server::run(int argc, char* argv[]) {
                     //break;
                 }
                 else{
-                    printf("Number -> %d\n", numberOfWrittenElements);
+//                    printf("Number -> %d\n", numberOfWrittenElements);
                 }
 
                 clientsSocketList.remove_if([ffmpegBuffer](int clientSocket)  {
@@ -277,12 +273,9 @@ int Server::run(int argc, char* argv[]) {
         status = 1;
     }
 
-    destroyComm();
     return status;
 
 }
-
-
 
 int main(int argc, char* argv[])
 {
