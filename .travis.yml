@@ -8,7 +8,7 @@ script:
     - cd ..
     - ./download_videos.sh
     - ./set_things_up.sh
-    - ./run_basic.test.sh
+    - ./run_basic_test.sh
 
 matrix:
   include:
