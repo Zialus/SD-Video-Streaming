@@ -29,6 +29,16 @@ matrix:
         - sudo add-apt-repository ppa:mc3man/trusty-media -y
         - sudo apt-get update -y
         - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev ffmpeg
+        - sudo apt-get install build-essential libpcre3 libpcre3-dev libssl-dev
+        - sudo mkdir ~/build-nginx && cd ~/build-nginx
+        - sudo git clone git://github.com/arut/nginx-rtmp-module.git
+        - sudo wget http://nginx.org/download/nginx-1.10.2.tar.gz
+        - sudo tar xzf nginx-1.10.2.tar.gz
+        - cd nginx-1.10.2
+        - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module
+        - sudo make
+        - sudo make install
+        - sudo /usr/local/nginx/sbin/nginx
     - os: linux
       compiler: clang++
       addons:
@@ -48,12 +58,24 @@ matrix:
         - sudo add-apt-repository ppa:mc3man/trusty-media -y
         - sudo apt-get update -y
         - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev clang-3.9 libc++-dev libc++abi-dev ffmpeg
+        - sudo apt-get install build-essential libpcre3 libpcre3-dev libssl-dev
+        - sudo mkdir ~/build-nginx && cd ~/build-nginx
+        - sudo git clone git://github.com/arut/nginx-rtmp-module.git
+        - sudo wget http://nginx.org/download/nginx-1.10.2.tar.gz
+        - sudo tar xzf nginx-1.10.2.tar.gz
+        - cd nginx-1.10.2
+        - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module
+        - sudo make
+        - sudo make install
+        - sudo /usr/local/nginx/sbin/nginx
     - os: osx
       osx_image: xcode8.2
       compiler: clang
       env: COMPILER=clang++
       before_install:
+        - brew tap homebrew/nginx
         - brew update
         - brew install cmake
         - brew install ice
         - brew install ffmpeg
+        - brew install nginx-full --with-rtmp-module

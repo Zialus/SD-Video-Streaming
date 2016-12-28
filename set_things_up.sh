@@ -2,5 +2,5 @@
 
 set -x
 
-mkdir db
+mkdir -p ~/db
 mkdir -p ~/VideoStreamerFCUP_Logs
