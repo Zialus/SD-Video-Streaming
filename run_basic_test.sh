@@ -1,6 +1,6 @@
 #!/bin/bash
 
-icebox --Ice.Config=config.icebox &
+set -x
 
 sleep 1
 

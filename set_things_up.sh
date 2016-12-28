@@ -2,5 +2,7 @@
 
 set -x
 
-mkdir -p ~/db
 mkdir -p ~/VideoStreamerFCUP_Logs
+
+mkdir db
+icebox --Ice.Config=config.icebox &

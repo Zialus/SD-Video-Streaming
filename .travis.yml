@@ -39,6 +39,7 @@ matrix:
         - sudo make
         - sudo make install
         - sudo /usr/local/nginx/sbin/nginx
+        - cd ..
     - os: linux
       compiler: clang++
       addons:
@@ -68,6 +69,7 @@ matrix:
         - sudo make
         - sudo make install
         - sudo /usr/local/nginx/sbin/nginx
+        - cd ..
     - os: osx
       osx_image: xcode8.2
       compiler: clang
@@ -79,3 +81,4 @@ matrix:
         - brew install ice
         - brew install ffmpeg
         - brew install nginx-full --with-rtmp-module
+        - nginx
