@@ -38,8 +38,9 @@ matrix:
         - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module
         - sudo make
         - sudo make install
+        - sudo cp ~/build/Zialus/SD-VideoStreaming/extras/nginx.conf /usr/local/nginx/conf/
         - sudo /usr/local/nginx/sbin/nginx
-        - cd ..
+        - popd
     - os: linux
       compiler: clang++
       addons:
@@ -60,6 +61,7 @@ matrix:
         - sudo apt-get update -y
         - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev clang-3.9 libc++-dev libc++abi-dev ffmpeg
         - sudo apt-get install build-essential libpcre3 libpcre3-dev libssl-dev
+        - pushd .
         - sudo mkdir ~/build-nginx && cd ~/build-nginx
         - sudo git clone git://github.com/arut/nginx-rtmp-module.git
         - sudo wget http://nginx.org/download/nginx-1.10.2.tar.gz
@@ -68,8 +70,9 @@ matrix:
         - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module
         - sudo make
         - sudo make install
+        - sudo cp ~/build/Zialus/SD-VideoStreaming/extras/nginx.conf /usr/local/nginx/conf/
         - sudo /usr/local/nginx/sbin/nginx
-        - cd ..
+        - popd
     - os: osx
       osx_image: xcode8.2
       compiler: clang
@@ -81,4 +84,5 @@ matrix:
         - brew install ice
         - brew install ffmpeg
         - brew install nginx-full --with-rtmp-module
+        - cp ~/build/Zialus/SD-VideoStreaming/extras/nginx.conf /usr/local/etc/nginx/
         - nginx
