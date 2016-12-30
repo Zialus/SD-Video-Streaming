@@ -25,7 +25,9 @@
 
 using namespace FCUP;
 
-pid_t ffmpegID;
+pid_t regularFFmpegID = -9;
+pid_t hlsFFmpegID = -9;
+pid_t dashFFmpegID = -9;
 
 std::string hostname;
 std::string moviename;
@@ -54,7 +56,15 @@ private:
 
 void Server::killFFMpeg() {
     printf("Killing the ffmpeg process...\n");
-    kill( ffmpegID, SIGKILL );
+    if(regularFFmpegID != -9) {
+        kill(regularFFmpegID, SIGKILL);
+    }
+    if(hlsFFmpegID != -9) {
+        kill(hlsFFmpegID, SIGKILL);
+    }
+    if(dashFFmpegID != -9) {
+        kill(dashFFmpegID, SIGKILL);
+    }
 }
 
 void Server::closeStream() {
@@ -107,6 +117,7 @@ int Server::run(int argc, char* argv[]) {
         printf("Done!\n");
 
         pid_t pid = vfork();
+        regularFFmpegID = pid;
         if ( pid < 0 ) {
             perror("fork failed");
             return 1;
@@ -121,7 +132,7 @@ int Server::run(int argc, char* argv[]) {
 
             std::cout << "| "<< whereToListen << " |" << std::endl;
 
-            execlp("ffmpeg","ffmpeg","-re","-i",filename.c_str(),"-loglevel","verbose",
+            execlp("ffmpeg","ffmpeg","-re","-i",filename.c_str(),"-loglevel","warning",
                    "-analyzeduration","500k","-probesize","500k","-r","30","-s",videosize.c_str(),"-c:v",encoder.c_str(),"-preset","ultrafast","-pix_fmt",
                    "yuv420p","-tune","zerolatency","-preset","ultrafast","-b:v", bitrate.c_str(),"-g","30","-c:a","flac","-profile:a","aac_he","-b:a",
                    "32k","-f","mpegts",whereToListen,NULL);
@@ -132,6 +143,7 @@ int Server::run(int argc, char* argv[]) {
 
             if (useDASH) {
                 pid_t pid = vfork();
+                dashFFmpegID = pid;
                 if ( pid < 0 ) {
                     perror("fork failed");
                     return 1;
@@ -140,7 +152,7 @@ int Server::run(int argc, char* argv[]) {
                 if ( pid == 0 ) { // Child process to create DASH stream
 
                     std::stringstream ss;
-                    ss << transportType << "://" << hostname << ":" << portForFFMPEG;
+                    ss << transportType << "://" << hostname << ":" << portForClients;
                     const std::string& tmp = ss.str();
                     const char* whereToListenFrom = tmp.c_str();
 
@@ -156,6 +168,7 @@ int Server::run(int argc, char* argv[]) {
             if (useHLS) {
 
                 pid_t pid = vfork();
+                hlsFFmpegID = pid;
                 if ( pid < 0 ) {
                     perror("fork failed");
                     return 1;
@@ -164,13 +177,13 @@ int Server::run(int argc, char* argv[]) {
                 if ( pid == 0 ) { // Child process to create DASH stream
 
                     std::stringstream ss;
-                    ss << transportType << "://" << hostname << ":" << portForFFMPEG;
+                    ss << transportType << "://" << hostname << ":" << portForClients;
                     const std::string& tmp = ss.str();
                     const char* whereToListenFrom = tmp.c_str();
 
                     std::cout << "| "<< whereToListenFrom << " |" << std::endl;
 
-                    execlp("ffmpeg","ffmpeg","-re","-i",filename.c_str(),"-loglevel","verbose", "-vcodec","libx264","-vprofile",
+                    execlp("ffmpeg","ffmpeg","-re","-i",whereToListenFrom,"-loglevel","verbose", "-vcodec","libx264","-vprofile",
                            "baseline","-acodec","libmp3lame","-ar","44100","-ac","1","-f","flv","rtmp://localhost:1935/hls/movie",NULL);
                 } else {
                     printf("HLS is starting...");
@@ -180,7 +193,6 @@ int Server::run(int argc, char* argv[]) {
 
             printf("LOL\n");
 
-            ffmpegID = pid;
             int n;
             int socketToReceiveVideoFD;
             struct addrinfo hints, *res, *ressave;
@@ -286,7 +298,7 @@ int Server::run(int argc, char* argv[]) {
                     printf("Stream is over..\n");
                 }
                 else{
-                    printf("Number -> %d\n", numberOfWrittenElements);
+//                    printf("Number -> %d\n", numberOfWrittenElements);
                 }
 
                 clientsSocketList.remove_if([ffmpegBuffer](int clientSocket)  {
