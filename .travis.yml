@@ -28,7 +28,7 @@ matrix:
         - sudo apt-add-repository "deb http://zeroc.com/download/apt/ubuntu$(lsb_release -rs) stable main"
         - sudo add-apt-repository ppa:mc3man/trusty-media -y
         - sudo apt-get update -y
-        - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev ffmpeg
+        - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev ffmpeg libtclap-dev
         - sudo apt-get install build-essential libpcre3 libpcre3-dev libssl-dev
         - pushd .
         - sudo mkdir ~/build-nginx && cd ~/build-nginx
@@ -60,7 +60,7 @@ matrix:
         - sudo apt-add-repository "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-3.9 main"
         - sudo add-apt-repository ppa:mc3man/trusty-media -y
         - sudo apt-get update -y
-        - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev clang-3.9 libc++-dev libc++abi-dev ffmpeg
+        - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev clang-3.9 libc++-dev libc++abi-dev ffmpeg libtclap-dev
         - sudo apt-get install build-essential libpcre3 libpcre3-dev libssl-dev
         - pushd .
         - sudo mkdir ~/build-nginx && cd ~/build-nginx
@@ -68,6 +68,7 @@ matrix:
         - sudo wget http://nginx.org/download/nginx-1.10.2.tar.gz
         - sudo tar xzf nginx-1.10.2.tar.gz
         - cd nginx-1.10.2
+        - export CC=clang-3.9
         - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module
         - sudo make
         - sudo make install
@@ -81,6 +82,7 @@ matrix:
       before_install:
         - brew tap homebrew/nginx
         - brew update
+        - brew install tclap
         - brew install cmake
         - brew install ice
         - brew install ffmpeg
