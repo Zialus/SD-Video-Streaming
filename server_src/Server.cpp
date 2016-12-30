@@ -37,6 +37,8 @@ std::string encoder;
 std::string filename;
 std::string transportType;
 StringSequence keywords;
+bool useHLS;
+bool useDASH;
 
 class Server : public Ice::Application {
 public:
@@ -87,11 +89,6 @@ int Server::run(int argc, char* argv[]) {
             throw "Invalid proxy";
         }
 
-        std::stringstream ss;
-        ss << transportType << "://" << hostname << ":" << portForFFMPEG << "?listen=1";
-        const std::string& tmp = ss.str();
-        const char* whereToListen = tmp.c_str();
-
         StreamServerEntry allMyInfo;
 
         allMyInfo.identifier = serverIdentifier;
@@ -115,7 +112,12 @@ int Server::run(int argc, char* argv[]) {
             return 1;
         }
 
-        if ( pid == 0 ) { // Child process
+        if ( pid == 0 ) { // Child process to create TCP stream
+
+            std::stringstream ss;
+            ss << transportType << "://" << hostname << ":" << portForFFMPEG << "?listen=1";
+            const std::string& tmp = ss.str();
+            const char* whereToListen = tmp.c_str();
 
             std::cout << "| "<< whereToListen << " |" << std::endl;
 
@@ -125,6 +127,56 @@ int Server::run(int argc, char* argv[]) {
                    "32k","-f","mpegts",whereToListen,NULL);
 
         } else { // Parent will only start executing after child calls execvp because we are using vfork()
+
+            sleep(1); //wait for initial ffmpeg to be execed
+
+            if (useDASH) {
+                pid_t pid = vfork();
+                if ( pid < 0 ) {
+                    perror("fork failed");
+                    return 1;
+                }
+
+                if ( pid == 0 ) { // Child process to create DASH stream
+
+                    std::stringstream ss;
+                    ss << transportType << "://" << hostname << ":" << portForFFMPEG;
+                    const std::string& tmp = ss.str();
+                    const char* whereToListenFrom = tmp.c_str();
+
+                    std::cout << "| "<< whereToListenFrom << " |" << std::endl;
+
+                    execlp("ffmpeg","ffmpeg","-re","-i",whereToListenFrom,"-loglevel","verbose","-vcodec","libx264","-vprofile",
+                           "baseline","-acodec","libmp3lame","-ar","44100","-ac","1","-f","flv","rtmp://localhost:1935/dash/movie",NULL);
+                } else {
+                    printf("DASH is starting...");
+                }
+            }
+
+            if (useHLS) {
+
+                pid_t pid = vfork();
+                if ( pid < 0 ) {
+                    perror("fork failed");
+                    return 1;
+                }
+
+                if ( pid == 0 ) { // Child process to create DASH stream
+
+                    std::stringstream ss;
+                    ss << transportType << "://" << hostname << ":" << portForFFMPEG;
+                    const std::string& tmp = ss.str();
+                    const char* whereToListenFrom = tmp.c_str();
+
+                    std::cout << "| "<< whereToListenFrom << " |" << std::endl;
+
+                    execlp("ffmpeg","ffmpeg","-re","-i",filename.c_str(),"-loglevel","verbose", "-vcodec","libx264","-vprofile",
+                           "baseline","-acodec","libmp3lame","-ar","44100","-ac","1","-f","flv","rtmp://localhost:1935/hls/movie",NULL);
+                } else {
+                    printf("HLS is starting...");
+                }
+
+            }
 
             printf("LOL\n");
 
@@ -155,7 +207,6 @@ int Server::run(int argc, char* argv[]) {
             }
 
             ressave=res;
-            sleep(1); //waiting for ffmpeg
             do{
                 socketToReceiveVideoFD=socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 
@@ -286,6 +337,9 @@ void commandLineParsing(int argc, char* argv[]) {
         TCLAP::ValueArg<int> ffmpegPortArg("","ff_port","Port where FFMPEG is running",true,0,"port number");
         TCLAP::ValueArg<int> clientsPortArg("","my_port","Port that will listen to clients",true,0,"port number");
 
+        TCLAP::SwitchArg hlsSwitchArg("","hls","Produce HLS stream",false);
+        TCLAP::SwitchArg dashSwitchArg("","dash","Produce DASH stream", false);
+
         TCLAP::ValueArg<std::string> videoSizeArg("v","videosize","WIDTHxHEIGHT",true,"","WIDTHxHEIGHT");
         TCLAP::ValueArg<std::string> bitRateArg("b","bitrate","bitrate",true,"","bitrate in a string");
         TCLAP::ValueArg<std::string> encoderArg("e","enconder","Enconder",true,"",&allowedEnc);
@@ -298,6 +352,8 @@ void commandLineParsing(int argc, char* argv[]) {
         cmd.add(movieNameArg);
         cmd.add(ffmpegPortArg);
         cmd.add(clientsPortArg);
+        cmd.add(hlsSwitchArg);
+        cmd.add(dashSwitchArg);
         cmd.add(videoSizeArg);
         cmd.add(bitRateArg);
         cmd.add(encoderArg);
@@ -311,6 +367,8 @@ void commandLineParsing(int argc, char* argv[]) {
         moviename = movieNameArg.getValue();
         portForFFMPEG = ffmpegPortArg.getValue();
         portForClients = clientsPortArg.getValue();
+        useDASH = dashSwitchArg.getValue();
+        useHLS = hlsSwitchArg.getValue();
         videosize = videoSizeArg.getValue();
         bitrate = bitRateArg.getValue();
         encoder = encoderArg.getValue();
