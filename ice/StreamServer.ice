@@ -9,6 +9,7 @@ module FCUP{
 	};
 
 	struct StreamServerEntry {
+	    string identifier;
 		string name;
 		Endpoint endpoint;
 		string videoSize;

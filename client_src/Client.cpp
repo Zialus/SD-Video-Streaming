@@ -84,7 +84,7 @@ void getStreamsList(){
         std::cout << size << " streams available:" << std::endl;
         int counter = 1;
         for (auto const& stream : streamList) {
-            std::cout << "\t" << counter << ". " << stream.first << " Video Size: " << stream.second.videoSize << " Bit Rate: " << stream.second.bitrate << std::endl;
+            std::cout << "\t" << counter << ". " << stream.first << "-> Name:" << stream.second.name << " Video Size: " << stream.second.videoSize << " Bit Rate: " << stream.second.bitrate << std::endl;
             counter++;
         }
         std::cout << std::endl << "-------------------" << std::endl;

@@ -28,6 +28,7 @@ using namespace FCUP;
 pid_t ffmpegID;
 
 std::string hostname;
+std::string moviename;
 int portForFFMPEG;
 int portForClients;
 std::string videosize;
@@ -45,7 +46,7 @@ private:
     void closeStream();
     void killFFMpeg();
     PortalCommunicationPrx portal;
-    std::string serverName;
+    std::string serverIdentifier;
     std::list<int> clientsSocketList;
 };
 
@@ -56,7 +57,7 @@ void Server::killFFMpeg() {
 
 void Server::closeStream() {
     printf("Trying to close the stream...\n");
-    portal->closeStream(serverName);
+    portal->closeStream(serverIdentifier);
     printf("Stream closed\n");
 }
 
@@ -79,6 +80,7 @@ int Server::run(int argc, char* argv[]) {
 
     try {
 
+        serverIdentifier = IceUtil::generateUUID();
         Ice::ObjectPrx base = communicator()->propertyToProxy("Portal.Proxy");
         portal = PortalCommunicationPrx::checkedCast(base);
         if (!portal){
@@ -92,8 +94,8 @@ int Server::run(int argc, char* argv[]) {
 
         StreamServerEntry allMyInfo;
 
-        serverName = IceUtil::generateUUID();
-        allMyInfo.name = serverName;
+        allMyInfo.identifier = serverIdentifier;
+        allMyInfo.name = moviename;
 
         allMyInfo.keywords = keywords;
         allMyInfo.videoSize = videosize;
@@ -269,6 +271,7 @@ void commandLineParsing(int argc, char* argv[]) {
         TCLAP::CmdLine cmd("Streaming Server", ' ', "1.0",true);
 
         TCLAP::ValueArg<std::string> hostNameArg("","host","FFmpeg hostname",false,"localhost","address");
+        TCLAP::ValueArg<std::string> movieNameArg("n","name","Movie name",true,"","name string");
 
         TCLAP::ValueArg<int> ffmpegPortArg("","ff_port","Port where FFMPEG is running",true,0,"port number");
         TCLAP::ValueArg<int> clientsPortArg("","my_port","Port that will listen to clients",true,0,"port number");
@@ -282,6 +285,7 @@ void commandLineParsing(int argc, char* argv[]) {
         TCLAP::MultiArg<std::string> keywordsArgs("k","keyword","keywords",false,"keyword");
 
         cmd.add(hostNameArg);
+        cmd.add(movieNameArg);
         cmd.add(ffmpegPortArg);
         cmd.add(clientsPortArg);
         cmd.add(videoSizeArg);
@@ -294,6 +298,7 @@ void commandLineParsing(int argc, char* argv[]) {
         cmd.parse(argc,argv);
 
         hostname = hostNameArg.getValue();
+        moviename = movieNameArg.getValue();
         portForFFMPEG = ffmpegPortArg.getValue();
         portForClients = clientsPortArg.getValue();
         videosize = videoSizeArg.getValue();

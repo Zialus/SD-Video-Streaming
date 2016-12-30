@@ -8,7 +8,7 @@ sleep 1
 
 sleep 1
 
-./executables/server -f ~/Downloads/PopeyeAliBaba_512kb.mp4 -e libx264 -b 500k -v 640x360 --my_port 10066 --ff_port 54321 -k what -k are -k you -doing \
+./executables/server -f ~/Downloads/PopeyeAliBaba_512kb.mp4 -e libx264 -b 500k -v 640x360 --my_port 10066 --ff_port 54321 -k what -k are -k you -k doing \
 1> /dev/null 2> ~/VideoStreamerFCUP_Logs/serverAliBaba.txt &
 
 sleep 1

@@ -50,10 +50,10 @@ int Portal::refreshTopicManager() {
 
 void Portal::registerStreamServer(const FCUP::StreamServerEntry& sse, const Ice::Current&) {
 
-    list_of_stream_servers[sse.name] = sse;
+    list_of_stream_servers[sse.identifier] = sse;
 
     std::cout << std::endl << "_________" << std::endl;
-    std::cout << "Added a new stream server: " << sse.name << std::endl;
+    std::cout << "Added a new stream server: " << sse.identifier << std::endl;
 
     std::cout << "Video keywords:  ";
     for (auto it = sse.keywords.begin(); it != sse.keywords.end(); ++it){
