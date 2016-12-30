@@ -30,6 +30,7 @@ matrix:
         - sudo apt-get update -y
         - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev ffmpeg
         - sudo apt-get install build-essential libpcre3 libpcre3-dev libssl-dev
+        - pushd .
         - sudo mkdir ~/build-nginx && cd ~/build-nginx
         - sudo git clone git://github.com/arut/nginx-rtmp-module.git
         - sudo wget http://nginx.org/download/nginx-1.10.2.tar.gz
