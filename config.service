@@ -8,6 +8,7 @@ IceStorm.InstanceName=FCUPIceStorm
 # TopicManager listens.
 #
 IceStorm.TopicManager.Endpoints=default -h localhost -p 10000
+
 #
 # This property defines the endpoints on which the topic
 # publisher objects listen.
@@ -30,7 +31,7 @@ IceStorm.Trace.TopicManager=2
 # 1 = trace unsubscription diagnostics
 # 2 = like 1, but with more detailed subscription information
 #
-IceStorm.Trace.Topic=1
+IceStorm.Trace.Topic=2
 
 #
 # Subscriber Tracing
@@ -40,7 +41,7 @@ IceStorm.Trace.Topic=1
 #     propagation failures)
 # 2 = like 1, but with more detailed subscription information
 #
-IceStorm.Trace.Subscriber=1
+IceStorm.Trace.Subscriber=2
 
 #
 # Amount of time in milliseconds between flushes for batch mode
@@ -56,7 +57,7 @@ IceStorm.Flush.Timeout=2000
 # 2 = like 1, but more detailed
 # 3 = like 2, but also trace data transfer
 #
-#Ice.Trace.Network=1
+Ice.Trace.Network=2
 
 #
 # This property defines the home directory of the Freeze

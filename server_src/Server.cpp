@@ -1,6 +1,7 @@
 // Ice includes
 #include <Ice/Ice.h>
 #include <IceUtil/UUID.h>
+#include <IceUtil/CtrlCHandler.h>
 
 // C
 #include <sys/wait.h>
@@ -9,12 +10,13 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <fcntl.h>
+#include <stdlib.h>
+#include <sys/ioctl.h>
 
 // C++
 #include <fstream>
-#include <stdlib.h>
-#include <sys/ioctl.h>
-#include <IceUtil/CtrlCHandler.h>
+#include <tclap/CmdLine.h>
+#include <string>
 
 // My stuff
 #include "StreamServer.h"
@@ -23,25 +25,36 @@
 
 using namespace FCUP;
 
-std::string serverName;
-PortalCommunicationPrx portal;
-std::list<int> clientsSocketList;
 pid_t ffmpegID;
+
+std::string hostname;
+int portForFFMPEG;
+int portForClients;
+std::string videosize;
+std::string bitrate;
+std::string encoder;
+std::string filename;
+std::string transportType;
+StringSequence keywords;
 
 class Server : public Ice::Application {
 public:
     virtual void interruptCallback(int) override;
     virtual int run(int, char *[]) override;
+private:
     void closeStream();
     void killFFMpeg();
+    PortalCommunicationPrx portal;
+    std::string serverName;
+    std::list<int> clientsSocketList;
 };
 
-void Server::killFFMpeg(){
+void Server::killFFMpeg() {
     printf("Killing the ffmpeg process...\n");
-    kill( ffmpegID, SIGTERM );
+    kill( ffmpegID, SIGKILL );
 }
 
-void Server::closeStream(){
+void Server::closeStream() {
     printf("Trying to close the stream...\n");
     portal->closeStream(serverName);
     printf("Stream closed\n");
@@ -58,70 +71,41 @@ void Server::interruptCallback(int signal) {
     _exit(0);
 }
 
-
 int Server::run(int argc, char* argv[]) {
 
     callbackOnInterrupt();
-
-    if (argc < 9)
-    {
-        fprintf(stderr,"ERROR, you need to provide 3 arguments: a file with the ffmpeg options, a port to start ffmpeg on and a file with commands");
-        exit(1);
-    }
 
     int status = 0;
 
     try {
 
-        Ice::ObjectPrx base = communicator()->stringToProxy("Portal:default -p 9999");
+        Ice::ObjectPrx base = communicator()->propertyToProxy("Portal.Proxy");
         portal = PortalCommunicationPrx::checkedCast(base);
         if (!portal){
             throw "Invalid proxy";
         }
 
-
-
-        char* hostname = argv[1];
-        int port = atoi(argv[2]);
-        int portForClients = atoi(argv[3]);
         std::stringstream ss;
-        ss << "tcp://" << hostname << ":" << port << "?listen=1";
+        ss << transportType << "://" << hostname << ":" << portForFFMPEG << "?listen=1";
         const std::string& tmp = ss.str();
         const char* whereToListen = tmp.c_str();
-        char* videosize= argv[4];
-        char* bitrate = argv[5];
-        char* encoder = argv[6];
-        char* filename = argv[7];
-        char* transportType = argv[8];
-        std::cout << whereToListen << " !! " << filename << std::endl;
 
         StreamServerEntry allMyInfo;
 
-        char* keywordsWithCommas = argv[9];
-
-        std::string str(keywordsWithCommas);
-
-        std::vector<std::string> keywordVector = split(keywordsWithCommas, ',');
-
-        StringSequence keywords;
-
-        for (std::string keyword: keywordVector) {
-            keywords.push_back(keyword);
-        }
-
-        allMyInfo.keywords = keywords;
         serverName = IceUtil::generateUUID();
         allMyInfo.name = serverName;
+
+        allMyInfo.keywords = keywords;
         allMyInfo.videoSize = videosize;
         allMyInfo.bitrate = bitrate;
         allMyInfo.endpoint.ip = hostname;
-        allMyInfo.endpoint.port = argv[3];
+        allMyInfo.endpoint.port = std::to_string(portForClients).c_str();
         allMyInfo.endpoint.transport = transportType;
 
 
-        printf("PRINT ANTES\n");
+        printf("I'm going to register myself on the portal...\n");
         portal->registerStreamServer(allMyInfo);
-        printf("PRINT DEPOIS\n");
+        printf("Done!\n");
 
         pid_t pid = vfork();
         if ( pid < 0 ) {
@@ -131,29 +115,31 @@ int Server::run(int argc, char* argv[]) {
 
         if ( pid == 0 ) { // Child process
 
-            execlp("ffmpeg","ffmpeg","-re","-i",filename,"-loglevel","warning",
-                   "-analyzeduration","500k","-probesize","500k","-r","30","-s",videosize,"-c:v",encoder,"-preset","ultrafast","-pix_fmt",
-                   "yuv420p","-tune","zerolatency","-preset","ultrafast","-b:v", bitrate,"-g","30","-c:a","flac","-profile:a","aac_he","-b:a",
+            std::cout << "| "<< whereToListen << " |" << std::endl;
+
+            execlp("ffmpeg","ffmpeg","-re","-i",filename.c_str(),"-loglevel","verbose",
+                   "-analyzeduration","500k","-probesize","500k","-r","30","-s",videosize.c_str(),"-c:v",encoder.c_str(),"-preset","ultrafast","-pix_fmt",
+                   "yuv420p","-tune","zerolatency","-preset","ultrafast","-b:v", bitrate.c_str(),"-g","30","-c:a","flac","-profile:a","aac_he","-b:a",
                    "32k","-f","mpegts",whereToListen,NULL);
 
         } else { // Parent will only start executing after child calls execvp because we are using vfork()
 
+            printf("LOL\n");
+
             ffmpegID = pid;
             int n;
             int socketToReceiveVideoFD;
-            int numberOfWrittenElements;
             struct addrinfo hints, *res, *ressave;
 
-            char *portToReceiveVideo;
-            char *ffmpegServer;
+            const char *portToReceiveVideo;
+            const char *ffmpegServer;
             char ffmpegBuffer[64];
 
-            // argv[1] contains name of the server
-            ffmpegServer = argv[1];
-            // argv[2] contains port number for the server
-            portToReceiveVideo = argv[2];
+            ffmpegServer = hostname.c_str();
+            portToReceiveVideo = std::to_string(portForFFMPEG).c_str();
 
-            printf("Video vai ser recebido na porta %s e no adress %s\n", portToReceiveVideo, argv[1]);
+            printf("Video vai ser recebido na porta %s e no adress %s\n", portToReceiveVideo, ffmpegServer);
+
 
             bzero( (char *) &hints, sizeof(addrinfo) );
 
@@ -167,7 +153,7 @@ int Server::run(int argc, char* argv[]) {
             }
 
             ressave=res;
-            sleep(1); //waiting for ffserver
+            sleep(1); //waiting for ffmpeg
             do{
                 socketToReceiveVideoFD=socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 
@@ -206,7 +192,7 @@ int Server::run(int argc, char* argv[]) {
             }
             // set all values in server_adress to 0
             bzero((char *) &server_address, sizeof(server_address));
-            // argv[1] contains port number for the server
+
             server_address.sin_family = AF_INET;
             server_address.sin_port = htons((uint16_t) portForClients);
             server_address.sin_addr.s_addr = INADDR_ANY;
@@ -229,6 +215,8 @@ int Server::run(int argc, char* argv[]) {
 
             printf("Ready to send to clients!\n");
 
+            int numberOfWrittenElements;
+
             while (true) {
 
                 int new_socket_fd = accept(server_socket_fd, NULL, NULL);
@@ -243,10 +231,9 @@ int Server::run(int argc, char* argv[]) {
                     exit(1);
                 }   else if (numberOfWrittenElements == 0){
                     printf("Stream is over..\n");
-                    //break;
                 }
                 else{
-//                    printf("Number -> %d\n", numberOfWrittenElements);
+                    printf("Number -> %d\n", numberOfWrittenElements);
                 }
 
                 clientsSocketList.remove_if([ffmpegBuffer](int clientSocket)  {
@@ -262,7 +249,6 @@ int Server::run(int argc, char* argv[]) {
                 });
 
             }
-            closeStream();
         }
 
     } catch (const Ice::Exception& ex) {
@@ -277,8 +263,58 @@ int Server::run(int argc, char* argv[]) {
 
 }
 
-int main(int argc, char* argv[])
-{
+void commandLineParsing(int argc, char* argv[]) {
+
+    try {
+        TCLAP::CmdLine cmd("Streaming Server", ' ', "1.0",true);
+
+        TCLAP::ValueArg<std::string> hostNameArg("","host","FFmpeg hostname",false,"localhost","address");
+
+        TCLAP::ValueArg<int> ffmpegPortArg("","ff_port","Port where FFMPEG is running",true,0,"port number");
+        TCLAP::ValueArg<int> clientsPortArg("","my_port","Port that will listen to clients",true,0,"port number");
+
+        TCLAP::ValueArg<std::string> videoSizeArg("v","videosize","WIDTHxHEIGHT",true,"","WIDTHxHEIGHT");
+        TCLAP::ValueArg<std::string> bitRateArg("b","bitrate","bitrate",true,"","bitrate in a string");
+        TCLAP::ValueArg<std::string> encoderArg("e","enconder","Enconder",true,"","enconder in a string");
+        TCLAP::ValueArg<std::string> filenameArg("f","filename","Movie file name",true,"","path string");
+        TCLAP::ValueArg<std::string> transportTypeArg("t","transport_type","Transport Type",false,"tcp","string");
+
+        TCLAP::MultiArg<std::string> keywordsArgs("k","keyword","keywords",false,"keyword");
+
+        cmd.add(hostNameArg);
+        cmd.add(ffmpegPortArg);
+        cmd.add(clientsPortArg);
+        cmd.add(videoSizeArg);
+        cmd.add(bitRateArg);
+        cmd.add(encoderArg);
+        cmd.add(filenameArg);
+        cmd.add(transportTypeArg);
+        cmd.add(keywordsArgs);
+
+        cmd.parse(argc,argv);
+
+        hostname = hostNameArg.getValue();
+        portForFFMPEG = ffmpegPortArg.getValue();
+        portForClients = clientsPortArg.getValue();
+        videosize = videoSizeArg.getValue();
+        bitrate = bitRateArg.getValue();
+        encoder = encoderArg.getValue();
+        filename = filenameArg.getValue();
+        transportType = transportTypeArg.getValue();
+        keywords = keywordsArgs.getValue();
+
+
+    } catch (TCLAP::ArgException &e) {  // catch any exceptions
+        std::cerr << "error: " << e.error() << " for arg " << e.argId() << std::endl;
+        exit(1);
+    }
+
+}
+
+int main(int argc, char* argv[]) {
+
+    commandLineParsing(argc,argv);
+
     Server app;
-    app.main(argc,argv, NULL);
+    app.main(argc, argv, "config.server");
 }

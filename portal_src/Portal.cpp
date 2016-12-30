@@ -113,9 +113,9 @@ int Portal::run(int argc, char* argv[]) {
 
     int status = 0;
     try {
-        Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints("PortalAdapter", "default -p 9999");
+        Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Portal");
         Ice::ObjectPtr object = new Portal;
-        adapter->add(object, communicator()->stringToIdentity("Portal"));
+        adapter->add(object, communicator()->stringToIdentity("portal"));
         adapter->activate();
     } catch (const Ice::Exception& e) {
         std::cerr << e << std::endl;
@@ -133,5 +133,5 @@ int Portal::run(int argc, char* argv[]) {
 int main(int argc, char* argv[]) {
 
     Portal app;
-    return app.main(argc, argv,"config.pub");
+    return app.main(argc, argv,"config.portal");
 }

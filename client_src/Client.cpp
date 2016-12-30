@@ -127,7 +127,7 @@ public:
     void killFFPlay();
 };
 
-class StreamMonitorI : virtual public StreamMonitor{
+class StreamMonitorI : virtual public StreamMonitor {
 public:
     virtual void reportAddition(const FCUP::StreamServerEntry& sse, const Ice::Current& ){
         std::cout << std::endl << "A new stream was created... -> " << sse.name << std::endl;
@@ -143,7 +143,6 @@ void Client::killFFPlay(){
     //NOT IMPLEMENTED YET
 }
 
-
 void Client::interruptCallback(int signal) {
     printf("Caught the signal: %d!!\n",signal);
 
@@ -152,7 +151,6 @@ void Client::interruptCallback(int signal) {
     printf("Trying to exit now...\n");
     _exit(0);
 }
-
 
 int Client::run(int argc, char* argv[]) {
 
@@ -208,21 +206,11 @@ int Client::run(int argc, char* argv[]) {
 
         shutdownOnInterrupt();
 
-
-//        IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
-//
-//                streamNotifier = StreamNotificationsPrx::uncheckedCast(obj);
-
-        Ice::ObjectPrx base = communicator()->stringToProxy("Portal:default -p 9999");
+        Ice::ObjectPrx base = communicator()->propertyToProxy("Portal.Proxy");
         portal = PortalCommunicationPrx::checkedCast(base);
-        if (!portal){
+        if (!portal) {
             throw "Invalid proxy";
         }
-
-//        Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter(topicName);
-//        adapter->add(, Ice::stringToIdentity(topicName));
-//        adapter->activate();
-
 
         rl_attempted_completion_function = command_name_completion;
 
@@ -291,7 +279,7 @@ int Client::run(int argc, char* argv[]) {
 
 int main(int argc, char* argv[]) {
     Client app;
-    app.main(argc,argv, "config.sub");
+    app.main(argc,argv, "config.client");
 }
 
 

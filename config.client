@@ -1,0 +1,9 @@
+Portal.Proxy=portal:tcp -p 9999
+
+TopicManager.Proxy=FCUPIceStorm/TopicManager:default -h localhost -p 10000
+
+StreamNotifications.Subscriber.Endpoints=tcp:udp
+
+Ice.Warn.Connections=1
+#Ice.Trace.Network=2
+#Ice.Trace.Protocol=1

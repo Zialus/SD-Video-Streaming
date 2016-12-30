@@ -1,13 +1,6 @@
-#
-# Enable Ice.Admin object
-#
-Ice.Admin.Endpoints=tcp -h localhost -p 9996
-Ice.Admin.InstanceName=icebox
+Portal.Endpoints=tcp -p 9999
 
-#
-# The IceStorm service
-#
-IceBox.Service.IceStorm=IceStormService,36:createIceStorm --Ice.Config=config.service
+TopicManager.Proxy=FCUPIceStorm/TopicManager:default -h localhost -p 10000
 
 #
 # Warn about connection exceptions
@@ -22,7 +15,7 @@ Ice.Warn.Connections=1
 # 2 = like 1, but more detailed
 # 3 = like 2, but also trace data transfer
 #
-Ice.Trace.Network=1
+#Ice.Trace.Network=2
 
 #
 # Protocol Tracing
@@ -30,4 +23,6 @@ Ice.Trace.Network=1
 # 0 = no protocol tracing
 # 1 = trace protocol messages
 #
-Ice.Trace.Protocol=1
+#Ice.Trace.Protocol=1
+
+
