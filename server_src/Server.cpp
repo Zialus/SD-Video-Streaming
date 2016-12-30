@@ -270,6 +270,16 @@ void commandLineParsing(int argc, char* argv[]) {
     try {
         TCLAP::CmdLine cmd("Streaming Server", ' ', "1.0",true);
 
+        std::vector<std::string> allowedEnconders;
+        allowedEnconders.push_back("libx264");
+        allowedEnconders.push_back("libx265");
+        TCLAP::ValuesConstraint<std::string> allowedEnc( allowedEnconders );
+
+        std::vector<std::string> allowedTransportTypes;
+        allowedTransportTypes.push_back("tcp");
+        allowedTransportTypes.push_back("upd");
+        TCLAP::ValuesConstraint<std::string> allowedTT( allowedTransportTypes);
+
         TCLAP::ValueArg<std::string> hostNameArg("","host","FFmpeg hostname",false,"localhost","address");
         TCLAP::ValueArg<std::string> movieNameArg("n","name","Movie name",true,"","name string");
 
@@ -278,9 +288,9 @@ void commandLineParsing(int argc, char* argv[]) {
 
         TCLAP::ValueArg<std::string> videoSizeArg("v","videosize","WIDTHxHEIGHT",true,"","WIDTHxHEIGHT");
         TCLAP::ValueArg<std::string> bitRateArg("b","bitrate","bitrate",true,"","bitrate in a string");
-        TCLAP::ValueArg<std::string> encoderArg("e","enconder","Enconder",true,"","enconder in a string");
+        TCLAP::ValueArg<std::string> encoderArg("e","enconder","Enconder",true,"",&allowedEnc);
         TCLAP::ValueArg<std::string> filenameArg("f","filename","Movie file name",true,"","path string");
-        TCLAP::ValueArg<std::string> transportTypeArg("t","transport_type","Transport Type",false,"tcp","string");
+        TCLAP::ValueArg<std::string> transportTypeArg("t","transport_type","Transport Type",false,"tcp",&allowedTT);
 
         TCLAP::MultiArg<std::string> keywordsArgs("k","keyword","keywords",false,"keyword");
 

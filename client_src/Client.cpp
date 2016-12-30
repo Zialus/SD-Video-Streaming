@@ -84,7 +84,7 @@ void getStreamsList(){
         std::cout << size << " streams available:" << std::endl;
         int counter = 1;
         for (auto const& stream : streamList) {
-            std::cout << "\t" << counter << ". " << stream.first << "-> Name:" << stream.second.name << " Video Size: " << stream.second.videoSize << " Bit Rate: " << stream.second.bitrate << std::endl;
+            std::cout << "\t" << counter << ". " << stream.first << " -> Name: " << stream.second.name << " Video Size: " << stream.second.videoSize << " Bit Rate: " << stream.second.bitrate << std::endl;
             counter++;
         }
         std::cout << std::endl << "-------------------" << std::endl;
@@ -103,7 +103,7 @@ void searchKeyword(std::string keyword) {
             if(!stream.second.keywords.empty()){
                 for(std::string key : stream.second.keywords){
                     if(key == keyword){
-                        std::cout << "\t" << counter+1 << ". " << stream.first << " Video Size: " << stream.second.videoSize << " Bit Rate: " << stream.second.bitrate << std::endl;
+                        std::cout << "\t" << counter+1 << ". " << stream.first << " -> Name: " << stream.second.name << " Video Size: " << stream.second.videoSize << " Bit Rate: " << stream.second.bitrate << std::endl;
                         counter++;
                         break;
                     }
@@ -217,7 +217,6 @@ int Client::run(int argc, char* argv[]) {
         while(true){
             char *input;
             input = readline("-> ");
-            printf("|%s|\n",input );
             add_history(input);
 
             std::string str(input);
@@ -228,34 +227,26 @@ int Client::run(int argc, char* argv[]) {
                 continue;
             }
 
-            if(userCommands[0] == "stream") {
 
-                if (userCommands[1] == "list") {
-                    getStreamsList();
-                } else if (userCommands[1] == "play") {
-                    if(userCommands.size()==3) {
-                        playStream(userCommands[2]);
-                    } else{
-                        std::cout << "Must include one (and only one) stream name.." << std::endl;
-                    }
-                } else if (userCommands[1] == "search") {
-                    if(userCommands.size()>2) {
-                        searchKeyword(userCommands[2]);
-                    } else {
-                        std::cout << "You need to pass one or more keywords.." << std::endl;
-                    }
+            if (userCommands[0] == "list") {
+                getStreamsList();
+            } else if (userCommands[0] == "play") {
+                if(userCommands.size()==2) {
+                    playStream(userCommands[1]);
                 } else{
-
-                    std::cout << "Can't find that command. Press tab (2x) to see the available commands.." << std::endl;
+                    std::cout << "Must include one (and only one) stream name.." << std::endl;
                 }
-            }
-            else if (userCommands[0] == "exit") {
+            } else if (userCommands[0] == "search") {
+                if(userCommands.size()==2) {
+                    searchKeyword(userCommands[1]);
+                } else {
+                    std::cout << "You need to pass only one keyword.." << std::endl;
+                }
+            } else if (userCommands[0] == "exit") {
                 topic->unsubscribe(subscriber);
                 return 0;
-            }
-            else{
-                //por os comandos disponiveis
-                std::cout << "Can't find that command" << std::endl;
+            } else{
+                std::cout << "Can't find that command. Press tab (2x) to see the available commands.." << std::endl;
             }
             free(input);
         }
@@ -284,9 +275,9 @@ int main(int argc, char* argv[]) {
 
 
 char *command_names[] = {
-        (char*) "stream list",
-        (char*) "stream search",
-        (char*) "stream play",
+        (char*) "list",
+        (char*) "search",
+        (char*) "play",
         (char*) "exit",
         NULL
 };
