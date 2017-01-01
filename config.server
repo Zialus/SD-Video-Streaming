@@ -1,6 +1,6 @@
 Portal.Proxy=portal:tcp -p 9999
 
-Ice.Warn.Connections=1
+#Ice.Warn.Connections=1
 #Ice.Trace.Network=2
 #Ice.Trace.Protocol=1
 

@@ -5,7 +5,7 @@ TopicManager.Proxy=FCUPIceStorm/TopicManager:default -h localhost -p 10000
 #
 # Warn about connection exceptions
 #
-Ice.Warn.Connections=1
+#Ice.Warn.Connections=1
 
 #
 # Network Tracing
