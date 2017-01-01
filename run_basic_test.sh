@@ -20,7 +20,7 @@ sleep 1
 
 ./executables/client 1> /dev/null 2> ~/VideoStreamerFCUP_Logs/client.txt &
 
- sleep 1
- killall portal
- killall server
- killall icebox
+sleep 1
+killall portal
+killall server
+killall icebox
