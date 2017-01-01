@@ -4,30 +4,27 @@
 #include <IceUtil/CtrlCHandler.h>
 
 // C
-#include <sys/wait.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <fcntl.h>
-#include <stdlib.h>
-#include <sys/ioctl.h>
 
 // C++
 #include <fstream>
 #include <tclap/CmdLine.h>
-#include <string>
 
 // My stuff
-#include "StreamServer.h"
+#include <StreamServer.h>
 #include "../auxiliary/Auxiliary.h"
 
+#define BUFFERSIZE 32
 
 using namespace FCUP;
 
-pid_t regularFFmpegID = -9;
-pid_t hlsFFmpegID = -9;
-pid_t dashFFmpegID = -9;
+pid_t regularFFmpegPID = -9;
+pid_t hlsFFmpegPID = -9;
+pid_t dashFFmpegPID = -9;
 
 std::string hostname;
 std::string moviename;
@@ -56,14 +53,15 @@ private:
 
 void Server::killFFMpeg() {
     printf("Killing the ffmpeg process...\n");
-    if(regularFFmpegID != -9) {
-        kill(regularFFmpegID, SIGKILL);
+
+    if(regularFFmpegPID != -9) {
+        kill(regularFFmpegPID, SIGKILL);
     }
-    if(hlsFFmpegID != -9) {
-        kill(hlsFFmpegID, SIGKILL);
+    if(hlsFFmpegPID != -9) {
+        kill(hlsFFmpegPID, SIGKILL);
     }
-    if(dashFFmpegID != -9) {
-        kill(dashFFmpegID, SIGKILL);
+    if(dashFFmpegPID != -9) {
+        kill(dashFFmpegPID, SIGKILL);
     }
 }
 
@@ -112,18 +110,17 @@ int Server::run(int argc, char* argv[]) {
         allMyInfo.endpoint.transport = transportType;
 
 
-        printf("I'm going to register myself on the portal...\n");
+        printf("\nI'm going to register myself on the portal...\n\n");
         portal->registerStreamServer(allMyInfo);
-        printf("Done!\n");
+        printf("Portal registration done!\n\n");
 
-        pid_t pid = vfork();
-        regularFFmpegID = pid;
-        if ( pid < 0 ) {
-            perror("fork failed");
+        regularFFmpegPID = vfork();
+        if ( regularFFmpegPID < 0 ) {
+            perror("regularFFmpeg fork failed");
             return 1;
         }
 
-        if ( pid == 0 ) { // Child process to create TCP stream
+        if ( regularFFmpegPID == 0 ) { // Child process to create TCP stream
 
             std::stringstream ss;
             ss << transportType << "://" << hostname << ":" << portForFFMPEG << "?listen=1";
@@ -142,14 +139,13 @@ int Server::run(int argc, char* argv[]) {
             sleep(1); //wait for initial ffmpeg to be execed
 
             if (useDASH) {
-                pid_t pid = vfork();
-                dashFFmpegID = pid;
-                if ( pid < 0 ) {
-                    perror("fork failed");
+                dashFFmpegPID = vfork();
+                if ( dashFFmpegPID < 0 ) {
+                    perror("dashFFmpeg fork failed");
                     return 1;
                 }
 
-                if ( pid == 0 ) { // Child process to create DASH stream
+                if ( dashFFmpegPID == 0 ) { // Child process to create DASH stream
 
                     std::stringstream ss;
                     ss << transportType << "://" << hostname << ":" << portForClients;
@@ -158,7 +154,7 @@ int Server::run(int argc, char* argv[]) {
 
                     std::cout << "| "<< whereToListenFrom << " |" << std::endl;
 
-                    execlp("ffmpeg","ffmpeg","-re","-i",whereToListenFrom,"-loglevel","verbose","-vcodec","libx264","-vprofile",
+                    execlp("ffmpeg","ffmpeg","-re","-i",whereToListenFrom,"-loglevel","warning","-vcodec","libx264","-vprofile",
                            "baseline","-acodec","libmp3lame","-ar","44100","-ac","1","-f","flv","rtmp://localhost:1935/dash/movie",NULL);
                 } else {
                     printf("DASH is starting...");
@@ -167,14 +163,13 @@ int Server::run(int argc, char* argv[]) {
 
             if (useHLS) {
 
-                pid_t pid = vfork();
-                hlsFFmpegID = pid;
-                if ( pid < 0 ) {
+                hlsFFmpegPID = vfork();
+                if ( hlsFFmpegPID < 0 ) {
                     perror("fork failed");
                     return 1;
                 }
 
-                if ( pid == 0 ) { // Child process to create DASH stream
+                if ( hlsFFmpegPID == 0 ) { // Child process to create DASH stream
 
                     std::stringstream ss;
                     ss << transportType << "://" << hostname << ":" << portForClients;
@@ -183,7 +178,7 @@ int Server::run(int argc, char* argv[]) {
 
                     std::cout << "| "<< whereToListenFrom << " |" << std::endl;
 
-                    execlp("ffmpeg","ffmpeg","-re","-i",whereToListenFrom,"-loglevel","verbose", "-vcodec","libx264","-vprofile",
+                    execlp("ffmpeg","ffmpeg","-re","-i",whereToListenFrom,"-loglevel","warning", "-vcodec","libx264","-vprofile",
                            "baseline","-acodec","libmp3lame","-ar","44100","-ac","1","-f","flv","rtmp://localhost:1935/hls/movie",NULL);
                 } else {
                     printf("HLS is starting...");
@@ -199,7 +194,7 @@ int Server::run(int argc, char* argv[]) {
 
             const char *portToReceiveVideo;
             const char *ffmpegServer;
-            char ffmpegBuffer[64];
+            char ffmpegBuffer[BUFFERSIZE];
 
             ffmpegServer = hostname.c_str();
             portToReceiveVideo = std::to_string(portForFFMPEG).c_str();
@@ -246,14 +241,14 @@ int Server::run(int argc, char* argv[]) {
             int server_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
             if (server_socket_fd < 0){
                 perror("ERROR opening socket");
-                std::exit(1);
+                return 1;
             }
 
             int rc = fcntl(server_socket_fd, F_SETFL, O_NONBLOCK);
             if(rc<0){
                 perror("fcntl() failed");
                 close(server_socket_fd);
-                exit(-1);
+                return 1;
             }
             // set all values in server_adress to 0
             bzero((char *) &server_address, sizeof(server_address));
@@ -267,49 +262,51 @@ int Server::run(int argc, char* argv[]) {
             if ( bind_result < 0 ) {
                 perror("ERROR on binding");
                 close(server_socket_fd);
-                exit(1);
+                return 1;
             }
 
             rc = listen(server_socket_fd, 32);
             if (rc < 0) {
                 perror("listen() failed");
                 close(server_socket_fd);
-                exit(1);
+                return 1;
             }
 
 
             printf("Ready to send to clients!\n");
 
-            int numberOfWrittenElements;
+            int numberOfWrittenElements = 0;
+            int counter = 0;
 
             while (true) {
-
-                int new_socket_fd = accept(server_socket_fd, NULL, NULL);
-                if (new_socket_fd > 0){
-                    clientsSocketList.push_back(new_socket_fd);
+                counter++;
+                int newClientFD = accept(server_socket_fd, NULL, NULL);
+                if (newClientFD > 0){
+                    clientsSocketList.push_back(newClientFD);
+                    printf("ADDED Client with SOCKET ---> %d !!!\n", newClientFD);
                 }
 
-                numberOfWrittenElements = (int) read(socketToReceiveVideoFD, ffmpegBuffer, 63);
+                numberOfWrittenElements = (int) read(socketToReceiveVideoFD, ffmpegBuffer, BUFFERSIZE);
 
                 if (numberOfWrittenElements < 0){
                     perror("ERROR reading from socket");
-                    exit(1);
+                    return 1;
                 }   else if (numberOfWrittenElements == 0){
                     printf("Stream is over..\n");
                 }
                 else{
-//                    printf("Number -> %d\n", numberOfWrittenElements);
+//                    printf("%d. Bytes Read-> %d\n", counter, numberOfWrittenElements);
                 }
 
                 clientsSocketList.remove_if([ffmpegBuffer](int clientSocket)  {
 
-                    auto bytesWritten = write(clientSocket, ffmpegBuffer, 63);
+                    int bytesWritten = (int) write(clientSocket, ffmpegBuffer, BUFFERSIZE);
                     if (bytesWritten < 0) {
-                        printf("SOCKET DENIED ---> %d !!!\n", clientSocket);
+                        printf("REMOVED Client with SOCKET ---> %d !!!\n", clientSocket);
                         return true;
                     }
 
-                    printf("SOCKET -> %d | %ld !!!\n", clientSocket, bytesWritten);
+//                    printf("%%Client |%d| ---> received %d bytes %%\n", clientSocket, bytesWritten);
                     return false;
                 });
 
@@ -324,6 +321,7 @@ int Server::run(int argc, char* argv[]) {
         status = 1;
     }
 
+    std::cout << "It's over" << std::endl;
     return status;
 
 }
@@ -387,7 +385,6 @@ void commandLineParsing(int argc, char* argv[]) {
         filename = filenameArg.getValue();
         transportType = transportTypeArg.getValue();
         keywords = keywordsArgs.getValue();
-
 
     } catch (TCLAP::ArgException &e) {  // catch any exceptions
         std::cerr << "error: " << e.error() << " for arg " << e.argId() << std::endl;
