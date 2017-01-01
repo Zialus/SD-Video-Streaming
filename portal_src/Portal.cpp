@@ -52,14 +52,15 @@ void Portal::registerStreamServer(const FCUP::StreamServerEntry& sse, const Ice:
 
     list_of_stream_servers[sse.identifier] = sse;
 
-    std::cout << std::endl << "_________" << std::endl;
+    std::cout << std::endl << "---------" << std::endl;
     std::cout << "Added a new stream server: " << sse.identifier << std::endl;
 
-    std::cout << "Video keywords:  ";
+    std::cout << "Video keywords:";
     for (auto it = sse.keywords.begin(); it != sse.keywords.end(); ++it){
-        std::cout << *it << ' ';
+        std::cout << " " << *it;
     }
-    std::cout << std::endl << "---------" << std::endl;
+    std::cout << " | Name: " << sse.name << " | Video Size: " << sse.videoSize << "|" <<std::endl;
+    std::cout << "---------" << std::endl << std::endl;
 
     refreshTopicManager();
 

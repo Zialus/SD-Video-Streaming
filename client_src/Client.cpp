@@ -17,11 +17,18 @@ using namespace FCUP;
 
 PortalCommunicationPrx portal;
 std::string topicName = "Streams";
+std::vector<pid_t> ffplaysPIDs;
 
 char **command_name_completion(const char *, int, int);
 char *command_name_generator(const char *, int);
 
-
+char *command_names[] = {
+        (char*) "list",
+        (char*) "search",
+        (char*) "play",
+        (char*) "exit",
+        NULL
+};
 
 void playStream(std::string name){
 
@@ -30,7 +37,9 @@ void playStream(std::string name){
 
     if(elem != streamList.end()) {
 
-        int pid = vfork();
+        pid_t pid = vfork();
+
+        ffplaysPIDs.push_back(pid);
 
         if (pid < 0) {
             perror("fork failed");
@@ -55,7 +64,6 @@ void playStream(std::string name){
             AddString(&strings, &strings_size, NULL);
 
             FILE *ffPlayLog = fopen("/dev/null", "w+");
-
             if(ffPlayLog == NULL){
                 printf("Error opening file ffPlayLog..\n");
             }
@@ -66,7 +74,6 @@ void playStream(std::string name){
 
             execvp(strings[0], strings);
 
-
         } else {
             printf("ffplay should start soon...\n");
         }
@@ -76,7 +83,7 @@ void playStream(std::string name){
     }
 }
 
-void getStreamsList(){
+void getStreamsList() {
 
     StreamsMap streamList = portal->sendStreamServersList();
     int size = (int) streamList.size();
@@ -84,17 +91,18 @@ void getStreamsList(){
         std::cout << size << " streams available:" << std::endl;
         int counter = 1;
         for (auto const& stream : streamList) {
-            std::cout << "\t" << counter << ". " << stream.first << " -> Name: " << stream.second.name << " Video Size: " << stream.second.videoSize << " Bit Rate: " << stream.second.bitrate << std::endl;
+            std::cout << "\t" << counter << ". " << stream.first << " Name: " << stream.second.name
+                      << " Video Size: " << stream.second.videoSize << " BitRate: " << stream.second.bitrate << std::endl;
             counter++;
         }
         std::cout << std::endl << "-------------------" << std::endl;
-    }
-    else{
+    } else {
         std::cout << "No available streams atm." << std::endl;
     }
 }
 
 void searchKeyword(std::string keyword) {
+
     StreamsMap streamList = portal->sendStreamServersList();
     int size = (int) streamList.size();
     if(size > 0){
@@ -113,8 +121,7 @@ void searchKeyword(std::string keyword) {
         if(counter == 0){
             std::cout << "There is no stream with that given keyword.." << std::endl;
         }
-    }
-    else{
+    } else {
         std::cout << "No available streams atm." << std::endl;
     }
     return;
@@ -130,16 +137,15 @@ public:
 class StreamMonitorI : virtual public StreamMonitor {
 public:
     virtual void reportAddition(const FCUP::StreamServerEntry& sse, const Ice::Current& ){
-        std::cout << std::endl << "A new stream was created... -> " << sse.name << std::endl;
+        std::cout << std::endl << "A new stream was created... " << "Stream Identifier: " << sse.identifier << " Video Name: " << sse.name << std::endl;
     }
     virtual void reportRemoval(const FCUP::StreamServerEntry& sse, const Ice::Current&){
-        std::cout << std::endl << "A stream was deleted... -> " << sse.name << std::endl;
-
+        std::cout << std::endl << "A stream was deleted... " << "Stream Identifier: " << sse.identifier << " Video Name: " << sse.name << std::endl;
     }
 };
 
-void Client::killFFPlay(){
-    printf("Killing the ffplay processes...\n");
+void Client::killFFPlay() {
+    printf("Killing the FFPlay processes...\n");
     //NOT IMPLEMENTED YET
 }
 
@@ -273,14 +279,6 @@ int main(int argc, char* argv[]) {
     app.main(argc,argv, "config.client");
 }
 
-
-char *command_names[] = {
-        (char*) "list",
-        (char*) "search",
-        (char*) "play",
-        (char*) "exit",
-        NULL
-};
 
 char **command_name_completion(const char *text, int start, int end) {
     rl_attempted_completion_over = 1;
