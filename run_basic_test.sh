@@ -18,9 +18,10 @@ sleep 1
 
 sleep 1
 
-./executables/client 1> /dev/null 2> ~/VideoStreamerFCUP_Logs/client.txt &
+./executables/client < ./extras/ClientCommands.txt
 
-sleep 1
+sleep 2
+
 killall portal
 killall server
 killall icebox
