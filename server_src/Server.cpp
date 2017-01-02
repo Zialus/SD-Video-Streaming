@@ -127,7 +127,7 @@ int Server::run(int argc, char* argv[]) {
             const std::string& tmp = ss.str();
             const char* whereToListen = tmp.c_str();
 
-            std::cout << "| "<< whereToListen << " |" << std::endl;
+            std::cout << "|"<< whereToListen << "|" << std::endl;
 
             execlp("ffmpeg","ffmpeg","-re","-i",filename.c_str(),"-loglevel","warning",
                    "-analyzeduration","500k","-probesize","500k","-r","30","-s",videosize.c_str(),"-c:v",encoder.c_str(),"-preset","ultrafast","-pix_fmt",
@@ -152,10 +152,17 @@ int Server::run(int argc, char* argv[]) {
                     const std::string& tmp = ss.str();
                     const char* whereToListenFrom = tmp.c_str();
 
-                    std::cout << "| "<< whereToListenFrom << " |" << std::endl;
+                    std::stringstream ss2;
+                    ss << "rtmp://localhost:1935/dash/" << moviename;
+                    const std::string& tmp2 = ss.str();
+                    const char* rtmpURL = tmp2.c_str();
+
+                    std::cout << "|"<< rtmpURL << "|" << std::endl;
+
+                    std::cout << "|"<< whereToListenFrom << "|" << std::endl;
 
                     execlp("ffmpeg","ffmpeg","-re","-i",whereToListenFrom,"-loglevel","warning","-vcodec","libx264","-vprofile",
-                           "baseline","-acodec","libmp3lame","-ar","44100","-ac","1","-f","flv","rtmp://localhost:1935/dash/movie",NULL);
+                           "baseline","-acodec","libmp3lame","-ar","44100","-ac","1","-f","flv",rtmpURL,NULL);
                 } else {
                     printf("DASH is starting...");
                 }
@@ -176,10 +183,17 @@ int Server::run(int argc, char* argv[]) {
                     const std::string& tmp = ss.str();
                     const char* whereToListenFrom = tmp.c_str();
 
-                    std::cout << "| "<< whereToListenFrom << " |" << std::endl;
+                    std::stringstream ss2;
+                    ss << "rtmp://localhost:1935/hls/" << moviename;
+                    const std::string& tmp2 = ss.str();
+                    const char* rtmpURL = tmp2.c_str();
+
+                    std::cout << "|"<< rtmpURL << "|" << std::endl;
+
+                    std::cout << "|"<< whereToListenFrom << "|" << std::endl;
 
                     execlp("ffmpeg","ffmpeg","-re","-i",whereToListenFrom,"-loglevel","warning", "-vcodec","libx264","-vprofile",
-                           "baseline","-acodec","libmp3lame","-ar","44100","-ac","1","-f","flv","rtmp://localhost:1935/hls/movie",NULL);
+                           "baseline","-acodec","libmp3lame","-ar","44100","-ac","1","-f","flv",rtmpURL,NULL);
                 } else {
                     printf("HLS is starting...");
                 }
