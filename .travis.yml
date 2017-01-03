@@ -85,7 +85,7 @@ matrix:
         - brew install tclap
         - brew install cmake
         - brew install ice
-        - brew install ffmpeg
+        - brew install ffmpeg --with-x265
         - brew install nginx-full --with-rtmp-module
         - cp ~/build/Zialus/SD-VideoStreaming/extras/nginx.conf /usr/local/etc/nginx/
         - nginx
