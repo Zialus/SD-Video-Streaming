@@ -333,7 +333,15 @@ int Server::run(int argc, char* argv[]) {
             int counter = 0;
 
             while (true) {
-                counter++;
+
+                int status_of_child;
+                pid_t result = waitpid(regularFFmpegPID, &status_of_child, WNOHANG);
+                if (result == 0) {
+                    // Child still alive
+                } else {
+                    break;
+                }
+
                 int newClientFD = accept(server_socket_fd, NULL, NULL);
                 if (newClientFD > 0){
                     clientsSocketList.push_back(newClientFD);
@@ -342,11 +350,13 @@ int Server::run(int argc, char* argv[]) {
 
                 numberOfWrittenElements = (int) read(socketToReceiveVideoFD, ffmpegBuffer, BUFFERSIZE);
 
+//                counter++;
+
                 if (numberOfWrittenElements < 0){
                     perror("ERROR reading from socket");
                     return 1;
                 }   else if (numberOfWrittenElements == 0){
-                    printf("Stream is over..\n");
+                    printf("Stream is over??..\n");
                 }
                 else{
 //                    printf("%d. Bytes Read-> %d\n", counter, numberOfWrittenElements);
