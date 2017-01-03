@@ -47,7 +47,7 @@ private:
     void closeStream();
     void killFFMpeg();
     PortalCommunicationPrx portal;
-    std::string serverIdentifier;
+    std::list<std::string> serverIdentifierList;
     std::list<int> clientsSocketList;
 };
 
@@ -67,7 +67,10 @@ void Server::killFFMpeg() {
 
 void Server::closeStream() {
     printf("Trying to close the stream...\n");
-    portal->closeStream(serverIdentifier);
+
+    for (std::string serverIdentifier : serverIdentifierList) {
+        portal->closeStream(serverIdentifier);
+    }
     printf("Stream closed\n");
 }
 
@@ -90,28 +93,30 @@ int Server::run(int argc, char* argv[]) {
 
     try {
 
-        serverIdentifier = IceUtil::generateUUID();
+        std::string UUID = IceUtil::generateUUID();
         Ice::ObjectPrx base = communicator()->propertyToProxy("Portal.Proxy");
         portal = PortalCommunicationPrx::checkedCast(base);
         if (!portal){
             throw "Invalid proxy";
         }
 
-        StreamServerEntry allMyInfo;
+        StreamServerEntry allMyInfoTCP;
 
-        allMyInfo.identifier = serverIdentifier;
-        allMyInfo.name = moviename;
+        std::string serverIdentifierTCP = UUID.substr(0,8) + "-TCP";
+        serverIdentifierList.push_back(serverIdentifierTCP);
+        allMyInfoTCP.identifier = serverIdentifierTCP;
 
-        allMyInfo.keywords = keywords;
-        allMyInfo.videoSize = videosize;
-        allMyInfo.bitrate = bitrate;
-        allMyInfo.endpoint.ip = hostname;
-        allMyInfo.endpoint.port = std::to_string(portForClients).c_str();
-        allMyInfo.endpoint.transport = transportType;
+        allMyInfoTCP.name = moviename;
+        allMyInfoTCP.keywords = keywords;
+        allMyInfoTCP.videoSize = videosize;
+        allMyInfoTCP.bitrate = bitrate;
 
+        allMyInfoTCP.endpoint.ip = hostname;
+        allMyInfoTCP.endpoint.port = std::to_string(portForClients).c_str();
+        allMyInfoTCP.endpoint.transport = transportType;
 
-        printf("\nI'm going to register myself on the portal...\n\n");
-        portal->registerStreamServer(allMyInfo);
+        printf("\nI'm going to register a regular TCP stream on the portal...\n\n");
+        portal->registerStreamServer(allMyInfoTCP);
         printf("Portal registration done!\n\n");
 
         regularFFmpegPID = vfork();
@@ -137,6 +142,26 @@ int Server::run(int argc, char* argv[]) {
             sleep(1); //wait for initial ffmpeg to be execed
 
             if (useDASH) {
+
+                StreamServerEntry allMyInfoDASH;
+
+                std::string serverIdentifierDASH = UUID.substr(0,8) + "-DASH";
+                serverIdentifierList.push_back(serverIdentifierDASH);
+                allMyInfoDASH.identifier = serverIdentifierDASH;
+
+                allMyInfoDASH.name = moviename;
+                allMyInfoDASH.keywords = keywords;
+                allMyInfoDASH.videoSize = videosize;
+                allMyInfoDASH.bitrate = bitrate;
+                allMyInfoDASH.endpoint.ip = hostname;
+                allMyInfoDASH.endpoint.port = "8080";
+                allMyInfoDASH.endpoint.transport = "http";
+                allMyInfoDASH.endpoint.path = "/dash/" + moviename + ".mpd";
+
+                printf("\nI'm going to register a regular DASH stream on the portal...\n\n");
+                portal->registerStreamServer(allMyInfoDASH);
+                printf("Portal registration of DASH is done!\n\n");
+
                 dashFFmpegPID = vfork();
                 if ( dashFFmpegPID < 0 ) {
                     perror("dashFFmpeg fork failed");
@@ -167,6 +192,25 @@ int Server::run(int argc, char* argv[]) {
             }
 
             if (useHLS) {
+
+                StreamServerEntry allMyInfoHLS;
+
+                std::string serverIdentifierHLS = UUID.substr(0,8) + "-HLS";
+                serverIdentifierList.push_back(serverIdentifierHLS);
+                allMyInfoHLS.identifier = serverIdentifierHLS;
+
+                allMyInfoHLS.name = moviename;
+                allMyInfoHLS.keywords = keywords;
+                allMyInfoHLS.videoSize = videosize;
+                allMyInfoHLS.bitrate = bitrate;
+                allMyInfoHLS.endpoint.ip = hostname;
+                allMyInfoHLS.endpoint.port = "8080";
+                allMyInfoHLS.endpoint.transport = "http";
+                allMyInfoHLS.endpoint.path = "/hls/" + moviename + ".m3u8";
+
+                printf("\nI'm going to register a regular HLS stream on the portal...\n\n");
+                portal->registerStreamServer(allMyInfoHLS);
+                printf("Portal registration of HLS is done!\n\n");
 
                 hlsFFmpegPID = vfork();
                 if ( hlsFFmpegPID < 0 ) {

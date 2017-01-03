@@ -6,6 +6,7 @@ module FCUP{
 		string transport;
 		string ip;
 		string port;
+		string path;
 	};
 
 	struct StreamServerEntry {
