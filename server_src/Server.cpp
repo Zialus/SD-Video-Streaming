@@ -16,11 +16,14 @@
 
 // My stuff
 #include <StreamServer.h>
+#include <wait.h>
 #include "../auxiliary/Auxiliary.h"
 
 #define BUFFERSIZE 188
 
 using namespace FCUP;
+
+int server_socket_fd;
 
 pid_t regularFFmpegPID = -9;
 pid_t hlsFFmpegPID = -9;
@@ -36,8 +39,10 @@ std::string encoder;
 std::string filename;
 std::string transportType;
 StringSequence keywords;
+
 bool useHLS;
 bool useDASH;
+
 
 class Server : public Ice::Application {
 public:
@@ -80,6 +85,9 @@ void Server::interruptCallback(int signal) {
     Server::closeStream();
 
     Server::killFFMpeg();
+
+    printf("Closing the server socket\n");
+    close(server_socket_fd);
 
     printf("Trying to exit now...\n");
     _exit(0);
@@ -185,7 +193,7 @@ int Server::run(int argc, char* argv[]) {
                     std::cout << "|"<< whereToListenFrom << "|" << std::endl;
 
                     execlp("ffmpeg","ffmpeg","-re","-i",whereToListenFrom,"-loglevel","warning","-vcodec","libx264","-vprofile",
-                           "baseline","-acodec","libmp3lame","-ar","44100","-ac","1","-f","flv",rtmpURL,NULL);
+                           "baseline","-acodec","aac","-ar","44100","-ac","1","-f","flv",rtmpURL,NULL);
                 } else {
                     printf("DASH is starting...");
                 }
@@ -235,9 +243,9 @@ int Server::run(int argc, char* argv[]) {
                     std::cout << "|"<< whereToListenFrom << "|" << std::endl;
 
                     execlp("ffmpeg","ffmpeg","-re","-i",whereToListenFrom,"-loglevel","warning", "-vcodec","libx264","-vprofile",
-                           "baseline","-acodec","libmp3lame","-ar","44100","-ac","1","-f","flv",rtmpURL,NULL);
+                           "baseline","-acodec","aac","-ar","44100","-ac","1","-f","flv",rtmpURL,NULL);
                 } else {
-                    printf("HLS is starting...");
+                    printf("HLS is starting...\n");
                 }
 
             }
@@ -292,7 +300,7 @@ int Server::run(int argc, char* argv[]) {
             struct sockaddr_in server_address;
 
             //open socket
-            int server_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+            server_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
             if (server_socket_fd < 0){
                 perror("ERROR opening socket");
                 return 1;
@@ -384,6 +392,15 @@ int Server::run(int argc, char* argv[]) {
         std::cerr << msg << std::endl;
         status = 1;
     }
+
+    Server::closeStream();
+
+    Server::killFFMpeg();
+
+    printf("Closing the server socket\n");
+    close(server_socket_fd);
+
+    printf("Trying to exit now...\n");
 
     std::cout << "It's over" << std::endl;
     return status;
