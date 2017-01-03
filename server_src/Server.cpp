@@ -134,8 +134,8 @@ int Server::run(int argc, char* argv[]) {
 
             std::cout << "|"<< whereToListen << "|" << std::endl;
 
-            execlp("ffmpeg","ffmpeg","-re","-i",filename.c_str(),"-loglevel","warning","-s",videosize.c_str(),"-c:v",encoder.c_str(),
-                   "-crf","23","-preset","ultrafast","-tune","zerolatency","-b:v", bitrate.c_str(),"-f","mpegts",whereToListen,NULL);
+            execlp("ffmpeg","ffmpeg","-re","-i",filename.c_str(),"-loglevel","warning","-s",videosize.c_str(),"-c:v",encoder.c_str()
+                    ,"-preset","ultrafast","-tune","zerolatency","-b:v", bitrate.c_str(),"-f","mpegts",whereToListen,NULL);
 
         } else { // Parent will only start executing after child calls execvp because we are using vfork()
 
@@ -156,7 +156,7 @@ int Server::run(int argc, char* argv[]) {
                 allMyInfoDASH.endpoint.ip = hostname;
                 allMyInfoDASH.endpoint.port = "8080";
                 allMyInfoDASH.endpoint.transport = "http";
-                allMyInfoDASH.endpoint.path = "/dash/" + moviename + ".mpd";
+                allMyInfoDASH.endpoint.path = "/dash/" + UUID + ".mpd";
 
                 printf("\nI'm going to register a regular DASH stream on the portal...\n\n");
                 portal->registerStreamServer(allMyInfoDASH);
@@ -176,8 +176,8 @@ int Server::run(int argc, char* argv[]) {
                     const char* whereToListenFrom = tmp.c_str();
 
                     std::stringstream ss2;
-                    ss << "rtmp://localhost:1935/dash/" << moviename;
-                    const std::string& tmp2 = ss.str();
+                    ss2 << "rtmp://localhost:1935/dash/" << UUID;
+                    const std::string& tmp2 = ss2.str();
                     const char* rtmpURL = tmp2.c_str();
 
                     std::cout << "|"<< rtmpURL << "|" << std::endl;
@@ -206,7 +206,7 @@ int Server::run(int argc, char* argv[]) {
                 allMyInfoHLS.endpoint.ip = hostname;
                 allMyInfoHLS.endpoint.port = "8080";
                 allMyInfoHLS.endpoint.transport = "http";
-                allMyInfoHLS.endpoint.path = "/hls/" + moviename + ".m3u8";
+                allMyInfoHLS.endpoint.path = "/hls/" + UUID + ".m3u8";
 
                 printf("\nI'm going to register a regular HLS stream on the portal...\n\n");
                 portal->registerStreamServer(allMyInfoHLS);
@@ -226,8 +226,8 @@ int Server::run(int argc, char* argv[]) {
                     const char* whereToListenFrom = tmp.c_str();
 
                     std::stringstream ss2;
-                    ss << "rtmp://localhost:1935/hls/" << moviename;
-                    const std::string& tmp2 = ss.str();
+                    ss2 << "rtmp://localhost:1935/hls/" << UUID;
+                    const std::string& tmp2 = ss2.str();
                     const char* rtmpURL = tmp2.c_str();
 
                     std::cout << "|"<< rtmpURL << "|" << std::endl;

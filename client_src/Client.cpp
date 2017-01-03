@@ -55,8 +55,9 @@ void playStream(std::string name){
             std::string hostname = elem->second.endpoint.ip;
             std::string port = elem->second.endpoint.port;
             std::string transport = elem->second.endpoint.transport;
+            std::string path = elem->second.endpoint.path;
             std::stringstream ss;
-            ss << transport << "://" << hostname << ":" << port;
+            ss << transport << "://" << hostname << ":" << port << path;
             const std::string &tmp = ss.str();
             const char *cstr = tmp.c_str();
 
