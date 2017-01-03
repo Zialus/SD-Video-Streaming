@@ -30,8 +30,8 @@ sleep 2
 
 sleep 2
 
-killall portal
 killall server
+killall portal
 killall icebox
 
 cat ~/VideoStreamerFCUP_Logs/portal.txt
