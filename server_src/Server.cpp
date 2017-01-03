@@ -18,7 +18,7 @@
 #include <StreamServer.h>
 #include "../auxiliary/Auxiliary.h"
 
-#define BUFFERSIZE 32
+#define BUFFERSIZE 188
 
 using namespace FCUP;
 
