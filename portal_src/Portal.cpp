@@ -75,13 +75,13 @@ void Portal::registerStreamServer(const FCUP::StreamServerEntry& sse, const Ice:
 
 }
 
-void Portal::closeStream(const std::string& serverName, const Ice::Current&) {
+void Portal::closeStream(const std::string& serverIdentifier, const Ice::Current&) {
 
-    std::cout << "Closing the stream: " << serverName << std::endl;
-    auto elem = list_of_stream_servers.find(serverName);
+    std::cout << "Closing the stream: " << serverIdentifier << std::endl;
+    auto elem = list_of_stream_servers.find(serverIdentifier);
 
     if(elem != list_of_stream_servers.end()){
-        std::cout << "Closed stream -> " << serverName << std::endl;
+        std::cout << "Closed stream -> " << serverIdentifier << std::endl;
 
         try {
             streamNotifier->reportRemoval(elem->second);
@@ -95,7 +95,7 @@ void Portal::closeStream(const std::string& serverName, const Ice::Current&) {
 
 
     } else{
-        std::cout << "Couldn't close/find stream -> " << serverName << std::endl;
+        std::cout << "Couldn't close/find stream -> " << serverIdentifier << std::endl;
     }
 }
 
