@@ -6,6 +6,7 @@
 // C
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/wait.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <fcntl.h>
@@ -16,7 +17,6 @@
 
 // My stuff
 #include <StreamServer.h>
-#include <wait.h>
 #include "../auxiliary/Auxiliary.h"
 
 #define BUFFERSIZE 188
