@@ -129,10 +129,8 @@ int Server::run(int argc, char* argv[]) {
 
             std::cout << "|"<< whereToListen << "|" << std::endl;
 
-            execlp("ffmpeg","ffmpeg","-re","-i",filename.c_str(),"-loglevel","warning",
-                   "-analyzeduration","500k","-probesize","500k","-r","30","-s",videosize.c_str(),"-c:v",encoder.c_str(),"-preset","ultrafast","-pix_fmt",
-                   "yuv420p","-tune","zerolatency","-preset","ultrafast","-b:v", bitrate.c_str(),"-g","30","-c:a","flac","-profile:a","aac_he","-b:a",
-                   "32k","-f","mpegts",whereToListen,NULL);
+            execlp("ffmpeg","ffmpeg","-re","-i",filename.c_str(),"-loglevel","warning","-s",videosize.c_str(),"-c:v",encoder.c_str(),
+                   "-crf","23","-preset","ultrafast","-tune","zerolatency","-b:v", bitrate.c_str(),"-f","mpegts",whereToListen,NULL);
 
         } else { // Parent will only start executing after child calls execvp because we are using vfork()
 
@@ -200,8 +198,6 @@ int Server::run(int argc, char* argv[]) {
 
             }
 
-            printf("LOL\n");
-
             int n;
             int socketToReceiveVideoFD;
             struct addrinfo hints, *res, *ressave;
@@ -213,7 +209,7 @@ int Server::run(int argc, char* argv[]) {
             ffmpegServer = hostname.c_str();
             portToReceiveVideo = std::to_string(portForFFMPEG).c_str();
 
-            printf("Video vai ser recebido na porta %s e no adress %s\n", portToReceiveVideo, ffmpegServer);
+            printf("Will connect to FFMPEG on address |%s| and port |%s|\n", ffmpegServer,portToReceiveVideo);
 
 
             bzero( (char *) &hints, sizeof(addrinfo) );
@@ -235,10 +231,10 @@ int Server::run(int argc, char* argv[]) {
                     continue;  /*ignore this returned Ip addr*/
 
                 if(connect(socketToReceiveVideoFD, res->ai_addr, res->ai_addrlen)==0) {
-                    printf("connection ok!\n"); /* success*/
+                    printf("Connection Ok!\n"); /* success*/
                     break;
                 } else{
-                    perror("connecting stream socket");
+                    perror("Connecting to stream socket");
                 }
 
             } while ((res=res->ai_next)!= NULL);
@@ -287,7 +283,7 @@ int Server::run(int argc, char* argv[]) {
             }
 
 
-            printf("Ready to send to clients!\n");
+            printf("Ready to send video to clients! On address |%s| and port |%d|\n",hostname.c_str(),portForClients);
 
             int numberOfWrittenElements = 0;
             int counter = 0;
