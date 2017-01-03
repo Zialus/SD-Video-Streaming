@@ -6,7 +6,7 @@ sleep 1
 
 ./executables/portal &> ~/VideoStreamerFCUP_Logs/portal.txt &
 
-sleep 1
+sleep 2
 
 ./executables/server -f ~/Downloads/PopeyeAliBaba_512kb.mp4 -e libx264 -b 500k -v 640x360 \
 --my_port 10066 --ff_port 54321 -k what -k are -k you -k doing -n alibabaNORMAL \
@@ -16,8 +16,6 @@ sleep 1
 --my_port 10067 --ff_port 54322 -k what -k are -k you -k doing -n alibabaHLS --hls \
 &> ~/VideoStreamerFCUP_Logs/serverAliBabaHLS.txt &
 
-sleep 1
-
 ./executables/server -f ~/Downloads/Popeye_forPresident_512kb.mp4 -e libx265 -b 500k -v 640x360 \
 --my_port 10068 --ff_port 54323 -k basketball -k videogames -n presidentNORMAL \
 &> ~/VideoStreamerFCUP_Logs/serverPresidentNORMAL.txt &
@@ -26,7 +24,7 @@ sleep 1
 --my_port 10069 --ff_port 54324 -k basketball -k videogames -n presidentDASH --dash \
 &> ~/VideoStreamerFCUP_Logs/serverPresidentDASH.txt &
 
-sleep 1
+sleep 2
 
 ./executables/client < ./extras/ClientCommands.txt
 
