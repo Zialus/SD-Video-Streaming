@@ -33,3 +33,5 @@ The client should be run without any arguments.
 ``` bash
 ./executables/client
 ```
+
+To check the available commands, just press `TAB`.
