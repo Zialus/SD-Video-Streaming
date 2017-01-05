@@ -10,6 +10,12 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <fcntl.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <time.h>
+#include <stdio.h>
 
 // C++
 #include <fstream>
@@ -302,92 +308,135 @@ int Server::run(int argc, char* argv[]) {
 
             //--------------SERVER PART-----------------//
 
-            struct sockaddr_in server_address;
 
-            //open socket
-            server_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
-            if (server_socket_fd < 0){
-                perror("ERROR opening socket");
-                return 1;
-            }
+            if (transportType == "tcp") {
+                struct sockaddr_in server_address;
 
-            int rc = fcntl(server_socket_fd, F_SETFL, O_NONBLOCK);
-            if(rc<0){
-                perror("fcntl() failed");
-                close(server_socket_fd);
-                return 1;
-            }
-            // set all values in server_adress to 0
-            bzero((char *) &server_address, sizeof(server_address));
-
-            server_address.sin_family = AF_INET;
-            server_address.sin_port = htons((uint16_t) portForClients);
-            server_address.sin_addr.s_addr = INADDR_ANY;
-
-
-            int bind_result = bind(server_socket_fd, (struct sockaddr *) &server_address, sizeof(server_address));
-            if ( bind_result < 0 ) {
-                perror("ERROR on binding");
-                close(server_socket_fd);
-                return 1;
-            }
-
-            rc = listen(server_socket_fd, 32);
-            if (rc < 0) {
-                perror("listen() failed");
-                close(server_socket_fd);
-                return 1;
-            }
-
-
-            printf("Ready to send video to clients! On address |%s| and port |%d|\n",hostname.c_str(),portForClients);
-
-            int numberOfWrittenElements = 0;
-            int counter = 0;
-
-            while (true) {
-
-                int status_of_child;
-                pid_t result = waitpid(regularFFmpegPID, &status_of_child, WNOHANG);
-                if (result == 0) {
-                    // Child still alive
-                } else {
-                    break;
+                //open socket
+                server_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+                if (server_socket_fd < 0) {
+                    perror("ERROR opening socket");
+                    raise(SIGINT);
+                    return 1;
                 }
 
-                int newClientFD = accept(server_socket_fd, NULL, NULL);
-                if (newClientFD > 0){
-                    clientsSocketList.push_back(newClientFD);
-                    printf("ADDED Client with SOCKET ---> %d !!!\n", newClientFD);
+                int rc = fcntl(server_socket_fd, F_SETFL, O_NONBLOCK);
+                if (rc < 0) {
+                    perror("fcntl() failed");
+                    raise(SIGINT);
+                    return 1;
+                }
+                // set all values in server_address to 0
+                bzero((char *) &server_address, sizeof(server_address));
+
+                server_address.sin_family = AF_INET;
+                server_address.sin_port = htons((uint16_t) portForClients);
+                server_address.sin_addr.s_addr = INADDR_ANY;
+
+
+                int bind_result = bind(server_socket_fd, (struct sockaddr *) &server_address, sizeof(server_address));
+                if (bind_result < 0) {
+                    perror("ERROR on binding");
+                    raise(SIGINT);
+                    return 1;
                 }
 
-                numberOfWrittenElements = (int) read(socketToReceiveVideoFD, ffmpegBuffer, BUFFERSIZE);
+                rc = listen(server_socket_fd, 32);
+                if (rc < 0) {
+                    perror("listen() failed");
+                    raise(SIGINT);
+                    return 1;
+                }
+
+
+                printf("Ready to send video to clients! On address |%s| and port |%d|\n", hostname.c_str(),
+                       portForClients);
+
+                int numberOfWrittenElements = 0;
+                int counter = 0;
+
+                while (true) {
+
+                    int status_of_child;
+                    pid_t result = waitpid(regularFFmpegPID, &status_of_child, WNOHANG);
+                    if (result == 0) {
+                        // Child still alive
+                    } else {
+                        break;
+                    }
+
+                    int newClientFD = accept(server_socket_fd, NULL, NULL);
+                    if (newClientFD > 0) {
+                        clientsSocketList.push_back(newClientFD);
+                        printf("ADDED Client with SOCKET ---> %d !!!\n", newClientFD);
+                    }
+
+                    numberOfWrittenElements = (int) read(socketToReceiveVideoFD, ffmpegBuffer, BUFFERSIZE);
 
 //                counter++;
 
-                if (numberOfWrittenElements < 0){
-                    perror("ERROR reading from socket");
-                    return 1;
-                }   else if (numberOfWrittenElements == 0){
-                    printf("Stream is over??..\n");
-                }
-                else{
+                    if (numberOfWrittenElements < 0) {
+                        perror("ERROR reading from socket");
+                        raise(SIGINT);
+                        return 1;
+                    } else if (numberOfWrittenElements == 0) {
+                        printf("Stream is over??..\n");
+                    } else {
 //                    printf("%d. Bytes Read-> %d\n", counter, numberOfWrittenElements);
-                }
-
-                clientsSocketList.remove_if([ffmpegBuffer](int clientSocket)  {
-
-                    int bytesWritten = (int) write(clientSocket, ffmpegBuffer, BUFFERSIZE);
-                    if (bytesWritten < 0) {
-                        printf("REMOVED Client with SOCKET ---> %d !!!\n", clientSocket);
-                        return true;
                     }
 
-//                    printf("%%Client |%d| ---> received %d bytes %%\n", clientSocket, bytesWritten);
-                    return false;
-                });
+                    clientsSocketList.remove_if([ffmpegBuffer](int clientSocket) {
 
+                        int bytesWritten = (int) write(clientSocket, ffmpegBuffer, BUFFERSIZE);
+                        if (bytesWritten < 0) {
+                            printf("REMOVED Client with SOCKET ---> %d !!!\n", clientSocket);
+                            return true;
+                        }
+
+//                    printf("%%Client |%d| ---> received %d bytes %%\n", clientSocket, bytesWritten);
+                        return false;
+                    });
+
+                }
+            } else if (transportType == "udp") {
+
+                struct sockaddr_in addr;
+                int addrlen, sock, cnt;
+                struct ip_mreq mreq;
+                char message[BUFFERSIZE];
+
+                bzero(message, sizeof(message));
+
+                /* set up socket */
+                sock = socket(AF_INET, SOCK_DGRAM, 0);
+                if (sock < 0) {
+                    perror("socket");
+                    raise(SIGINT);
+                    return 1;
+                }
+                bzero((char *) &addr, sizeof(addr));
+                addr.sin_family = AF_INET;
+                addr.sin_addr.s_addr = htonl(INADDR_ANY);
+                addr.sin_port = htons(portForClients);
+                addrlen = sizeof(addr);
+
+                /* send */
+                addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+                while (1) {
+                    read(socketToReceiveVideoFD, message, BUFFERSIZE);
+                    cnt = (int) sendto(sock, message, sizeof(message), 0, (struct sockaddr *) &addr, (socklen_t) addrlen);
+                    if (cnt < 0) {
+                        perror("sendto");
+                        raise(SIGINT);
+                        return 1;
+                    }
+                }
+
+            } else {
+                printf("you fucked up");
             }
+
+
         }
 
     } catch (const Ice::Exception& ex) {
@@ -424,7 +473,7 @@ void commandLineParsing(int argc, char* argv[]) {
 
         std::vector<std::string> allowedTransportTypes;
         allowedTransportTypes.push_back("tcp");
-        allowedTransportTypes.push_back("upd");
+        allowedTransportTypes.push_back("udp");
         TCLAP::ValuesConstraint<std::string> allowedTT( allowedTransportTypes);
 
         TCLAP::ValueArg<std::string> hostNameArg("","host","FFmpeg hostname",false,"localhost","address");
