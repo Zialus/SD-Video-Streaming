@@ -130,6 +130,7 @@ int Server::run(int argc, char* argv[]) {
         regularFFmpegPID = vfork();
         if ( regularFFmpegPID < 0 ) {
             perror("regularFFmpeg fork failed");
+            raise(SIGINT);
             return 1;
         }
 
@@ -153,7 +154,7 @@ int Server::run(int argc, char* argv[]) {
 
                 StreamServerEntry allMyInfoDASH;
 
-                std::string serverIdentifierDASH = UUID.substr(0,8) + "-DASH";
+                std::string serverIdentifierDASH = UUID.substr(0, 8) + "-DASH";
                 serverIdentifierList.push_back(serverIdentifierDASH);
                 allMyInfoDASH.identifier = serverIdentifierDASH;
 
@@ -171,29 +172,31 @@ int Server::run(int argc, char* argv[]) {
                 printf("Portal registration of DASH is done!\n\n");
 
                 dashFFmpegPID = vfork();
-                if ( dashFFmpegPID < 0 ) {
+                if (dashFFmpegPID < 0) {
                     perror("dashFFmpeg fork failed");
+                    raise(SIGINT);
                     return 1;
                 }
 
-                if ( dashFFmpegPID == 0 ) { // Child process to create DASH stream
+                if (dashFFmpegPID == 0) { // Child process to create DASH stream
 
                     std::stringstream ss;
                     ss << transportType << "://" << hostname << ":" << portForClients;
-                    const std::string& tmp = ss.str();
-                    const char* whereToListenFrom = tmp.c_str();
+                    const std::string &tmp = ss.str();
+                    const char *whereToListenFrom = tmp.c_str();
 
                     std::stringstream ss2;
                     ss2 << "rtmp://localhost:1935/dash/" << UUID;
-                    const std::string& tmp2 = ss2.str();
-                    const char* rtmpURL = tmp2.c_str();
+                    const std::string &tmp2 = ss2.str();
+                    const char *rtmpURL = tmp2.c_str();
 
-                    std::cout << "|"<< rtmpURL << "|" << std::endl;
+                    std::cout << "|" << rtmpURL << "|" << std::endl;
 
-                    std::cout << "|"<< whereToListenFrom << "|" << std::endl;
+                    std::cout << "|" << whereToListenFrom << "|" << std::endl;
 
-                    execlp("ffmpeg","ffmpeg","-re","-i",whereToListenFrom,"-loglevel","warning","-vcodec","libx264","-vprofile",
-                           "baseline","-acodec","aac","-ar","44100","-ac","1","-f","flv",rtmpURL,NULL);
+                    execlp("ffmpeg", "ffmpeg", "-re", "-i", whereToListenFrom, "-loglevel", "warning", "-vcodec",
+                           "libx264", "-vprofile",
+                           "baseline", "-acodec", "aac", "-ar", "44100", "-ac", "1", "-f", "flv", rtmpURL, NULL);
                 } else {
                     printf("DASH is starting...");
                 }
@@ -203,7 +206,7 @@ int Server::run(int argc, char* argv[]) {
 
                 StreamServerEntry allMyInfoHLS;
 
-                std::string serverIdentifierHLS = UUID.substr(0,8) + "-HLS";
+                std::string serverIdentifierHLS = UUID.substr(0, 8) + "-HLS";
                 serverIdentifierList.push_back(serverIdentifierHLS);
                 allMyInfoHLS.identifier = serverIdentifierHLS;
 
@@ -221,29 +224,31 @@ int Server::run(int argc, char* argv[]) {
                 printf("Portal registration of HLS is done!\n\n");
 
                 hlsFFmpegPID = vfork();
-                if ( hlsFFmpegPID < 0 ) {
+                if (hlsFFmpegPID < 0) {
                     perror("fork failed");
+                    raise(SIGINT);
                     return 1;
                 }
 
-                if ( hlsFFmpegPID == 0 ) { // Child process to create DASH stream
+                if (hlsFFmpegPID == 0) { // Child process to create DASH stream
 
                     std::stringstream ss;
                     ss << transportType << "://" << hostname << ":" << portForClients;
-                    const std::string& tmp = ss.str();
-                    const char* whereToListenFrom = tmp.c_str();
+                    const std::string &tmp = ss.str();
+                    const char *whereToListenFrom = tmp.c_str();
 
                     std::stringstream ss2;
                     ss2 << "rtmp://localhost:1935/hls/" << UUID;
-                    const std::string& tmp2 = ss2.str();
-                    const char* rtmpURL = tmp2.c_str();
+                    const std::string &tmp2 = ss2.str();
+                    const char *rtmpURL = tmp2.c_str();
 
-                    std::cout << "|"<< rtmpURL << "|" << std::endl;
+                    std::cout << "|" << rtmpURL << "|" << std::endl;
 
-                    std::cout << "|"<< whereToListenFrom << "|" << std::endl;
+                    std::cout << "|" << whereToListenFrom << "|" << std::endl;
 
-                    execlp("ffmpeg","ffmpeg","-re","-i",whereToListenFrom,"-loglevel","warning", "-vcodec","libx264","-vprofile",
-                           "baseline","-acodec","aac","-ar","44100","-ac","1","-f","flv",rtmpURL,NULL);
+                    execlp("ffmpeg", "ffmpeg", "-re", "-i", whereToListenFrom, "-loglevel", "warning", "-vcodec",
+                           "libx264", "-vprofile",
+                           "baseline", "-acodec", "aac", "-ar", "44100", "-ac", "1", "-f", "flv", rtmpURL, NULL);
                 } else {
                     printf("HLS is starting...\n");
                 }
@@ -261,35 +266,35 @@ int Server::run(int argc, char* argv[]) {
             ffmpegServer = hostname.c_str();
             portToReceiveVideo = std::to_string(portForFFMPEG).c_str();
 
-            printf("Will connect to FFMPEG on address |%s| and port |%s|\n", ffmpegServer,portToReceiveVideo);
+            printf("Will connect to FFMPEG on address |%s| and port |%s|\n", ffmpegServer, portToReceiveVideo);
 
 
-            bzero( (char *) &hints, sizeof(addrinfo) );
+            bzero((char *) &hints, sizeof(addrinfo));
 
             bzero(&hints, sizeof(struct addrinfo));
-            hints.ai_family=AF_UNSPEC;
-            hints.ai_socktype=SOCK_STREAM;
-            hints.ai_protocol=IPPROTO_TCP;
+            hints.ai_family = AF_UNSPEC;
+            hints.ai_socktype = SOCK_STREAM;
+            hints.ai_protocol = IPPROTO_TCP;
 
-            if((n=getaddrinfo(ffmpegServer, portToReceiveVideo, &hints, &res))!=0) {
+            if ((n = getaddrinfo(ffmpegServer, portToReceiveVideo, &hints, &res)) != 0) {
                 printf("getaddrinfo error for %s, %s; %s", ffmpegServer, portToReceiveVideo, gai_strerror(n));
             }
 
-            ressave=res;
-            do{
-                socketToReceiveVideoFD=socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+            ressave = res;
+            do {
+                socketToReceiveVideoFD = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 
-                if(socketToReceiveVideoFD<0)
+                if (socketToReceiveVideoFD < 0)
                     continue;  /*ignore this returned Ip addr*/
 
-                if(connect(socketToReceiveVideoFD, res->ai_addr, res->ai_addrlen)==0) {
+                if (connect(socketToReceiveVideoFD, res->ai_addr, res->ai_addrlen) == 0) {
                     printf("Connection Ok!\n"); /* success*/
                     break;
-                } else{
+                } else {
                     perror("Connecting to stream socket");
                 }
 
-            } while ((res=res->ai_next)!= NULL);
+            } while ((res = res->ai_next) != NULL);
 
             freeaddrinfo(ressave);
 
