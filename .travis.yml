@@ -83,7 +83,6 @@ matrix:
         - brew tap homebrew/nginx
         - brew update
         - brew install tclap
-        - brew install cmake
         - brew install ice
         - brew install ffmpeg --with-x265
         - brew install nginx-full --with-rtmp-module
