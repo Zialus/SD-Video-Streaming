@@ -51,16 +51,16 @@ matrix:
           packages:
             - g++-6
       env:
-        - COMPILER="clang++-3.9"
+        - COMPILER="clang++-4.0"
         - EXTRALIBS="-L /usr/lib/x86_64-linux-gnu/c++11/"
       before_install:
         - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 5E6DA83306132997
         - sudo apt-add-repository "deb http://zeroc.com/download/apt/ubuntu$(lsb_release -rs) stable main"
         - wget -O - http://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-        - sudo apt-add-repository "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-3.9 main"
+        - sudo apt-add-repository "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-4.0 main"
         - sudo add-apt-repository ppa:mc3man/trusty-media -y
         - sudo apt-get update -y
-        - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev clang-3.9 libc++-dev libc++abi-dev ffmpeg libtclap-dev
+        - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev clang-4.0 libc++-dev libc++abi-dev ffmpeg libtclap-dev
         - sudo apt-get install build-essential libpcre3 libpcre3-dev libssl-dev
         - pushd .
         - sudo mkdir ~/build-nginx && cd ~/build-nginx
