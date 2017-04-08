@@ -39,7 +39,7 @@ matrix:
         - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module
         - sudo make
         - sudo make install
-        - sudo cp ~/build/Zialus/SD-VideoStreaming/extras/nginx.conf /usr/local/nginx/conf/
+        - sudo cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/nginx/conf/
         - sudo /usr/local/nginx/sbin/nginx
         - popd
     - os: linux
@@ -86,5 +86,5 @@ matrix:
         - brew install ice
         - brew install -v ffmpeg --with-x265
         - brew install nginx-full --with-rtmp-module
-        - cp ~/build/Zialus/SD-VideoStreaming/extras/nginx.conf /usr/local/etc/nginx/
+        - cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/etc/nginx/
         - nginx
