@@ -56,8 +56,8 @@ void Portal::registerStreamServer(const FCUP::StreamServerEntry& sse, const Ice:
     std::cout << "Added a new stream server: " << sse.identifier << std::endl;
 
     std::cout << "Video keywords:";
-    for (auto it = sse.keywords.begin(); it != sse.keywords.end(); ++it){
-        std::cout << " " << *it;
+    for (const auto & keyword : sse.keywords){
+        std::cout << " " << keyword;
     }
     std::cout << " | Name: " << sse.name << " | Video Size: " << sse.videoSize << "|" <<std::endl;
     std::cout << "---------" << std::endl << std::endl;
