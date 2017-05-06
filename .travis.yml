@@ -76,7 +76,7 @@ matrix:
         - sudo /usr/local/nginx/sbin/nginx
         - popd
     - os: osx
-      osx_image: xcode8.2
+      osx_image: xcode8.3
       compiler: clang
       env: COMPILER=clang++
       before_install:
