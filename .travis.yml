@@ -3,8 +3,10 @@ sudo: required
 dist: trusty
 
 script:
-    - mkdir build && cd build
-    - cmake .. && make
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make
     - cd ..
     - ./download_videos.sh
     - ./set_things_up.sh
