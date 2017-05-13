@@ -8,8 +8,8 @@ script:
     - cmake ..
     - make
     - cd ..
-    - ./download_videos.sh
     - ./set_things_up.sh
+    - ./download_videos.sh
     - ./run_basic_test.sh
 
 matrix:

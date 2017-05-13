@@ -2,7 +2,9 @@
 
 set -x
 
-sleep 1
+icebox --Ice.Config="ice_config_dir/config.icebox" &
+
+sleep 2
 
 ./executables/portal --Ice.Config="ice_config_dir/config.portal" &> ~/VideoStreamerFCUP_Logs/portal.txt &
 
