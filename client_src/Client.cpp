@@ -277,7 +277,7 @@ int Client::run(int argc, char* argv[]) {
 
 int main(int argc, char* argv[]) {
     Client app;
-    app.main(argc,argv, "config.client");
+    app.main(argc,argv);
 }
 
 

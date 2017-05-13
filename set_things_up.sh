@@ -6,4 +6,4 @@ mkdir -p ~/VideoStreamerFCUP_Logs
 mkdir -p ~/Downloads
 
 mkdir db
-icebox --Ice.Config=config.icebox &
+icebox --Ice.Config="ice_config_dir/config.icebox" &

@@ -533,5 +533,5 @@ int main(int argc, char* argv[]) {
     commandLineParsing(argc,argv);
 
     Server app;
-    app.main(argc, argv, "config.server");
+    app.main(argc, argv);
 }

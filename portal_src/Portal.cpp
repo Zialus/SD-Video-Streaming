@@ -134,5 +134,5 @@ int Portal::run(int argc, char* argv[]) {
 int main(int argc, char* argv[]) {
 
     Portal app;
-    return app.main(argc, argv,"config.portal");
+    return app.main(argc, argv);
 }
