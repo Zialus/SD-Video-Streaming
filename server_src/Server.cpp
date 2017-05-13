@@ -14,8 +14,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <time.h>
-#include <stdio.h>
+#include <ctime>
+#include <cstdio>
 
 // C++
 #include <fstream>
@@ -79,7 +79,7 @@ void Server::killFFMpeg() {
 void Server::closeStream() {
     printf("Trying to close the stream...\n");
 
-    for (std::string serverIdentifier : serverIdentifierList) {
+    for (const std::string& serverIdentifier : serverIdentifierList) {
         portal->closeStream(serverIdentifier);
     }
     printf("Stream closed\n");

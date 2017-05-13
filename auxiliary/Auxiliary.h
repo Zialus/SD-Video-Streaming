@@ -1,7 +1,7 @@
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <signal.h>
+#include <cstring>
+#include <cstdio>
+#include <cstdlib>
+#include <csignal>
 #include <unistd.h>
 
 void split(const std::string &s, char delim, std::vector<std::string> &elems) {
@@ -26,22 +26,22 @@ int AddString(char*** strings, size_t* count, const char* newStr)
 	char* copy;
 	char** p;
 
-	if (newStr == NULL) {
-		if ((p = (char**) realloc(*strings, (*count + 1) * sizeof(char*))) == NULL)
+	if (newStr == nullptr) {
+		if ((p = (char**) realloc(*strings, (*count + 1) * sizeof(char*))) == nullptr)
 		{
 			return 0;
 		}
 		*strings = p;
-		(*strings)[(*count)++] = NULL;
+		(*strings)[(*count)++] = nullptr;
 	} else {
 
-		if (strings == NULL || (copy = (char*) malloc(strlen(newStr) + 1)) == NULL){
+		if (strings == nullptr || (copy = (char*) malloc(strlen(newStr) + 1)) == nullptr){
 			return 0;
 		}
 
 		strcpy(copy, newStr);
 
-		if ((p = (char**) realloc(*strings, (*count + 1) * sizeof(char*))) == NULL)
+		if ((p = (char**) realloc(*strings, (*count + 1) * sizeof(char*))) == nullptr)
 		{
 			free(copy);
 			return 0;
