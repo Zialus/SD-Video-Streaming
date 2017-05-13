@@ -53,8 +53,8 @@ void commandLineParsing(int, char* []);
 
 class Server : public Ice::Application {
 public:
-    virtual void interruptCallback(int) override;
-    virtual int run(int, char *[]) override;
+    void interruptCallback(int) override;
+    int run(int, char *[]) override;
 private:
     void closeStream();
     void killFFMpeg();
@@ -303,7 +303,7 @@ int Server::run(int argc, char* argv[]) {
                     perror("Connecting to stream socket");
                 }
 
-            } while ((res = res->ai_next) != NULL);
+            } while ((res = res->ai_next) != nullptr);
 
             freeaddrinfo(ressave);
 
@@ -368,7 +368,7 @@ int Server::run(int argc, char* argv[]) {
                         break;
                     }
 
-                    int newClientFD = accept(server_socket_fd, NULL, NULL);
+                    int newClientFD = accept(server_socket_fd, nullptr, nullptr);
                     if (newClientFD > 0) {
                         clientsSocketList.push_back(newClientFD);
                         printf("ADDED Client with SOCKET ---> %d !!!\n", newClientFD);
@@ -425,7 +425,7 @@ int Server::run(int argc, char* argv[]) {
 
                 /* send */
                 addr.sin_addr.s_addr = inet_addr("127.0.0.1");
-                while (1) {
+                while (true) {
                     read(socketToReceiveVideoFD, message, BUFFERSIZE);
                     cnt = (int) sendto(sock, message, sizeof(message), 0, (struct sockaddr *) &addr, (socklen_t) addrlen);
                     if (cnt < 0) {
@@ -470,13 +470,13 @@ void commandLineParsing(int argc, char* argv[]) {
         TCLAP::CmdLine cmd("Streaming Server", ' ', "1.0",true);
 
         std::vector<std::string> allowedEnconders;
-        allowedEnconders.push_back("libx264");
-        allowedEnconders.push_back("libx265");
+        allowedEnconders.emplace_back("libx264");
+        allowedEnconders.emplace_back("libx265");
         TCLAP::ValuesConstraint<std::string> allowedEnc( allowedEnconders );
 
         std::vector<std::string> allowedTransportTypes;
-        allowedTransportTypes.push_back("tcp");
-        allowedTransportTypes.push_back("udp");
+        allowedTransportTypes.emplace_back("tcp");
+        allowedTransportTypes.emplace_back("udp");
         TCLAP::ValuesConstraint<std::string> allowedTT( allowedTransportTypes);
 
         TCLAP::ValueArg<std::string> hostNameArg("","host","FFmpeg hostname",false,"localhost","address");
