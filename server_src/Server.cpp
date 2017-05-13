@@ -49,6 +49,7 @@ StringSequence keywords;
 bool useHLS;
 bool useDASH;
 
+void commandLineParsing(int, char* []);
 
 class Server : public Ice::Application {
 public:
@@ -100,6 +101,8 @@ void Server::interruptCallback(int signal) {
 }
 
 int Server::run(int argc, char* argv[]) {
+
+    commandLineParsing(argc,argv);
 
     callbackOnInterrupt();
 
@@ -529,8 +532,6 @@ void commandLineParsing(int argc, char* argv[]) {
 }
 
 int main(int argc, char* argv[]) {
-
-    commandLineParsing(argc,argv);
 
     Server app;
     app.main(argc, argv);
