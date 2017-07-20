@@ -26,14 +26,15 @@
 #include "../auxiliary/Auxiliary.h"
 
 #define BUFFERSIZE 188
+#define MAGICNEGATIVE (-9)
 
 using namespace FCUP;
 
 int server_socket_fd;
 
-pid_t regularFFmpegPID = -9;
-pid_t hlsFFmpegPID = -9;
-pid_t dashFFmpegPID = -9;
+pid_t regularFFmpegPID = MAGICNEGATIVE;
+pid_t hlsFFmpegPID = MAGICNEGATIVE;
+pid_t dashFFmpegPID = MAGICNEGATIVE;
 
 std::string hostname;
 std::string moviename;
@@ -64,17 +65,23 @@ private:
 };
 
 void Server::killFFMpeg() {
-    printf("Killing the ffmpeg process...\n");
+    printf("Killing the FFMpeg processes...\n");
 
-    if(regularFFmpegPID != -9) {
+    if(regularFFmpegPID != MAGICNEGATIVE) {
+        printf("Regular FFMpeg killed...");
         kill(regularFFmpegPID, SIGKILL);
     }
-    if(hlsFFmpegPID != -9) {
+    if(hlsFFmpegPID != MAGICNEGATIVE) {
+        printf("HLS FFMpeg killed...");
         kill(hlsFFmpegPID, SIGKILL);
     }
-    if(dashFFmpegPID != -9) {
+    if(dashFFmpegPID != MAGICNEGATIVE) {
+        printf("DASH FFMpeg killed...");
         kill(dashFFmpegPID, SIGKILL);
     }
+
+    printf("\nDone with killing FFMpeg processes...\n");
+
 }
 
 void Server::closeStream() {
