@@ -38,9 +38,9 @@ matrix:
         - pushd .
         - sudo mkdir ~/build-nginx && cd ~/build-nginx
         - sudo git clone git://github.com/sergey-dryabzhinsky/nginx-rtmp-module.git
-        - sudo wget http://nginx.org/download/nginx-1.10.3.tar.gz
-        - sudo tar xzf nginx-1.10.3.tar.gz
-        - cd nginx-1.10.3
+        - sudo wget http://nginx.org/download/nginx-1.13.3.tar.gz
+        - sudo tar xzf nginx-1.13.3.tar.gz
+        - cd nginx-1.13.3
         - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module
         - sudo make
         - sudo make install
@@ -68,9 +68,9 @@ matrix:
         - pushd .
         - sudo mkdir ~/build-nginx && cd ~/build-nginx
         - sudo git clone git://github.com/sergey-dryabzhinsky/nginx-rtmp-module.git
-        - sudo wget http://nginx.org/download/nginx-1.10.3.tar.gz
-        - sudo tar xzf nginx-1.10.3.tar.gz
-        - cd nginx-1.10.3
+        - sudo wget http://nginx.org/download/nginx-1.13.3.tar.gz
+        - sudo tar xzf nginx-1.13.3.tar.gz
+        - cd nginx-1.13.3
         - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module
         - sudo make
         - sudo make install
@@ -97,9 +97,9 @@ matrix:
         - pushd .
         - sudo mkdir ~/build-nginx && cd ~/build-nginx
         - sudo git clone git://github.com/sergey-dryabzhinsky/nginx-rtmp-module.git
-        - sudo wget http://nginx.org/download/nginx-1.10.3.tar.gz
-        - sudo tar xzf nginx-1.10.3.tar.gz
-        - cd nginx-1.10.3
+        - sudo wget http://nginx.org/download/nginx-1.13.3.tar.gz
+        - sudo tar xzf nginx-1.13.3.tar.gz
+        - cd nginx-1.13.3
         - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module
         - sudo make
         - sudo make install
