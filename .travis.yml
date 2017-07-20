@@ -21,10 +21,10 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-6
+            - g++-7
       env:
-        - COMPILER="g++-6"
         - EXTRALIBS="-L /usr/lib/x86_64-linux-gnu/c++11/"
+        - COMPILER="g++-7"
       before_install:
         - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 5E6DA83306132997
         - sudo apt-add-repository "deb http://zeroc.com/download/apt/ubuntu$(lsb_release -rs) stable main"
@@ -51,7 +51,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-6
+            - g++-7
       env:
         - COMPILER="clang++-4.0"
         - EXTRALIBS="-L /usr/lib/x86_64-linux-gnu/c++11/"
@@ -78,7 +78,7 @@ matrix:
         - sudo /usr/local/nginx/sbin/nginx
         - popd
     - os: osx
-      osx_image: xcode8.3
+      osx_image: xcode9
       compiler: clang
       env: COMPILER=clang++
       before_install:
