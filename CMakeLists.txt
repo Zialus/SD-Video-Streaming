@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 
 project(VideoStreaming-SD)
 
-set(CMAKE_VERBOSE_MAKEFILE true)
+#set(CMAKE_VERBOSE_MAKEFILE true)
 
 message("EXTRALIBS BEFORE configuration:" $ENV{EXTRALIBS})
 
