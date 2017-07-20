@@ -9,7 +9,11 @@ message("EXTRALIBS defined as:" $ENV{EXTRALIBS})
 
 if(NOT DEFINED ENV{COMPILER})
     set(ENV{COMPILER} clang++)
-    message(STATUS "COMPILER environment variable defined as clang++")
+    message(STATUS "COMPILER environment variable is now defined as clang++")
+endif()
+
+if(DEFINED ENV{EXTRALIBS})
+    message(STATUS "EXTRALIBS environment variable is being used!")
 endif()
 
 set(CMAKE_CXX_STANDARD 14)
@@ -44,10 +48,12 @@ add_custom_target(
         DEPENDS ${ice_HDR} ${ice_SRC}
 )
 
-SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/executables)
-add_executable(server ${server_HDR} ${server_SRC} ${ice_HDR} ${ice_SRC})
-add_executable(client ${client_HDR} ${client_SRC} ${ice_HDR} ${ice_SRC})
-add_executable(portal ${portal_HDR} ${portal_SRC} ${ice_HDR} ${ice_SRC})
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/executables)
+
+add_executable(server ${server_HDR} ${server_SRC} ${ice_HDR} ${ice_SRC} auxiliary/Auxiliary.h )
+add_executable(client ${client_HDR} ${client_SRC} ${ice_HDR} ${ice_SRC} auxiliary/Auxiliary.h )
+add_executable(portal ${portal_HDR} ${portal_SRC} ${ice_HDR} ${ice_SRC} auxiliary/Auxiliary.h )
 
 include_directories(server ${PROJECT_SOURCE_DIR}/ice ${Ice_INCLUDE_DIRS})
 include_directories(client ${PROJECT_SOURCE_DIR}/ice ${Ice_INCLUDE_DIRS})
