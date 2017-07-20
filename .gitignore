@@ -1,7 +1,9 @@
 .idea/
 cmake-build-release/
 cmake-build-debug/
+cmake-xcode/
 executables/
 db/
+build/
 /ice/StreamServer.cpp
 /ice/StreamServer.h

@@ -6,7 +6,7 @@ set(CMAKE_VERBOSE_MAKEFILE true)
 
 message("EXTRALIBS BEFORE configuration:" $ENV{EXTRALIBS})
 
-if(UNIX)
+if(UNIX AND NOT APPLE)
     set(ENV{EXTRALIBS} "-L /usr/lib/x86_64-linux-gnu/c++11/")
     message(STATUS "EXTRALIBS environment has been set")
 endif ()
