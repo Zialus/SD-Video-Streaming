@@ -12,8 +12,13 @@ script:
     - ./download_videos.sh
     - ./run_basic_test.sh
 
+before_install:
+    - eval "${MATRIX_EVAL}"
+
 matrix:
   include:
+
+      ######## LINUX GCC ########
     - os: linux
       compiler: g++
       addons:
@@ -23,8 +28,7 @@ matrix:
           packages:
             - g++-7
       env:
-        - EXTRALIBS="-L /usr/lib/x86_64-linux-gnu/c++11/"
-        - COMPILER="g++-7"
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
       before_install:
         - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 5E6DA83306132997
         - sudo apt-add-repository "deb http://zeroc.com/download/apt/ubuntu$(lsb_release -rs) stable main"
@@ -44,25 +48,23 @@ matrix:
         - sudo cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/nginx/conf/
         - sudo /usr/local/nginx/sbin/nginx
         - popd
+
+    ######## LINUX CLANG ########
     - os: linux
-      compiler: clang++
       addons:
         apt:
           sources:
-            - ubuntu-toolchain-r-test
+            - llvm-toolchain-trusty-4.0
           packages:
-            - g++-7
+            - clang-4.0
       env:
-        - COMPILER="clang++-4.0"
-        - EXTRALIBS="-L /usr/lib/x86_64-linux-gnu/c++11/"
+        - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++-4.0"
       before_install:
         - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 5E6DA83306132997
         - sudo apt-add-repository "deb http://zeroc.com/download/apt/ubuntu$(lsb_release -rs) stable main"
-        - wget -O - http://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-        - sudo apt-add-repository "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-4.0 main"
         - sudo add-apt-repository ppa:mc3man/trusty-media -y
         - sudo apt-get update -y
-        - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev clang-4.0 libc++-dev libc++abi-dev ffmpeg libtclap-dev
+        - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev ffmpeg libtclap-dev
         - sudo apt-get install build-essential libpcre3 libpcre3-dev libssl-dev
         - pushd .
         - sudo mkdir ~/build-nginx && cd ~/build-nginx
@@ -70,17 +72,35 @@ matrix:
         - sudo wget http://nginx.org/download/nginx-1.10.3.tar.gz
         - sudo tar xzf nginx-1.10.3.tar.gz
         - cd nginx-1.10.3
-        - export CC=clang-4.0 #to compile nginx
         - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module
         - sudo make
         - sudo make install
         - sudo cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/nginx/conf/
         - sudo /usr/local/nginx/sbin/nginx
         - popd
+
+    ######## OSX CLANG ########
     - os: osx
       osx_image: xcode9
-      compiler: clang
-      env: COMPILER=clang++
+      env:
+        - MATRIX_EVAL="CC=clang-3.9 && CXX=clang++"
+      before_script:
+        - brew update && brew cask uninstall oclint && brew install llvm@3.9 && brew link --overwrite llvm@3.9 --force
+      before_install:
+        - brew tap homebrew/nginx
+        - brew update
+        - brew install tclap
+        - brew install ice
+        - brew install -v ffmpeg --with-x265
+        - brew install nginx-full --with-rtmp-module
+        - cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/etc/nginx/
+        - nginx
+    - os: osx
+      osx_image: xcode9
+      env:
+        - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++"
+      before_script:
+        - brew update && brew cask uninstall oclint && brew install llvm && brew link --overwrite llvm --force
       before_install:
         - brew tap homebrew/nginx
         - brew update

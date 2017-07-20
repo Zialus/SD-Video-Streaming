@@ -2,22 +2,18 @@ cmake_minimum_required(VERSION 3.0)
 
 project(VideoStreaming-SD)
 
-#set(CMAKE_VERBOSE_MAKEFILE true)
+set(CMAKE_VERBOSE_MAKEFILE true)
 
-message("COMPILER defined as:" $ENV{COMPILER})
-message("EXTRALIBS defined as:" $ENV{EXTRALIBS})
+message("EXTRALIBS BEFORE configuration:" $ENV{EXTRALIBS})
 
-if(NOT DEFINED ENV{COMPILER})
-    set(ENV{COMPILER} clang++)
-    message(STATUS "COMPILER environment variable is now defined as clang++")
-endif()
+if(UNIX)
+    set(ENV{EXTRALIBS} "-L /usr/lib/x86_64-linux-gnu/c++11/")
+    message(STATUS "EXTRALIBS environment has been set")
+endif ()
 
-if(DEFINED ENV{EXTRALIBS})
-    message(STATUS "EXTRALIBS environment variable is being used!")
-endif()
+message("EXTRALIBS AFTER configuration:" $ENV{EXTRALIBS})
 
 set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_COMPILER $ENV{COMPILER})
 
 find_package(Ice REQUIRED Ice IceUtil IceStorm)
 
