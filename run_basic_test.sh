@@ -55,7 +55,7 @@ cat ~/VideoStreamerFCUP_Logs/client.txt
 
 cat ~/VideoStreamerFCUP_Logs/portal.txt
 
-cat ~/VideoStreamerFCUP_Logs/serverAliBabaNORMAL.txt
+#cat ~/VideoStreamerFCUP_Logs/serverAliBabaNORMAL.txt
 
 cat ~/VideoStreamerFCUP_Logs/serverAliBabaHLS.txt
 
