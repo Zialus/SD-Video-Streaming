@@ -39,8 +39,6 @@ void playStream(std::string name){
 
         pid_t pid = vfork();
 
-        ffplaysPIDs.push_back(pid);
-
         if (pid < 0) {
             perror("fork failed");
             return;
@@ -76,6 +74,7 @@ void playStream(std::string name){
             execvp(strings[0], strings);
 
         } else {
+            ffplaysPIDs.push_back(pid);
             printf("ffplay should start soon...\n");
         }
 
@@ -130,9 +129,12 @@ void searchKeyword(std::string keyword) {
 
 class Client : public Ice::Application {
 public:
-    virtual void interruptCallback(int) override;
-    virtual int run(int, char*[]) override;
+    void interruptCallback(int signal) override;
+    int run(int argc, char* argv[]) override;
     void killFFPlay();
+private:
+    IceStorm::TopicPrx topic;
+    Ice::ObjectPrx subscriber;
 };
 
 class StreamMonitorI : virtual public StreamMonitor {
@@ -147,13 +149,21 @@ public:
 
 void Client::killFFPlay() {
     printf("Killing the FFPlay processes...\n");
-    //NOT IMPLEMENTED YET
+
+    for (const pid_t ffplay_pid : ffplaysPIDs){
+        kill(ffplay_pid, SIGKILL);
+        printf("Killing ffplay with pid: %d...",ffplay_pid);
+    }
+
+    printf("\nDone with killing the FFPlay processes...\n");
 }
 
 void Client::interruptCallback(int signal) {
     printf("Caught the signal: %d!!\n",signal);
 
     Client::killFFPlay();
+
+    topic->unsubscribe(subscriber);
 
     printf("Trying to exit now...\n");
     _exit(0);
@@ -162,7 +172,6 @@ void Client::interruptCallback(int signal) {
 int Client::run(int argc, char* argv[]) {
 
     int status = 0;
-    IceStorm::TopicPrx topic;
 
     try {
 
@@ -197,7 +206,7 @@ int Client::run(int argc, char* argv[]) {
         Ice::Identity subId;
         subId.name = IceUtil::generateUUID();
 
-        Ice::ObjectPrx subscriber = adapter->add(new StreamMonitorI, subId);
+        subscriber = adapter->add(new StreamMonitorI, subId);
 
         adapter->activate();
         IceStorm::QoS qos;
@@ -207,11 +216,11 @@ int Client::run(int argc, char* argv[]) {
         try {
             topic->subscribeAndGetPublisher(qos, subscriber);
         }
-        catch(const IceStorm::AlreadySubscribed&) {
-
+        catch(const IceStorm::AlreadySubscribed& e) {
+            e.ice_stackTrace();
         }
 
-        shutdownOnInterrupt();
+        callbackOnInterrupt();
 
         Ice::ObjectPrx base = communicator()->propertyToProxy("Portal.Proxy");
         portal = PortalCommunicationPrx::checkedCast(base);
@@ -234,7 +243,6 @@ int Client::run(int argc, char* argv[]) {
                 continue;
             }
 
-
             if (userCommands[0] == "list") {
                 getStreamsList();
             } else if (userCommands[0] == "play") {
@@ -251,7 +259,7 @@ int Client::run(int argc, char* argv[]) {
                 }
             } else if (userCommands[0] == "exit") {
                 topic->unsubscribe(subscriber);
-                return 0;
+                break;
             } else{
                 std::cout << "Can't find that command. Press tab (2x) to see the available commands.." << std::endl;
             }
@@ -266,12 +274,9 @@ int Client::run(int argc, char* argv[]) {
         status = 1;
     }
 
-    if (communicator()){
-        communicator()->destroy();
-    }
+    Client::killFFPlay();
 
-    communicator()->waitForShutdown();
-
+    printf("Closing the client...\n");
     return status;
 }
 
