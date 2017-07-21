@@ -40,7 +40,7 @@ matrix:
         - sudo wget https://github.com/arut/nginx-rtmp-module/archive/v1.2.0.tar.gz
         - sudo wget https://nginx.org/download/nginx-1.13.3.tar.gz
         - sudo tar xzvf nginx-1.13.3.tar.gz
-        - sudo tar xzvf nginx-rtmp-module-1.2.0.tar.gz
+        - sudo tar xzvf 1.2.0.tar.gz
         - cd nginx-1.13.3
         - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module-1.2.0
         - sudo make
@@ -70,7 +70,7 @@ matrix:
         - sudo wget https://github.com/arut/nginx-rtmp-module/archive/v1.2.0.tar.gz
         - sudo wget https://nginx.org/download/nginx-1.13.3.tar.gz
         - sudo tar xzvf nginx-1.13.3.tar.gz
-        - sudo tar xzvf nginx-rtmp-module-1.2.0.tar.gz
+        - sudo tar xzvf 1.2.0.tar.gz
         - cd nginx-1.13.3
         - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module-1.2.0
         - sudo make
@@ -100,7 +100,7 @@ matrix:
         - sudo wget https://github.com/arut/nginx-rtmp-module/archive/v1.2.0.tar.gz
         - sudo wget https://nginx.org/download/nginx-1.13.3.tar.gz
         - sudo tar xzvf nginx-1.13.3.tar.gz
-        - sudo tar xzvf nginx-rtmp-module-1.2.0.tar.gz
+        - sudo tar xzvf 1.2.0.tar.gz
         - cd nginx-1.13.3
         - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module-1.2.0
         - sudo make
@@ -131,7 +131,7 @@ matrix:
         - sudo wget https://github.com/arut/nginx-rtmp-module/archive/v1.2.0.tar.gz
         - sudo wget https://nginx.org/download/nginx-1.13.3.tar.gz
         - sudo tar xzvf nginx-1.13.3.tar.gz
-        - sudo tar xzvf nginx-rtmp-module-1.2.0.tar.gz
+        - sudo tar xzvf 1.2.0.tar.gz
         - cd nginx-1.13.3
         - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module-1.2.0
         - sudo make
@@ -161,7 +161,7 @@ matrix:
         - sudo wget https://github.com/arut/nginx-rtmp-module/archive/v1.2.0.tar.gz
         - sudo wget https://nginx.org/download/nginx-1.13.3.tar.gz
         - sudo tar xzvf nginx-1.13.3.tar.gz
-        - sudo tar xzvf nginx-rtmp-module-1.2.0.tar.gz
+        - sudo tar xzvf 1.2.0.tar.gz
         - cd nginx-1.13.3
         - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module-1.2.0
         - sudo make
@@ -191,7 +191,7 @@ matrix:
         - sudo wget https://github.com/arut/nginx-rtmp-module/archive/v1.2.0.tar.gz
         - sudo wget https://nginx.org/download/nginx-1.13.3.tar.gz
         - sudo tar xzvf nginx-1.13.3.tar.gz
-        - sudo tar xzvf nginx-rtmp-module-1.2.0.tar.gz
+        - sudo tar xzvf 1.2.0.tar.gz
         - cd nginx-1.13.3
         - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module-1.2.0
         - sudo make
