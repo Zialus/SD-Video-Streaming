@@ -115,9 +115,10 @@ matrix:
         apt:
           sources:
             - llvm-toolchain-trusty-3.9
+            - ubuntu-toolchain-r-test
           packages:
             - clang-3.9
-            - g++-5
+            - libstdc++6
       env:
         - MATRIX_EVAL="CC=clang-3.9 && CXX=clang++-3.9"
       before_install:
