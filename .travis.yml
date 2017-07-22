@@ -1,6 +1,6 @@
 language: cpp
-sudo: required
 dist: trusty
+sudo: required
 
 script:
     - mkdir build
@@ -15,6 +15,27 @@ script:
 before_script:
     - eval "${MATRIX_EVAL}"
 
+before_install:
+  - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 5E6DA83306132997
+  - sudo apt-add-repository "deb http://zeroc.com/download/apt/ubuntu$(lsb_release -rs) stable main"
+  - sudo add-apt-repository ppa:mc3man/trusty-media -y
+  - sudo apt-get update -y
+  - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev ffmpeg libtclap-dev
+  - sudo apt-get install build-essential libpcre3 libpcre3-dev libssl-dev
+  - pushd .
+  - sudo mkdir ~/build-nginx && cd ~/build-nginx
+  - sudo wget https://github.com/arut/nginx-rtmp-module/archive/v1.2.0.tar.gz
+  - sudo wget https://nginx.org/download/nginx-1.13.3.tar.gz
+  - sudo tar xzvf nginx-1.13.3.tar.gz
+  - sudo tar xzvf v1.2.0.tar.gz
+  - cd nginx-1.13.3
+  - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module-1.2.0
+  - sudo make
+  - sudo make install
+  - sudo cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/nginx/conf/
+  - sudo /usr/local/nginx/sbin/nginx
+  - popd
+
 matrix:
   include:
 
@@ -28,27 +49,6 @@ matrix:
             - g++-5
       env:
         - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
-      before_install:
-        - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 5E6DA83306132997
-        - sudo apt-add-repository "deb http://zeroc.com/download/apt/ubuntu$(lsb_release -rs) stable main"
-        - sudo add-apt-repository ppa:mc3man/trusty-media -y
-        - sudo apt-get update -y
-        - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev ffmpeg libtclap-dev
-        - sudo apt-get install build-essential libpcre3 libpcre3-dev libssl-dev
-        - pushd .
-        - sudo mkdir ~/build-nginx && cd ~/build-nginx
-        - sudo wget https://github.com/arut/nginx-rtmp-module/archive/v1.2.0.tar.gz
-        - sudo wget https://nginx.org/download/nginx-1.13.3.tar.gz
-        - sudo tar xzvf nginx-1.13.3.tar.gz
-        - sudo tar xzvf v1.2.0.tar.gz
-        - cd nginx-1.13.3
-        - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module-1.2.0
-        - sudo make
-        - sudo make install
-        - sudo cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/nginx/conf/
-        - sudo /usr/local/nginx/sbin/nginx
-        - popd
-
     - os: linux
       addons:
         apt:
@@ -58,27 +58,6 @@ matrix:
             - g++-6
       env:
         - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
-      before_install:
-        - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 5E6DA83306132997
-        - sudo apt-add-repository "deb http://zeroc.com/download/apt/ubuntu$(lsb_release -rs) stable main"
-        - sudo add-apt-repository ppa:mc3man/trusty-media -y
-        - sudo apt-get update -y
-        - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev ffmpeg libtclap-dev
-        - sudo apt-get install build-essential libpcre3 libpcre3-dev libssl-dev
-        - pushd .
-        - sudo mkdir ~/build-nginx && cd ~/build-nginx
-        - sudo wget https://github.com/arut/nginx-rtmp-module/archive/v1.2.0.tar.gz
-        - sudo wget https://nginx.org/download/nginx-1.13.3.tar.gz
-        - sudo tar xzvf nginx-1.13.3.tar.gz
-        - sudo tar xzvf v1.2.0.tar.gz
-        - cd nginx-1.13.3
-        - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module-1.2.0
-        - sudo make
-        - sudo make install
-        - sudo cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/nginx/conf/
-        - sudo /usr/local/nginx/sbin/nginx
-        - popd
-
     - os: linux
       addons:
         apt:
@@ -88,26 +67,6 @@ matrix:
             - g++-7
       env:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
-      before_install:
-        - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 5E6DA83306132997
-        - sudo apt-add-repository "deb http://zeroc.com/download/apt/ubuntu$(lsb_release -rs) stable main"
-        - sudo add-apt-repository ppa:mc3man/trusty-media -y
-        - sudo apt-get update -y
-        - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev ffmpeg libtclap-dev
-        - sudo apt-get install build-essential libpcre3 libpcre3-dev libssl-dev
-        - pushd .
-        - sudo mkdir ~/build-nginx && cd ~/build-nginx
-        - sudo wget https://github.com/arut/nginx-rtmp-module/archive/v1.2.0.tar.gz
-        - sudo wget https://nginx.org/download/nginx-1.13.3.tar.gz
-        - sudo tar xzvf nginx-1.13.3.tar.gz
-        - sudo tar xzvf v1.2.0.tar.gz
-        - cd nginx-1.13.3
-        - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module-1.2.0
-        - sudo make
-        - sudo make install
-        - sudo cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/nginx/conf/
-        - sudo /usr/local/nginx/sbin/nginx
-        - popd
 
     ######## LINUX CLANG ########
     - os: linux
@@ -121,27 +80,6 @@ matrix:
             - libstdc++-6-dev
       env:
         - MATRIX_EVAL="CC=clang-3.9 && CXX=clang++-3.9"
-      before_install:
-        - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 5E6DA83306132997
-        - sudo apt-add-repository "deb http://zeroc.com/download/apt/ubuntu$(lsb_release -rs) stable main"
-        - sudo add-apt-repository ppa:mc3man/trusty-media -y
-        - sudo apt-get update -y
-        - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev ffmpeg libtclap-dev
-        - sudo apt-get install build-essential libpcre3 libpcre3-dev libssl-dev
-        - pushd .
-        - sudo mkdir ~/build-nginx && cd ~/build-nginx
-        - sudo wget https://github.com/arut/nginx-rtmp-module/archive/v1.2.0.tar.gz
-        - sudo wget https://nginx.org/download/nginx-1.13.3.tar.gz
-        - sudo tar xzvf nginx-1.13.3.tar.gz
-        - sudo tar xzvf v1.2.0.tar.gz
-        - cd nginx-1.13.3
-        - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module-1.2.0
-        - sudo make
-        - sudo make install
-        - sudo cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/nginx/conf/
-        - sudo /usr/local/nginx/sbin/nginx
-        - popd
-
     - os: linux
       addons:
         apt:
@@ -151,27 +89,6 @@ matrix:
             - clang-4.0
       env:
         - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++-4.0"
-      before_install:
-        - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 5E6DA83306132997
-        - sudo apt-add-repository "deb http://zeroc.com/download/apt/ubuntu$(lsb_release -rs) stable main"
-        - sudo add-apt-repository ppa:mc3man/trusty-media -y
-        - sudo apt-get update -y
-        - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev ffmpeg libtclap-dev
-        - sudo apt-get install build-essential libpcre3 libpcre3-dev libssl-dev
-        - pushd .
-        - sudo mkdir ~/build-nginx && cd ~/build-nginx
-        - sudo wget https://github.com/arut/nginx-rtmp-module/archive/v1.2.0.tar.gz
-        - sudo wget https://nginx.org/download/nginx-1.13.3.tar.gz
-        - sudo tar xzvf nginx-1.13.3.tar.gz
-        - sudo tar xzvf v1.2.0.tar.gz
-        - cd nginx-1.13.3
-        - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module-1.2.0
-        - sudo make
-        - sudo make install
-        - sudo cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/nginx/conf/
-        - sudo /usr/local/nginx/sbin/nginx
-        - popd
-
     - os: linux
       addons:
         apt:
@@ -181,26 +98,7 @@ matrix:
             - clang-5.0
       env:
         - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
-      before_install:
-        - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 5E6DA83306132997
-        - sudo apt-add-repository "deb http://zeroc.com/download/apt/ubuntu$(lsb_release -rs) stable main"
-        - sudo add-apt-repository ppa:mc3man/trusty-media -y
-        - sudo apt-get update -y
-        - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev ffmpeg libtclap-dev
-        - sudo apt-get install build-essential libpcre3 libpcre3-dev libssl-dev
-        - pushd .
-        - sudo mkdir ~/build-nginx && cd ~/build-nginx
-        - sudo wget https://github.com/arut/nginx-rtmp-module/archive/v1.2.0.tar.gz
-        - sudo wget https://nginx.org/download/nginx-1.13.3.tar.gz
-        - sudo tar xzvf nginx-1.13.3.tar.gz
-        - sudo tar xzvf v1.2.0.tar.gz
-        - cd nginx-1.13.3
-        - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module-1.2.0
-        - sudo make
-        - sudo make install
-        - sudo cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/nginx/conf/
-        - sudo /usr/local/nginx/sbin/nginx
-        - popd
+
 
     ######## OSX CLANG ########
     - os: osx
