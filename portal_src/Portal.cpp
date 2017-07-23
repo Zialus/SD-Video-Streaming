@@ -11,12 +11,12 @@ std::string topicName = "Streams";
 
 class Portal : public PortalCommunication, public Ice::Application {
 public:
-    void registerStreamServer(const FCUP::StreamServerEntry&, const Ice::Current&) override;
-    void closeStream(const std::string&, const Ice::Current&) override;
+    void registerStreamServer(const FCUP::StreamServerEntry& sse, const Ice::Current&) override;
+    void closeStream(const std::string& serverIdentifier, const Ice::Current&) override;
     StreamsMap sendStreamServersList(const Ice::Current&) override;
 
 private:
-    int run(int, char* []) override;
+    int run(int argc, char*  argv[]) override;
     int refreshTopicManager();
 };
 
