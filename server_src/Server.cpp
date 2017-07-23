@@ -50,12 +50,12 @@ StringSequence keywords;
 bool useHLS;
 bool useDASH;
 
-void commandLineParsing(int, char* []);
+void commandLineParsing(int argc, char* argv[]);
 
 class Server : public Ice::Application {
 public:
-    void interruptCallback(int) override;
-    int run(int, char *[]) override;
+    void interruptCallback(int signal) override;
+    int run(int argc, char* argv[]) override;
 private:
     void closeStream();
     void killFFMpeg();
