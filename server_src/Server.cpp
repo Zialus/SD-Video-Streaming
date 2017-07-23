@@ -109,8 +109,6 @@ void Server::interruptCallback(int signal) {
 
 int Server::run(int argc, char* argv[]) {
 
-    commandLineParsing(argc,argv);
-
     callbackOnInterrupt();
 
     int status = 0;
@@ -539,6 +537,8 @@ void commandLineParsing(int argc, char* argv[]) {
 }
 
 int main(int argc, char* argv[]) {
+
+    commandLineParsing(argc,argv);
 
     Server app;
     app.main(argc, argv);
