@@ -19,10 +19,10 @@ PortalCommunicationPrx portal;
 std::string topicName = "Streams";
 std::vector<pid_t> ffplaysPIDs;
 
-char **command_name_completion(const char *, int, int);
-char *command_name_generator(const char *, int);
+char** command_name_completion(const char*, int, int);
+char* command_name_generator(const char*, int);
 
-char *command_names[] = {
+char* command_names[] = {
         (char*) "list",
         (char*) "search",
         (char*) "play",
@@ -30,12 +30,12 @@ char *command_names[] = {
         NULL
 };
 
-void playStream(std::string name){
+void playStream(std::string name) {
 
     StreamsMap streamList = portal->sendStreamServersList();
     auto elem = streamList.find(name);
 
-    if(elem != streamList.end()) {
+    if (elem != streamList.end()) {
 
         pid_t pid = vfork();
 
@@ -46,7 +46,7 @@ void playStream(std::string name){
 
         if (pid == 0) {
 
-            char **strings = NULL;
+            char** strings = NULL;
             size_t strings_size = 0;
             AddString(&strings, &strings_size, "ffplay");
 
@@ -56,17 +56,17 @@ void playStream(std::string name){
             std::string path = elem->second.endpoint.path;
             std::stringstream ss;
             ss << transport << "://" << hostname << ":" << port << path;
-            const std::string &tmp = ss.str();
-            const char *cstr = tmp.c_str();
+            const std::string& tmp = ss.str();
+            const char* cstr = tmp.c_str();
 
             AddString(&strings, &strings_size, cstr);
             AddString(&strings, &strings_size, NULL);
 
-            FILE *ffPlayLog = fopen("/dev/null", "w+");
-            if(ffPlayLog == NULL){
+            FILE* ffPlayLog = fopen("/dev/null", "w+");
+            if (ffPlayLog == NULL) {
                 printf("Error opening file ffPlayLog..\n");
             }
-            int fd = fileno( ffPlayLog );
+            int fd = fileno(ffPlayLog);
             dup2(fd, 1);
             dup2(fd, 2);
             close(fd);
@@ -87,12 +87,13 @@ void getStreamsList() {
 
     StreamsMap streamList = portal->sendStreamServersList();
     int size = (int) streamList.size();
-    if(size > 0) {
+    if (size > 0) {
         std::cout << size << " streams available:" << std::endl;
         int counter = 1;
         for (auto const& stream : streamList) {
             std::cout << "\t" << counter << ". " << stream.first << " Name: " << stream.second.name
-                      << " Video Size: " << stream.second.videoSize << " BitRate: " << stream.second.bitrate << std::endl;
+                      << " Video Size: " << stream.second.videoSize << " BitRate: " << stream.second.bitrate
+                      << std::endl;
             counter++;
         }
         std::cout << std::endl << "-------------------" << std::endl;
@@ -105,20 +106,22 @@ void searchKeyword(std::string keyword) {
 
     StreamsMap streamList = portal->sendStreamServersList();
     int size = (int) streamList.size();
-    if(size > 0){
-        int counter=0;
-        for(auto const& stream : streamList){
-            if(!stream.second.keywords.empty()){
-                for(std::string key : stream.second.keywords){
-                    if(key == keyword){
-                        std::cout << "\t" << counter+1 << ". " << stream.first << " -> Name: " << stream.second.name << " Video Size: " << stream.second.videoSize << " Bit Rate: " << stream.second.bitrate << std::endl;
+    if (size > 0) {
+        int counter = 0;
+        for (auto const& stream : streamList) {
+            if (!stream.second.keywords.empty()) {
+                for (std::string key : stream.second.keywords) {
+                    if (key == keyword) {
+                        std::cout << "\t" << counter + 1 << ". " << stream.first << " -> Name: " << stream.second.name
+                                  << " Video Size: " << stream.second.videoSize << " Bit Rate: "
+                                  << stream.second.bitrate << std::endl;
                         counter++;
                         break;
                     }
                 }
             }
         }
-        if(counter == 0){
+        if (counter == 0) {
             std::cout << "There is no stream with that given keyword.." << std::endl;
         }
     } else {
@@ -139,27 +142,30 @@ private:
 
 class StreamMonitorI : virtual public StreamMonitor {
 public:
-    virtual void reportAddition(const FCUP::StreamServerEntry& sse, const Ice::Current& ){
-        std::cout << std::endl << "A new stream was created... " << "Stream Identifier: " << sse.identifier << " Video Name: " << sse.name << std::endl;
+    virtual void reportAddition(const FCUP::StreamServerEntry& sse, const Ice::Current&) {
+        std::cout << std::endl << "A new stream was created... " << "Stream Identifier: " << sse.identifier
+                  << " Video Name: " << sse.name << std::endl;
     }
-    virtual void reportRemoval(const FCUP::StreamServerEntry& sse, const Ice::Current&){
-        std::cout << std::endl << "A stream was deleted... " << "Stream Identifier: " << sse.identifier << " Video Name: " << sse.name << std::endl;
+
+    virtual void reportRemoval(const FCUP::StreamServerEntry& sse, const Ice::Current&) {
+        std::cout << std::endl << "A stream was deleted... " << "Stream Identifier: " << sse.identifier
+                  << " Video Name: " << sse.name << std::endl;
     }
 };
 
 void Client::killFFPlay() {
     printf("Killing the FFPlay processes...\n");
 
-    for (const pid_t ffplay_pid : ffplaysPIDs){
+    for (const pid_t ffplay_pid : ffplaysPIDs) {
         kill(ffplay_pid, SIGKILL);
-        printf("Killing ffplay with pid: %d...",ffplay_pid);
+        printf("Killing ffplay with pid: %d...", ffplay_pid);
     }
 
     printf("\nDone with killing the FFPlay processes...\n");
 }
 
 void Client::interruptCallback(int signal) {
-    printf("Caught the signal: %d!!\n",signal);
+    printf("Caught the signal: %d!!\n", signal);
 
     Client::killFFPlay();
 
@@ -177,24 +183,19 @@ int Client::run(int argc, char* argv[]) {
 
         IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
                 communicator()->propertyToProxy("TopicManager.Proxy"));
-        if(!manager)
-        {
+        if (!manager) {
             std::cerr << appName() << ": invalid proxy" << std::endl;
             return EXIT_FAILURE;
         }
 
-        try
-        {
+        try {
             topic = manager->retrieve(topicName);
         }
-        catch(const IceStorm::NoSuchTopic&)
-        {
-            try
-            {
+        catch (const IceStorm::NoSuchTopic&) {
+            try {
                 topic = manager->create(topicName);
             }
-            catch(const IceStorm::TopicExists&)
-            {
+            catch (const IceStorm::TopicExists&) {
                 std::cerr << appName() << ": temporary failure. try again." << std::endl;
                 return EXIT_FAILURE;
             }
@@ -216,7 +217,7 @@ int Client::run(int argc, char* argv[]) {
         try {
             topic->subscribeAndGetPublisher(qos, subscriber);
         }
-        catch(const IceStorm::AlreadySubscribed& e) {
+        catch (const IceStorm::AlreadySubscribed& e) {
             e.ice_stackTrace();
         }
 
@@ -230,8 +231,8 @@ int Client::run(int argc, char* argv[]) {
 
         rl_attempted_completion_function = command_name_completion;
 
-        while(true){
-            char *input;
+        while (true) {
+            char* input;
             input = readline("-> ");
             add_history(input);
 
@@ -239,20 +240,20 @@ int Client::run(int argc, char* argv[]) {
 
             std::vector<std::string> userCommands = split(input, ' ');
 
-            if (userCommands.empty()){
+            if (userCommands.empty()) {
                 continue;
             }
 
             if (userCommands[0] == "list") {
                 getStreamsList();
             } else if (userCommands[0] == "play") {
-                if(userCommands.size()==2) {
+                if (userCommands.size() == 2) {
                     playStream(userCommands[1]);
-                } else{
+                } else {
                     std::cout << "Must include one (and only one) stream name.." << std::endl;
                 }
             } else if (userCommands[0] == "search") {
-                if(userCommands.size()==2) {
+                if (userCommands.size() == 2) {
                     searchKeyword(userCommands[1]);
                 } else {
                     std::cout << "You need to pass only one keyword.." << std::endl;
@@ -260,7 +261,7 @@ int Client::run(int argc, char* argv[]) {
             } else if (userCommands[0] == "exit") {
                 topic->unsubscribe(subscriber);
                 break;
-            } else{
+            } else {
                 std::cout << "Can't find that command. Press tab (2x) to see the available commands.." << std::endl;
             }
             free(input);
@@ -282,18 +283,18 @@ int Client::run(int argc, char* argv[]) {
 
 int main(int argc, char* argv[]) {
     Client app;
-    app.main(argc,argv);
+    app.main(argc, argv);
 }
 
 
-char **command_name_completion(const char *text, int start, int end) {
+char** command_name_completion(const char* text, int start, int end) {
     rl_attempted_completion_over = 1;
     return rl_completion_matches(text, command_name_generator);
 }
 
-char *command_name_generator(const char *text, int state) {
+char* command_name_generator(const char* text, int state) {
     static int list_index, len;
-    char *name;
+    char* name;
 
     if (!state) {
         list_index = 0;

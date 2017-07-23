@@ -9,14 +9,14 @@ StreamMonitorPrx streamNotifier;
 
 std::string topicName = "Streams";
 
-class Portal : public PortalCommunication,  public Ice::Application {
+class Portal : public PortalCommunication, public Ice::Application {
 public:
     void registerStreamServer(const FCUP::StreamServerEntry&, const Ice::Current&) override;
     void closeStream(const std::string&, const Ice::Current&) override;
     StreamsMap sendStreamServersList(const Ice::Current&) override;
 
 private:
-    int run(int, char*[]) override;
+    int run(int, char* []) override;
     int refreshTopicManager();
 };
 
@@ -25,7 +25,7 @@ int Portal::refreshTopicManager() {
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
             communicator()->propertyToProxy("TopicManager.Proxy"));
 
-    if(!manager) {
+    if (!manager) {
         std::cerr << appName() << ": invalid proxy" << std::endl;
         return EXIT_FAILURE;
     }
@@ -56,10 +56,10 @@ void Portal::registerStreamServer(const FCUP::StreamServerEntry& sse, const Ice:
     std::cout << "Added a new stream server: " << sse.identifier << std::endl;
 
     std::cout << "Video keywords:";
-    for (const auto & keyword : sse.keywords){
+    for (const auto& keyword : sse.keywords) {
         std::cout << " " << keyword;
     }
-    std::cout << " | Name: " << sse.name << " | Video Size: " << sse.videoSize << "|" <<std::endl;
+    std::cout << " | Name: " << sse.name << " | Video Size: " << sse.videoSize << "|" << std::endl;
     std::cout << "---------" << std::endl << std::endl;
 
     refreshTopicManager();
@@ -80,7 +80,7 @@ void Portal::closeStream(const std::string& serverIdentifier, const Ice::Current
     std::cout << "Closing the stream: " << serverIdentifier << std::endl;
     auto elem = list_of_stream_servers.find(serverIdentifier);
 
-    if(elem != list_of_stream_servers.end()){
+    if (elem != list_of_stream_servers.end()) {
         std::cout << "Closed stream -> " << serverIdentifier << std::endl;
 
         try {
@@ -94,7 +94,7 @@ void Portal::closeStream(const std::string& serverIdentifier, const Ice::Current
         list_of_stream_servers.erase(elem);
 
 
-    } else{
+    } else {
         std::cout << "Couldn't close/find stream -> " << serverIdentifier << std::endl;
     }
 }
@@ -105,7 +105,7 @@ StreamsMap Portal::sendStreamServersList(const Ice::Current&) {
 
 int Portal::run(int argc, char* argv[]) {
 
-    if(argc > 1) {
+    if (argc > 1) {
         std::cerr << appName() << ": too many arguments" << std::endl;
         return EXIT_FAILURE;
     }
