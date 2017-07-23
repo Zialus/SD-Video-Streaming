@@ -67,15 +67,15 @@ private:
 void Server::killFFMpeg() {
     printf("Killing the FFMpeg processes...\n");
 
-    if(regularFFmpegPID != MAGICNEGATIVE) {
+    if (regularFFmpegPID != MAGICNEGATIVE) {
         printf("Regular FFMpeg killed...");
         kill(regularFFmpegPID, SIGKILL);
     }
-    if(hlsFFmpegPID != MAGICNEGATIVE) {
+    if (hlsFFmpegPID != MAGICNEGATIVE) {
         printf("HLS FFMpeg killed...");
         kill(hlsFFmpegPID, SIGKILL);
     }
-    if(dashFFmpegPID != MAGICNEGATIVE) {
+    if (dashFFmpegPID != MAGICNEGATIVE) {
         printf("DASH FFMpeg killed...");
         kill(dashFFmpegPID, SIGKILL);
     }
@@ -94,7 +94,7 @@ void Server::closeStream() {
 }
 
 void Server::interruptCallback(int signal) {
-    printf("Caught the signal: %d!!\n",signal);
+    printf("Caught the signal: %d!!\n", signal);
 
     Server::closeStream();
 
@@ -118,13 +118,13 @@ int Server::run(int argc, char* argv[]) {
         std::string UUID = IceUtil::generateUUID();
         Ice::ObjectPrx base = communicator()->propertyToProxy("Portal.Proxy");
         portal = PortalCommunicationPrx::checkedCast(base);
-        if (!portal){
+        if (!portal) {
             throw "Invalid proxy";
         }
 
         StreamServerEntry allMyInfoTCP;
 
-        std::string serverIdentifierTCP = UUID.substr(0,8) + "-TCP";
+        std::string serverIdentifierTCP = UUID.substr(0, 8) + "-TCP";
         serverIdentifierList.push_back(serverIdentifierTCP);
         allMyInfoTCP.identifier = serverIdentifierTCP;
 
@@ -142,23 +142,24 @@ int Server::run(int argc, char* argv[]) {
         printf("Portal registration done!\n\n");
 
         regularFFmpegPID = vfork();
-        if ( regularFFmpegPID < 0 ) {
+        if (regularFFmpegPID < 0) {
             perror("regularFFmpeg fork failed");
             raise(SIGINT);
             return 1;
         }
 
-        if ( regularFFmpegPID == 0 ) { // Child process to create TCP stream
+        if (regularFFmpegPID == 0) { // Child process to create TCP stream
 
             std::stringstream ss;
             ss << transportType << "://" << hostname << ":" << portForFFMPEG << "?listen=1";
             const std::string& tmp = ss.str();
             const char* whereToListen = tmp.c_str();
 
-            std::cout << "|"<< whereToListen << "|" << std::endl;
+            std::cout << "|" << whereToListen << "|" << std::endl;
 
-            execlp("ffmpeg","ffmpeg","-re","-i",filename.c_str(),"-loglevel","warning","-s",videosize.c_str(),"-c:v",encoder.c_str()
-                    ,"-preset","ultrafast","-tune","zerolatency","-b:v", bitrate.c_str(),"-f","mpegts",whereToListen,NULL);
+            execlp("ffmpeg", "ffmpeg", "-re", "-i", filename.c_str(), "-loglevel", "warning", "-s", videosize.c_str(),
+                   "-c:v", encoder.c_str(), "-preset", "ultrafast", "-tune", "zerolatency", "-b:v", bitrate.c_str(),
+                   "-f", "mpegts", whereToListen, NULL);
 
         } else { // Parent will only start executing after child calls execvp because we are using vfork()
 
@@ -196,13 +197,13 @@ int Server::run(int argc, char* argv[]) {
 
                     std::stringstream ss;
                     ss << transportType << "://" << hostname << ":" << portForClients;
-                    const std::string &tmp = ss.str();
-                    const char *whereToListenFrom = tmp.c_str();
+                    const std::string& tmp = ss.str();
+                    const char* whereToListenFrom = tmp.c_str();
 
                     std::stringstream ss2;
                     ss2 << "rtmp://localhost:1935/dash/" << UUID;
-                    const std::string &tmp2 = ss2.str();
-                    const char *rtmpURL = tmp2.c_str();
+                    const std::string& tmp2 = ss2.str();
+                    const char* rtmpURL = tmp2.c_str();
 
                     std::cout << "|" << rtmpURL << "|" << std::endl;
 
@@ -248,13 +249,13 @@ int Server::run(int argc, char* argv[]) {
 
                     std::stringstream ss;
                     ss << transportType << "://" << hostname << ":" << portForClients;
-                    const std::string &tmp = ss.str();
-                    const char *whereToListenFrom = tmp.c_str();
+                    const std::string& tmp = ss.str();
+                    const char* whereToListenFrom = tmp.c_str();
 
                     std::stringstream ss2;
                     ss2 << "rtmp://localhost:1935/hls/" << UUID;
-                    const std::string &tmp2 = ss2.str();
-                    const char *rtmpURL = tmp2.c_str();
+                    const std::string& tmp2 = ss2.str();
+                    const char* rtmpURL = tmp2.c_str();
 
                     std::cout << "|" << rtmpURL << "|" << std::endl;
 
@@ -273,8 +274,8 @@ int Server::run(int argc, char* argv[]) {
             int socketToReceiveVideoFD;
             struct addrinfo hints, *res, *ressave;
 
-            const char *portToReceiveVideo;
-            const char *ffmpegServer;
+            const char* portToReceiveVideo;
+            const char* ffmpegServer;
             char ffmpegBuffer[BUFFERSIZE];
 
             ffmpegServer = hostname.c_str();
@@ -283,7 +284,7 @@ int Server::run(int argc, char* argv[]) {
             printf("Will connect to FFMPEG on address |%s| and port |%s|\n", ffmpegServer, portToReceiveVideo);
 
 
-            bzero((char *) &hints, sizeof(addrinfo));
+            bzero((char*) &hints, sizeof(addrinfo));
 
             bzero(&hints, sizeof(struct addrinfo));
             hints.ai_family = AF_UNSPEC;
@@ -335,14 +336,14 @@ int Server::run(int argc, char* argv[]) {
                     return 1;
                 }
                 // set all values in server_address to 0
-                bzero((char *) &server_address, sizeof(server_address));
+                bzero((char*) &server_address, sizeof(server_address));
 
                 server_address.sin_family = AF_INET;
                 server_address.sin_port = htons((uint16_t) portForClients);
                 server_address.sin_addr.s_addr = INADDR_ANY;
 
 
-                int bind_result = bind(server_socket_fd, (struct sockaddr *) &server_address, sizeof(server_address));
+                int bind_result = bind(server_socket_fd, (struct sockaddr*) &server_address, sizeof(server_address));
                 if (bind_result < 0) {
                     perror("ERROR on binding");
                     raise(SIGINT);
@@ -422,7 +423,7 @@ int Server::run(int argc, char* argv[]) {
                     raise(SIGINT);
                     return 1;
                 }
-                bzero((char *) &addr, sizeof(addr));
+                bzero((char*) &addr, sizeof(addr));
                 addr.sin_family = AF_INET;
                 addr.sin_addr.s_addr = htonl(INADDR_ANY);
                 addr.sin_port = htons(portForClients);
@@ -472,34 +473,35 @@ int Server::run(int argc, char* argv[]) {
 void commandLineParsing(int argc, char* argv[]) {
 
     try {
-        TCLAP::CmdLine cmd("Streaming Server", ' ', "1.0",true);
+        TCLAP::CmdLine cmd("Streaming Server", ' ', "1.0", true);
 
         std::vector<std::string> allowedEnconders;
         allowedEnconders.emplace_back("libx264");
         allowedEnconders.emplace_back("libx265");
-        TCLAP::ValuesConstraint<std::string> allowedEnc( allowedEnconders );
+        TCLAP::ValuesConstraint<std::string> allowedEnc(allowedEnconders);
 
         std::vector<std::string> allowedTransportTypes;
         allowedTransportTypes.emplace_back("tcp");
         allowedTransportTypes.emplace_back("udp");
-        TCLAP::ValuesConstraint<std::string> allowedTT( allowedTransportTypes);
+        TCLAP::ValuesConstraint<std::string> allowedTT(allowedTransportTypes);
 
-        TCLAP::ValueArg<std::string> hostNameArg("","host","FFmpeg hostname",false,"localhost","address");
-        TCLAP::ValueArg<std::string> movieNameArg("n","name","Movie name",true,"","name string");
+        TCLAP::ValueArg<std::string> hostNameArg("", "host", "FFmpeg hostname", false, "localhost", "address");
+        TCLAP::ValueArg<std::string> movieNameArg("n", "name", "Movie name", true, "", "name string");
 
-        TCLAP::ValueArg<int> ffmpegPortArg("","ff_port","Port where FFMPEG is running",true,0,"port number");
-        TCLAP::ValueArg<int> clientsPortArg("","my_port","Port that will listen to clients",true,0,"port number");
+        TCLAP::ValueArg<int> ffmpegPortArg("", "ff_port", "Port where FFMPEG is running", true, 0, "port number");
+        TCLAP::ValueArg<int> clientsPortArg("", "my_port", "Port that will listen to clients", true, 0, "port number");
 
-        TCLAP::SwitchArg hlsSwitchArg("","hls","Produce HLS stream",false);
-        TCLAP::SwitchArg dashSwitchArg("","dash","Produce DASH stream", false);
+        TCLAP::SwitchArg hlsSwitchArg("", "hls", "Produce HLS stream", false);
+        TCLAP::SwitchArg dashSwitchArg("", "dash", "Produce DASH stream", false);
 
-        TCLAP::ValueArg<std::string> videoSizeArg("v","videosize","WIDTHxHEIGHT",true,"","WIDTHxHEIGHT");
-        TCLAP::ValueArg<std::string> bitRateArg("b","bitrate","bitrate",true,"","bitrate in a string");
-        TCLAP::ValueArg<std::string> encoderArg("e","enconder","Enconder",true,"",&allowedEnc);
-        TCLAP::ValueArg<std::string> filenameArg("f","filename","Movie file name",true,"","path string");
-        TCLAP::ValueArg<std::string> transportTypeArg("t","transport_type","Transport Type",false,"tcp",&allowedTT);
+        TCLAP::ValueArg<std::string> videoSizeArg("v", "videosize", "WIDTHxHEIGHT", true, "", "WIDTHxHEIGHT");
+        TCLAP::ValueArg<std::string> bitRateArg("b", "bitrate", "bitrate", true, "", "bitrate in a string");
+        TCLAP::ValueArg<std::string> encoderArg("e", "enconder", "Enconder", true, "", &allowedEnc);
+        TCLAP::ValueArg<std::string> filenameArg("f", "filename", "Movie file name", true, "", "path string");
+        TCLAP::ValueArg<std::string> transportTypeArg("t", "transport_type", "Transport Type", false, "tcp",
+                                                      &allowedTT);
 
-        TCLAP::MultiArg<std::string> keywordsArgs("k","keyword","keywords",false,"keyword");
+        TCLAP::MultiArg<std::string> keywordsArgs("k", "keyword", "keywords", false, "keyword");
 
         cmd.add(hostNameArg);
         cmd.add(movieNameArg);
@@ -514,7 +516,7 @@ void commandLineParsing(int argc, char* argv[]) {
         cmd.add(transportTypeArg);
         cmd.add(keywordsArgs);
 
-        cmd.parse(argc,argv);
+        cmd.parse(argc, argv);
 
         hostname = hostNameArg.getValue();
         moviename = movieNameArg.getValue();
@@ -529,7 +531,7 @@ void commandLineParsing(int argc, char* argv[]) {
         transportType = transportTypeArg.getValue();
         keywords = keywordsArgs.getValue();
 
-    } catch (TCLAP::ArgException &e) {  // catch any exceptions
+    } catch (TCLAP::ArgException& e) {  // catch any exceptions
         std::cerr << "error: " << e.error() << " for arg " << e.argId() << std::endl;
         exit(1);
     }
@@ -538,7 +540,7 @@ void commandLineParsing(int argc, char* argv[]) {
 
 int main(int argc, char* argv[]) {
 
-    commandLineParsing(argc,argv);
+    commandLineParsing(argc, argv);
 
     Server app;
     app.main(argc, argv);
