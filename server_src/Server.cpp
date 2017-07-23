@@ -299,8 +299,9 @@ int Server::run(int argc, char* argv[]) {
             do {
                 socketToReceiveVideoFD = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 
-                if (socketToReceiveVideoFD < 0)
-                    continue;  /*ignore this returned Ip addr*/
+                if (socketToReceiveVideoFD < 0) {
+                    continue;
+                }  /*ignore this returned Ip addr*/
 
                 if (connect(socketToReceiveVideoFD, res->ai_addr, res->ai_addrlen) == 0) {
                     printf("Connection Ok!\n"); /* success*/
