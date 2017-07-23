@@ -46,7 +46,7 @@ void playStream(std::string name) {
 
         if (pid == 0) {
 
-            char** strings = NULL;
+            char** strings = nullptr;
             size_t strings_size = 0;
             AddString(&strings, &strings_size, "ffplay");
 
@@ -60,10 +60,10 @@ void playStream(std::string name) {
             const char* cstr = tmp.c_str();
 
             AddString(&strings, &strings_size, cstr);
-            AddString(&strings, &strings_size, NULL);
+            AddString(&strings, &strings_size, nullptr);
 
             FILE* ffPlayLog = fopen("/dev/null", "w+");
-            if (ffPlayLog == NULL) {
+            if (ffPlayLog == nullptr) {
                 printf("Error opening file ffPlayLog..\n");
             }
             int fd = fileno(ffPlayLog);
@@ -127,7 +127,6 @@ void searchKeyword(std::string keyword) {
     } else {
         std::cout << "No available streams atm." << std::endl;
     }
-    return;
 }
 
 class Client : public Ice::Application {
@@ -142,12 +141,12 @@ private:
 
 class StreamMonitorI : virtual public StreamMonitor {
 public:
-    virtual void reportAddition(const FCUP::StreamServerEntry& sse, const Ice::Current&) {
+    void reportAddition(const FCUP::StreamServerEntry& sse, const Ice::Current&) override {
         std::cout << std::endl << "A new stream was created... " << "Stream Identifier: " << sse.identifier
                   << " Video Name: " << sse.name << std::endl;
     }
 
-    virtual void reportRemoval(const FCUP::StreamServerEntry& sse, const Ice::Current&) {
+    void reportRemoval(const FCUP::StreamServerEntry& sse, const Ice::Current&) override {
         std::cout << std::endl << "A stream was deleted... " << "Stream Identifier: " << sse.identifier
                   << " Video Name: " << sse.name << std::endl;
     }
@@ -307,5 +306,5 @@ char* command_name_generator(const char* text, int state) {
         }
     }
 
-    return NULL;
+    return nullptr;
 }
