@@ -365,7 +365,6 @@ int Server::run(int argc, char* argv[]) {
                 printf("Ready to send video to clients! On address |%s| and port |%d|\n", hostname.c_str(),
                        portForClients);
 
-                int numberOfWrittenElements = 0;
                 int counter = 0;
 
                 while (true) {
@@ -384,7 +383,7 @@ int Server::run(int argc, char* argv[]) {
                         printf("ADDED Client with SOCKET ---> %d !!!\n", newClientFD);
                     }
 
-                    numberOfWrittenElements = (int) read(socketToReceiveVideoFD, ffmpegBuffer, BUFFERSIZE);
+                    int numberOfWrittenElements = (int) read(socketToReceiveVideoFD, ffmpegBuffer, BUFFERSIZE);
 
 //                counter++;
 

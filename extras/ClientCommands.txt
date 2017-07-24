@@ -1,3 +1,4 @@
 list
 search basketball
+search trolololol
 exit
