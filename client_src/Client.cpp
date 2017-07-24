@@ -102,7 +102,7 @@ void getStreamsList() {
     }
 }
 
-void searchKeyword(std::string keyword) {
+void searchKeyword(const std::string& keyword) {
 
     StreamsMap streamList = portal->sendStreamServersList();
     int size = (int) streamList.size();
@@ -110,7 +110,7 @@ void searchKeyword(std::string keyword) {
         int counter = 0;
         for (auto const& stream : streamList) {
             if (!stream.second.keywords.empty()) {
-                for (std::string key : stream.second.keywords) {
+                for (const std::string& key : stream.second.keywords) {
                     if (key == keyword) {
                         std::cout << "\t" << counter + 1 << ". " << stream.first << " -> Name: " << stream.second.name
                                   << " Video Size: " << stream.second.videoSize << " Bit Rate: "
