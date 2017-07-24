@@ -19,6 +19,8 @@
 
 // C++
 #include <fstream>
+
+// TCLAP Library
 #include <tclap/CmdLine.h>
 
 // My stuff
@@ -110,6 +112,7 @@ void Server::interruptCallback(int signal) {
 int Server::run(int argc, char* argv[]) {
 
     callbackOnInterrupt();
+    commandLineParsing(argc, argv);
 
     int status = 0;
 
@@ -540,8 +543,6 @@ void commandLineParsing(int argc, char* argv[]) {
 }
 
 int main(int argc, char* argv[]) {
-
-    commandLineParsing(argc, argv);
 
     Server app;
     app.main(argc, argv);
