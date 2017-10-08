@@ -2,7 +2,7 @@
 
 set -x
 
-icebox --Ice.Config="ice_config_dir/config.icebox" &> ~/VideoStreamerFCUP_Logs/icebox.txt &
+icebox++11 --Ice.Config="ice_config_dir/config.icebox" &> ~/VideoStreamerFCUP_Logs/icebox.txt &
 
 sleep 2
 
