@@ -18,6 +18,7 @@ before_script:
 before_install:
   ##### FFMPEG + TCLAP + READLINE + RANDOM STUFF FOR NGINX#####
   - sudo add-apt-repository ppa:jonathonf/ffmpeg-3 -y
+  - sudo apt-get update -y
   - sudo apt-get install ffmpeg libtclap-dev libreadline-dev
   - sudo apt-get install build-essential libpcre3 libpcre3-dev libssl-dev
   ##### ZERO ICE 3.7 #####
@@ -116,6 +117,7 @@ matrix:
       before_install:
         - brew tap homebrew/nginx
         - brew update
+        - brew reinstall cmake --HEAD
         - brew install tclap
         - brew install ice
         - brew install -v ffmpeg --with-x265
@@ -130,6 +132,7 @@ matrix:
       before_install:
         - brew tap homebrew/nginx
         - brew update
+        - brew reinstall cmake --HEAD
         - brew install tclap
         - brew install ice
         - brew install -v ffmpeg --with-x265
@@ -144,6 +147,7 @@ matrix:
       before_install:
         - brew tap homebrew/nginx
         - brew update
+        - brew reinstall cmake --HEAD
         - brew install tclap
         - brew install ice
         - brew install -v ffmpeg --with-x265
