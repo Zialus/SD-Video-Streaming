@@ -22,13 +22,15 @@ before_install:
   - sudo apt-get update -y
   - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev ffmpeg libtclap-dev
   - sudo apt-get install build-essential libpcre3 libpcre3-dev libssl-dev
+  - wget https://cmake.org/files/v3.10/cmake-3.10.0-rc1-Linux-x86_64.sh
+  - sudo sh cmake-3.10.0-rc1-Linux-x86_64.sh --prefix=/usr/local --exclude-subdir
   - pushd .
   - sudo mkdir ~/build-nginx && cd ~/build-nginx
   - sudo wget https://github.com/arut/nginx-rtmp-module/archive/v1.2.0.tar.gz
-  - sudo wget https://nginx.org/download/nginx-1.13.3.tar.gz
-  - sudo tar xzvf nginx-1.13.3.tar.gz
+  - sudo wget https://nginx.org/download/nginx-1.13.5.tar.gz
+  - sudo tar xzvf nginx-1.13.5.tar.gz
   - sudo tar xzvf v1.2.0.tar.gz
-  - cd nginx-1.13.3
+  - cd nginx-1.13.5
   - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module-1.2.0
   - sudo make
   - sudo make install
@@ -93,7 +95,7 @@ matrix:
       addons:
         apt:
           sources:
-            - llvm-toolchain-trusty
+            - llvm-toolchain-trusty-5.0
           packages:
             - clang-5.0
       env:
@@ -102,7 +104,7 @@ matrix:
 
     ######## OSX CLANG ########
     - os: osx
-      osx_image: xcode9
+      osx_image: xcode9.1
       env:
         - MATRIX_EVAL="CC=clang-3.9 && CXX=clang++"
       before_install:
@@ -116,7 +118,7 @@ matrix:
         - cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/etc/nginx/
         - nginx
     - os: osx
-      osx_image: xcode9
+      osx_image: xcode9.1
       env:
         - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++"
       before_install:
@@ -126,6 +128,6 @@ matrix:
         - brew install ice
         - brew install -v ffmpeg --with-x265
         - brew install nginx-full --with-rtmp-module
-        - brew cask uninstall oclint && brew install llvm && brew link --overwrite llvm --force
+        - brew cask uninstall oclint && brew install llvm@4 && brew link --overwrite llvm@4 --force
         - cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/etc/nginx/
         - nginx

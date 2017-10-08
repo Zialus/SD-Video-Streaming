@@ -2,20 +2,9 @@ cmake_minimum_required(VERSION 3.0)
 
 project(VideoStreaming-SD)
 
-#set(CMAKE_VERBOSE_MAKEFILE true)
-
-message("EXTRALIBS BEFORE configuration:" $ENV{EXTRALIBS})
-
-if(UNIX AND NOT APPLE)
-    set(ENV{EXTRALIBS} "-L /usr/lib/x86_64-linux-gnu/c++11/")
-    message(STATUS "EXTRALIBS environment has been set")
-endif ()
-
-message("EXTRALIBS AFTER configuration:" $ENV{EXTRALIBS})
-
 set(CMAKE_CXX_STANDARD 14)
 
-find_package(Ice REQUIRED Ice IceUtil IceStorm)
+find_package(Ice REQUIRED Ice++11 IceStorm++11)
 
 file(GLOB server_HDR "${PROJECT_SOURCE_DIR}/server_src/*.h")
 file(GLOB server_SRC "${PROJECT_SOURCE_DIR}/server_src/*.cpp")
@@ -47,6 +36,8 @@ add_custom_target(
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/executables)
 
+add_compile_options("-DICE_CPP11_MAPPING")
+
 add_executable(server ${server_HDR} ${server_SRC} ${ice_HDR} ${ice_SRC} auxiliary/Auxiliary.h )
 add_executable(client ${client_HDR} ${client_SRC} ${ice_HDR} ${ice_SRC} auxiliary/Auxiliary.h )
 add_executable(portal ${portal_HDR} ${portal_SRC} ${ice_HDR} ${ice_SRC} auxiliary/Auxiliary.h )
@@ -55,9 +46,9 @@ include_directories(server ${PROJECT_SOURCE_DIR}/ice ${Ice_INCLUDE_DIRS})
 include_directories(client ${PROJECT_SOURCE_DIR}/ice ${Ice_INCLUDE_DIRS})
 include_directories(portal ${PROJECT_SOURCE_DIR}/ice ${Ice_INCLUDE_DIRS})
 
-target_link_libraries(server ${Ice_LIBRARIES} pthread $ENV{EXTRALIBS})
-target_link_libraries(client ${Ice_LIBRARIES} pthread readline $ENV{EXTRALIBS})
-target_link_libraries(portal ${Ice_LIBRARIES} pthread $ENV{EXTRALIBS})
+target_link_libraries(server ${Ice_LIBRARIES} pthread)
+target_link_libraries(client ${Ice_LIBRARIES} pthread readline)
+target_link_libraries(portal ${Ice_LIBRARIES} pthread)
 
 add_dependencies(server IceGenerated)
 add_dependencies(client IceGenerated)
