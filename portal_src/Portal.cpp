@@ -5,14 +5,14 @@
 using namespace FCUP;
 
 StreamsMap list_of_stream_servers;
-StreamMonitorPrx streamNotifier;
+StreamMonitorPrxPtr streamNotifier;
 
 std::string topicName = "Streams";
 
 class Portal : public PortalCommunication, public Ice::Application {
 public:
-    void registerStreamServer(const FCUP::StreamServerEntry& sse, const Ice::Current&) override;
-    void closeStream(const std::string& serverIdentifier, const Ice::Current&) override;
+    void registerStreamServer(FCUP::StreamServerEntry sse, const Ice::Current&) override;
+    void closeStream(std::string serverIdentifier, const Ice::Current&) override;
     StreamsMap sendStreamServersList(const Ice::Current&) override;
 
 private:
@@ -22,7 +22,7 @@ private:
 
 int Portal::refreshTopicManager() {
 
-    IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
+    IceStorm::TopicManagerPrxPtr manager = Ice::checkedCast<IceStorm::TopicManagerPrx>(
             communicator()->propertyToProxy("TopicManager.Proxy"));
 
     if (!manager) {
@@ -30,7 +30,7 @@ int Portal::refreshTopicManager() {
         return EXIT_FAILURE;
     }
 
-    IceStorm::TopicPrx topic;
+    IceStorm::TopicPrxPtr topic;
 
     try {
         topic = manager->retrieve(topicName);
@@ -43,12 +43,12 @@ int Portal::refreshTopicManager() {
         }
     }
 
-    Ice::ObjectPrx obj = topic->getPublisher();
-    streamNotifier = StreamMonitorPrx::uncheckedCast(obj);
+    Ice::ObjectPrxPtr obj = topic->getPublisher();
+    streamNotifier = Ice::uncheckedCast<StreamMonitorPrx>(obj);
     return EXIT_SUCCESS;
 }
 
-void Portal::registerStreamServer(const FCUP::StreamServerEntry& sse, const Ice::Current&) {
+void Portal::registerStreamServer(FCUP::StreamServerEntry sse, const Ice::Current&) {
 
     list_of_stream_servers[sse.identifier] = sse;
 
@@ -75,7 +75,7 @@ void Portal::registerStreamServer(const FCUP::StreamServerEntry& sse, const Ice:
 
 }
 
-void Portal::closeStream(const std::string& serverIdentifier, const Ice::Current&) {
+void Portal::closeStream(std::string serverIdentifier, const Ice::Current&) {
 
     std::cout << "Closing the stream: " << serverIdentifier << std::endl;
     auto elem = list_of_stream_servers.find(serverIdentifier);
@@ -115,8 +115,7 @@ int Portal::run(int argc, char* argv[]) {
     int status = 0;
     try {
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Portal");
-        Ice::ObjectPtr object = new Portal;
-        adapter->add(object, communicator()->stringToIdentity("portal"));
+        adapter->add(std::make_shared<Portal>(), Ice::stringToIdentity("portal"));
         adapter->activate();
     } catch (const Ice::Exception& e) {
         std::cerr << e << std::endl;

@@ -15,7 +15,7 @@
 
 using namespace FCUP;
 
-PortalCommunicationPrx portal;
+PortalCommunicationPrxPtr portal;
 std::string topicName = "Streams";
 std::vector<pid_t> ffplaysPIDs;
 
@@ -135,18 +135,18 @@ public:
     int run(int argc, char* argv[]) override;
     void killFFPlay();
 private:
-    IceStorm::TopicPrx topic;
-    Ice::ObjectPrx subscriber;
+    IceStorm::TopicPrxPtr topic;
+    Ice::ObjectPrxPtr subscriber;
 };
 
 class StreamMonitorI : virtual public StreamMonitor {
 public:
-    void reportAddition(const FCUP::StreamServerEntry& sse, const Ice::Current&) override {
+    void reportAddition(FCUP::StreamServerEntry sse, const Ice::Current&) override {
         std::cout << std::endl << "A new stream was created... " << "Stream Identifier: " << sse.identifier
                   << " Video Name: " << sse.name << std::endl;
     }
 
-    void reportRemoval(const FCUP::StreamServerEntry& sse, const Ice::Current&) override {
+    void reportRemoval(FCUP::StreamServerEntry sse, const Ice::Current&) override {
         std::cout << std::endl << "A stream was deleted... " << "Stream Identifier: " << sse.identifier
                   << " Video Name: " << sse.name << std::endl;
     }
@@ -180,7 +180,7 @@ int Client::run(int argc, char* argv[]) {
 
     try {
 
-        IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
+        IceStorm::TopicManagerPrxPtr manager = Ice::checkedCast<IceStorm::TopicManagerPrx>(
                 communicator()->propertyToProxy("TopicManager.Proxy"));
         if (!manager) {
             std::cerr << appName() << ": invalid proxy" << std::endl;
@@ -206,7 +206,7 @@ int Client::run(int argc, char* argv[]) {
         Ice::Identity subId;
         subId.name = IceUtil::generateUUID();
 
-        subscriber = adapter->add(new StreamMonitorI, subId);
+        subscriber = adapter->add(std::make_shared<StreamMonitorI>(), subId);
 
         adapter->activate();
         IceStorm::QoS qos;
@@ -222,8 +222,8 @@ int Client::run(int argc, char* argv[]) {
 
         callbackOnInterrupt();
 
-        Ice::ObjectPrx base = communicator()->propertyToProxy("Portal.Proxy");
-        portal = PortalCommunicationPrx::checkedCast(base);
+        Ice::ObjectPrxPtr base = communicator()->propertyToProxy("Portal.Proxy");
+        portal = Ice::checkedCast<PortalCommunicationPrx>(base);
         if (!portal) {
             throw "Invalid proxy";
         }

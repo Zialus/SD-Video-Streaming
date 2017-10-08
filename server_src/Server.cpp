@@ -61,7 +61,7 @@ public:
 private:
     void closeStream();
     void killFFMpeg();
-    PortalCommunicationPrx portal;
+    PortalCommunicationPrxPtr portal;
     std::list<std::string> serverIdentifierList;
     std::list<int> clientsSocketList;
 };
@@ -119,8 +119,8 @@ int Server::run(int argc, char* argv[]) {
     try {
 
         std::string UUID = IceUtil::generateUUID();
-        Ice::ObjectPrx base = communicator()->propertyToProxy("Portal.Proxy");
-        portal = PortalCommunicationPrx::checkedCast(base);
+        Ice::ObjectPrxPtr base = communicator()->propertyToProxy("Portal.Proxy");
+        portal = Ice::checkedCast<PortalCommunicationPrx>(base);
         if (!portal) {
             throw "Invalid proxy";
         }

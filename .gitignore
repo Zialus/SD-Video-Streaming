@@ -1,7 +1,10 @@
 .idea/
+.vscode/
 cmake-build-release/
 cmake-build-debug/
 cmake-xcode/
+cmake-linux/
+cmake-infer/
 executables/
 db/
 build/
