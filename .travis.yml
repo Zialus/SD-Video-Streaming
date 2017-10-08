@@ -26,7 +26,7 @@ before_install:
   - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv B6391CB2CFBA643D
   - sudo apt-add-repository "deb http://zeroc.com/download/Ice/3.7/ubuntu16.04 stable main"
   - sudo apt-get update -y
-  - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev
+  - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev libstdc++6
   ##### CMAKE 3.10 ######
   - wget https://cmake.org/files/v3.10/cmake-3.10.0-rc1-Linux-x86_64.sh
   - sudo sh cmake-3.10.0-rc1-Linux-x86_64.sh --prefix=/usr/local --exclude-subdir
@@ -83,10 +83,8 @@ matrix:
         apt:
           sources:
             - llvm-toolchain-trusty-3.9
-            - ubuntu-toolchain-r-test
           packages:
             - clang-3.9
-            - libstdc++-6-dev
       env:
         - MATRIX_EVAL="CC=clang-3.9 && CXX=clang++-3.9"
     - os: linux
