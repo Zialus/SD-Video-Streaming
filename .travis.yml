@@ -16,14 +16,20 @@ before_script:
     - eval "${MATRIX_EVAL}"
 
 before_install:
-  - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 5E6DA83306132997
-  - sudo apt-add-repository "deb http://zeroc.com/download/apt/ubuntu$(lsb_release -rs) stable main"
-  - sudo add-apt-repository ppa:mc3man/trusty-media -y
-  - sudo apt-get update -y
-  - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev ffmpeg libtclap-dev
+  ##### FFMPEG + TCLAP + READLINE + RANDOM STUFF FOR NGINX#####
+  - sudo add-apt-repository ppa:jonathonf/ffmpeg-3 -y
+  - sudo apt-get install ffmpeg libtclap-dev libreadline-dev
   - sudo apt-get install build-essential libpcre3 libpcre3-dev libssl-dev
+  ##### ZERO ICE 3.7 #####
+  - sudo sed -i 's/trusty/zesty/g' /etc/apt/sources.list
+  - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv B6391CB2CFBA643D
+  - sudo apt-add-repository "deb http://zeroc.com/download/Ice/3.7/ubuntu16.04 stable main"
+  - sudo apt-get update -y
+  - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev
+  ##### CMAKE 3.10 ######
   - wget https://cmake.org/files/v3.10/cmake-3.10.0-rc1-Linux-x86_64.sh
   - sudo sh cmake-3.10.0-rc1-Linux-x86_64.sh --prefix=/usr/local --exclude-subdir
+  ##### NGINX + RTMP MODULE + CONF FILE #####
   - pushd .
   - sudo mkdir ~/build-nginx && cd ~/build-nginx
   - sudo wget https://github.com/arut/nginx-rtmp-module/archive/v1.2.0.tar.gz
@@ -129,5 +135,19 @@ matrix:
         - brew install -v ffmpeg --with-x265
         - brew install nginx-full --with-rtmp-module
         - brew cask uninstall oclint && brew install llvm@4 && brew link --overwrite llvm@4 --force
+        - cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/etc/nginx/
+        - nginx
+    - os: osx
+      osx_image: xcode9.1
+      env:
+        - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++"
+      before_install:
+        - brew tap homebrew/nginx
+        - brew update
+        - brew install tclap
+        - brew install ice
+        - brew install -v ffmpeg --with-x265
+        - brew install nginx-full --with-rtmp-module
+        - brew cask uninstall oclint && brew install llvm && brew link --overwrite llvm --force
         - cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/etc/nginx/
         - nginx
