@@ -113,8 +113,8 @@ matrix:
       env:
         - MATRIX_EVAL="CC=clang-3.9 && CXX=clang++"
       before_install:
-        - brew tap homebrew/nginx
         - brew update
+        - brew tap homebrew/nginx
         - brew reinstall cmake --HEAD
         - brew install tclap
         - brew install ice
@@ -128,8 +128,8 @@ matrix:
       env:
         - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++"
       before_install:
-        - brew tap homebrew/nginx
         - brew update
+        - brew tap homebrew/nginx
         - brew reinstall cmake --HEAD
         - brew install tclap
         - brew install ice
@@ -143,8 +143,8 @@ matrix:
       env:
         - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++"
       before_install:
-        - brew tap homebrew/nginx
         - brew update
+        - brew tap homebrew/nginx
         - brew reinstall cmake --HEAD
         - brew install tclap
         - brew install ice
@@ -153,3 +153,8 @@ matrix:
         - brew cask uninstall oclint && brew install llvm && brew link --overwrite llvm --force
         - cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/etc/nginx/
         - nginx
+
+  allow_failures:
+  - env: MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
+  - env: MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
+  - env: MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
