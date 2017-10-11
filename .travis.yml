@@ -153,8 +153,72 @@ matrix:
         - brew cask uninstall oclint && brew install llvm && brew link --overwrite llvm --force
         - cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/etc/nginx/
         - nginx
+    ######## OSX GCC ########
+    - os: osx
+      osx_image: xcode9.1
+      env:
+        - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
+      before_script:
+        - brew update
+        - brew tap homebrew/nginx
+        - brew reinstall cmake --HEAD
+        - brew install tclap
+        - brew install ice
+        - brew install -v ffmpeg --with-x265
+        - brew install nginx-full --with-rtmp-module
+        - brew cask uninstall oclint && brew install gcc@4.9
+        - cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/etc/nginx/
+        - nginx
+    - os: osx
+      osx_image: xcode9.1
+      env:
+        - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
+      before_script:
+        - brew update
+        - brew tap homebrew/nginx
+        - brew reinstall cmake --HEAD
+        - brew install tclap
+        - brew install ice
+        - brew install -v ffmpeg --with-x265
+        - brew install nginx-full --with-rtmp-module
+        - brew cask uninstall oclint && brew install gcc@5
+        - cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/etc/nginx/
+        - nginx
+    - os: osx
+      osx_image: xcode9.1
+      env:
+        - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
+      before_script:
+        - brew update
+        - brew tap homebrew/nginx
+        - brew reinstall cmake --HEAD
+        - brew install tclap
+        - brew install ice
+        - brew install -v ffmpeg --with-x265
+        - brew install nginx-full --with-rtmp-module
+        - brew cask uninstall oclint && brew install gcc@6
+        - cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/etc/nginx/
+        - nginx
+    - os: osx
+      osx_image: xcode9.1
+      env:
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+      before_script:
+        - brew update
+        - brew tap homebrew/nginx
+        - brew reinstall cmake --HEAD
+        - brew install tclap
+        - brew install ice
+        - brew install -v ffmpeg --with-x265
+        - brew install nginx-full --with-rtmp-module
+        - brew cask uninstall oclint && brew install gcc
+        - cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/etc/nginx/
+        - nginx
 
   allow_failures:
-  - env: MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
-  - env: MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
-  - env: MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+  - env:
+      - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
+  - env:
+      - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
+  - env:
+      - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
