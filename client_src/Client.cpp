@@ -240,6 +240,7 @@ int Client::run(int argc, char* argv[]) {
             std::vector<std::string> userCommands = split(input, ' ');
 
             if (userCommands.empty()) {
+                free(input);
                 continue;
             }
 
@@ -259,6 +260,7 @@ int Client::run(int argc, char* argv[]) {
                 }
             } else if (userCommands[0] == "exit") {
                 topic->unsubscribe(subscriber);
+                free(input);
                 break;
             } else {
                 std::cout << "Can't find that command. Press tab (2x) to see the available commands.." << std::endl;
