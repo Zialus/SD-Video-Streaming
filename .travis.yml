@@ -167,7 +167,7 @@ matrix:
       osx_image: xcode9.1
       env:
         - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
-      before_script:
+      before_install:
         - brew update
         - brew tap homebrew/nginx
         - brew reinstall cmake --HEAD
