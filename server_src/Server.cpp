@@ -541,7 +541,7 @@ void commandLineParsing(int argc, char* argv[]) {
 
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, const char* const* argv) {
 
     Server app;
     app.main(argc, argv);

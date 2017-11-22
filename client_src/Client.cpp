@@ -282,7 +282,7 @@ int Client::run(int argc, char* argv[]) {
     return status;
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, const char* const argv[]) {
     Client app;
     app.main(argc, argv);
 }
