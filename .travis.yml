@@ -118,13 +118,13 @@ matrix:
 
     ######## OSX CLANG ########
     - os: osx
-      osx_image: xcode9.1
+      osx_image: xcode9.2
       env:
         - MATRIX_EVAL="CC=clang-3.9 && CXX=clang++"
       before_install:
         - brew update
         - brew tap homebrew/nginx
-        - brew reinstall cmake --HEAD
+        - brew upgrade cmake
         - brew install tclap
         - brew install ice
         - brew install -v ffmpeg --with-x265
@@ -133,13 +133,13 @@ matrix:
         - cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/etc/nginx/
         - nginx
     - os: osx
-      osx_image: xcode9.1
+      osx_image: xcode9.2
       env:
         - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++"
       before_install:
         - brew update
         - brew tap homebrew/nginx
-        - brew reinstall cmake --HEAD
+        - brew upgrade cmake
         - brew install tclap
         - brew install ice
         - brew install -v ffmpeg --with-x265
@@ -148,13 +148,13 @@ matrix:
         - cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/etc/nginx/
         - nginx
     - os: osx
-      osx_image: xcode9.1
+      osx_image: xcode9.2
       env:
         - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++"
       before_install:
         - brew update
         - brew tap homebrew/nginx
-        - brew reinstall cmake --HEAD
+        - brew upgrade cmake
         - brew install tclap
         - brew install ice
         - brew install -v ffmpeg --with-x265
@@ -162,15 +162,16 @@ matrix:
         - brew cask uninstall oclint && brew install llvm && brew link --overwrite llvm --force
         - cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/etc/nginx/
         - nginx
+
     ######## OSX GCC ########
     - os: osx
-      osx_image: xcode9.1
+      osx_image: xcode9.2
       env:
         - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
       before_install:
         - brew update
         - brew tap homebrew/nginx
-        - brew reinstall cmake --HEAD
+        - brew upgrade cmake
         - brew install tclap
         - brew install ice
         - brew install -v ffmpeg --with-x265
@@ -179,13 +180,13 @@ matrix:
         - cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/etc/nginx/
         - nginx
     - os: osx
-      osx_image: xcode9.1
+      osx_image: xcode9.2
       env:
         - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
       before_install:
         - brew update
         - brew tap homebrew/nginx
-        - brew reinstall cmake --HEAD
+        - brew upgrade cmake
         - brew install tclap
         - brew install ice
         - brew install -v ffmpeg --with-x265
@@ -194,13 +195,13 @@ matrix:
         - cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/etc/nginx/
         - nginx
     - os: osx
-      osx_image: xcode9.1
+      osx_image: xcode9.2
       env:
         - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
       before_install:
         - brew update
         - brew tap homebrew/nginx
-        - brew reinstall cmake --HEAD
+        - brew upgrade cmake
         - brew install tclap
         - brew install ice
         - brew install -v ffmpeg --with-x265
@@ -209,13 +210,13 @@ matrix:
         - cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/etc/nginx/
         - nginx
     - os: osx
-      osx_image: xcode9.1
+      osx_image: xcode9.2
       env:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
       before_install:
         - brew update
         - brew tap homebrew/nginx
-        - brew reinstall cmake --HEAD
+        - brew upgrade cmake
         - brew install tclap
         - brew install ice
         - brew install -v ffmpeg --with-x265
