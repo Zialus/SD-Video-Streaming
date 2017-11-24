@@ -16,28 +16,30 @@ before_script:
     - eval "${MATRIX_EVAL}"
 
 before_install:
-  ##### FFMPEG + TCLAP + READLINE + RANDOM STUFF FOR NGINX#####
+  ##### FFMPEG + TCLAP + NGINX DEPENDENCIES #####
   - sudo add-apt-repository ppa:jonathonf/ffmpeg-3 -y
   - sudo apt-get update -y
-  - sudo apt-get install ffmpeg libtclap-dev libreadline-dev
-  - sudo apt-get install build-essential libpcre3 libpcre3-dev libssl-dev
+  - sudo apt-get install ffmpeg
+  - sudo apt-get install libtclap-dev
+  - sudo apt-get install libssl-dev
   ##### ZERO ICE 3.7 #####
   - sudo sed -i 's/trusty/zesty/g' /etc/apt/sources.list
   - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv B6391CB2CFBA643D
   - sudo apt-add-repository "deb http://zeroc.com/download/Ice/3.7/ubuntu16.04 stable main"
   - sudo apt-get update -y
-  - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev libstdc++6 libstdc++-6-dev glibc-source
-  ##### CMAKE 3.10 ######
-  - wget https://cmake.org/files/v3.10/cmake-3.10.0-rc1-Linux-x86_64.sh
-  - sudo sh cmake-3.10.0-rc1-Linux-x86_64.sh --prefix=/usr/local --exclude-subdir
+  - sudo apt-get install libstdc++6 libstdc++-6-dev
+  - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev
+  ##### CMAKE 3.10 #####
+  - wget https://cmake.org/files/v3.10/cmake-3.10.0-Linux-x86_64.sh
+  - sudo sh cmake-3.10.0-Linux-x86_64.sh --prefix=/usr/local --exclude-subdir
   ##### NGINX + RTMP MODULE + CONF FILE #####
   - pushd .
   - sudo mkdir ~/build-nginx && cd ~/build-nginx
   - sudo wget https://github.com/arut/nginx-rtmp-module/archive/v1.2.0.tar.gz
-  - sudo wget https://nginx.org/download/nginx-1.13.5.tar.gz
-  - sudo tar xzvf nginx-1.13.5.tar.gz
+  - sudo wget https://nginx.org/download/nginx-1.13.7.tar.gz
+  - sudo tar xzvf nginx-1.13.7.tar.gz
   - sudo tar xzvf v1.2.0.tar.gz
-  - cd nginx-1.13.5
+  - cd nginx-1.13.7
   - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module-1.2.0
   - sudo make
   - sudo make install

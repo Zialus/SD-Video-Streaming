@@ -1,12 +1,8 @@
 .idea/
 .vscode/
-cmake-build-release/
-cmake-build-debug/
-cmake-xcode/
-cmake-linux/
-cmake-infer/
+build/
+cmake-*
 executables/
 db/
-build/
 /ice/StreamServer.cpp
 /ice/StreamServer.h
