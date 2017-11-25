@@ -1,4 +1,6 @@
 # VideoStreaming
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FZialus%2FSD-Video-Streaming.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FZialus%2FSD-Video-Streaming?ref=badge_shield)
+
 
 Ice RPC and IceStorm are an integral part of this application and therefore before 
 running any applications we need to start the icebox _runtime_ with the following command.
@@ -36,3 +38,7 @@ It should be run by passing as an argument the ice config file.
 ```
 
 To check the available commands, just press `TAB`.
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FZialus%2FSD-Video-Streaming.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FZialus%2FSD-Video-Streaming?ref=badge_large)
