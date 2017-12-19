@@ -30,8 +30,8 @@ before_install:
   - sudo apt-get install libstdc++6 libstdc++-6-dev
   - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev
   ##### CMAKE 3.10 #####
-  - wget https://cmake.org/files/v3.10/cmake-3.10.0-Linux-x86_64.sh
-  - sudo sh cmake-3.10.0-Linux-x86_64.sh --prefix=/usr/local --exclude-subdir
+  - wget https://cmake.org/files/v3.10/cmake-3.10.1-Linux-x86_64.sh
+  - sudo sh cmake-3.10.1-Linux-x86_64.sh --prefix=/home/travis/.local/ --exclude-subdir
   ##### NGINX + RTMP MODULE + CONF FILE #####
   - pushd .
   - sudo mkdir ~/build-nginx && cd ~/build-nginx
