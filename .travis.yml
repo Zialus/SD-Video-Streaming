@@ -40,8 +40,8 @@ before_install:
   - sudo tar xzvf nginx-1.13.9.tar.gz
   - sudo tar xzvf v1.2.1.tar.gz
   - cd nginx-1.13.9
-  - sudo export CC=gcc
-  - sudo export CXX=g++
+  - export CC=gcc
+  - export CXX=g++
   - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module-1.2.1
   - sudo make
   - sudo make install
