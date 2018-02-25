@@ -27,7 +27,7 @@ before_install:
   - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv B6391CB2CFBA643D
   - sudo apt-add-repository "deb http://zeroc.com/download/Ice/3.7/ubuntu16.04 stable main"
   - sudo apt-get update -y
-  - sudo apt-get install libstdc++6 libstdc++-5-dev
+  - sudo apt-get install libstdc++-5-dev
   - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev
   ##### CMAKE 3.10 #####
   - wget https://cmake.org/files/v3.11/cmake-3.11.0-rc1-Linux-x86_64.sh
@@ -40,8 +40,6 @@ before_install:
   - sudo tar xzvf nginx-1.13.9.tar.gz
   - sudo tar xzvf v1.2.1.tar.gz
   - cd nginx-1.13.9
-  - export CC=gcc
-  - export CXX=g++
   - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module-1.2.1
   - sudo make
   - sudo make install
