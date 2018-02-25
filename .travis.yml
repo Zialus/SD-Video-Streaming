@@ -23,11 +23,11 @@ before_install:
   - sudo apt-get install libtclap-dev
   - sudo apt-get install libssl-dev
   ##### ZERO ICE 3.7 #####
-  - sudo sed -i 's/trusty/artful/g' /etc/apt/sources.list
+  - sudo sed -i 's/trusty/xenial/g' /etc/apt/sources.list
   - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv B6391CB2CFBA643D
   - sudo apt-add-repository "deb http://zeroc.com/download/Ice/3.7/ubuntu16.04 stable main"
   - sudo apt-get update -y
-  - sudo apt-get install libstdc++6 libstdc++-6-dev
+  - sudo apt-get install libstdc++6 libstdc++-5-dev
   - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev
   ##### CMAKE 3.10 #####
   - wget https://cmake.org/files/v3.11/cmake-3.11.0-rc1-Linux-x86_64.sh
