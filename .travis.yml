@@ -30,17 +30,17 @@ before_install:
   - sudo apt-get install libstdc++6 libstdc++-6-dev
   - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev
   ##### CMAKE 3.10 #####
-  - wget https://cmake.org/files/v3.10/cmake-3.10.1-Linux-x86_64.sh
-  - sudo sh cmake-3.10.1-Linux-x86_64.sh --prefix=/home/travis/.local/ --exclude-subdir
+  - wget https://cmake.org/files/v3.11/cmake-3.11.0-rc1-Linux-x86_64.sh
+  - sudo sh cmake-3.11.0-rc1-Linux-x86_64.sh --prefix=/home/travis/.local/ --exclude-subdir
   ##### NGINX + RTMP MODULE + CONF FILE #####
   - pushd .
   - sudo mkdir ~/build-nginx && cd ~/build-nginx
-  - sudo wget https://github.com/arut/nginx-rtmp-module/archive/v1.2.0.tar.gz
-  - sudo wget https://nginx.org/download/nginx-1.13.7.tar.gz
-  - sudo tar xzvf nginx-1.13.7.tar.gz
-  - sudo tar xzvf v1.2.0.tar.gz
-  - cd nginx-1.13.7
-  - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module-1.2.0
+  - sudo wget https://github.com/arut/nginx-rtmp-module/archive/v1.2.1.tar.gz
+  - sudo wget https://nginx.org/download/nginx-1.13.9.tar.gz
+  - sudo tar xzvf nginx-1.13.9.tar.gz
+  - sudo tar xzvf v1.2.1.tar.gz
+  - cd nginx-1.13.9
+  - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module-1.2.1
   - sudo make
   - sudo make install
   - sudo cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/nginx/conf/
