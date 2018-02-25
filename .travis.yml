@@ -23,7 +23,7 @@ before_install:
   - sudo apt-get install libtclap-dev
   - sudo apt-get install libssl-dev
   ##### ZERO ICE 3.7 #####
-  - sudo sed -i 's/trusty/xenial/g' /etc/apt/sources.list
+  - sudo sed -i 's/trusty/artful/g' /etc/apt/sources.list
   - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv B6391CB2CFBA643D
   - sudo apt-add-repository "deb http://zeroc.com/download/Ice/3.7/ubuntu16.04 stable main"
   - sudo apt-get update -y
@@ -125,7 +125,7 @@ matrix:
         - MATRIX_EVAL="CC=clang-3.9 && CXX=clang++"
       before_install:
         - brew update
-        - brew tap homebrew/nginx
+        - brew tap denji/nginx
         - brew upgrade cmake
         - brew install tclap
         - brew install ice
@@ -140,7 +140,7 @@ matrix:
         - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++"
       before_install:
         - brew update
-        - brew tap homebrew/nginx
+        - brew tap denji/nginx
         - brew upgrade cmake
         - brew install tclap
         - brew install ice
@@ -155,7 +155,7 @@ matrix:
         - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++"
       before_install:
         - brew update
-        - brew tap homebrew/nginx
+        - brew tap denji/nginx
         - brew upgrade cmake
         - brew install tclap
         - brew install ice
@@ -172,7 +172,7 @@ matrix:
         - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
       before_install:
         - brew update
-        - brew tap homebrew/nginx
+        - brew tap denji/nginx
         - brew upgrade cmake
         - brew install tclap
         - brew install ice
@@ -187,7 +187,7 @@ matrix:
         - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
       before_install:
         - brew update
-        - brew tap homebrew/nginx
+        - brew tap denji/nginx
         - brew upgrade cmake
         - brew install tclap
         - brew install ice
@@ -202,7 +202,7 @@ matrix:
         - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
       before_install:
         - brew update
-        - brew tap homebrew/nginx
+        - brew tap denji/nginx
         - brew upgrade cmake
         - brew install tclap
         - brew install ice
@@ -217,7 +217,7 @@ matrix:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
       before_install:
         - brew update
-        - brew tap homebrew/nginx
+        - brew tap denji/nginx
         - brew upgrade cmake
         - brew install tclap
         - brew install ice
