@@ -40,7 +40,6 @@ before_install:
   - sudo /usr/local/nginx/sbin/nginx
   - popd
   ##### ZERO ICE 3.7 #####
-#  - sudo sed -i 's/trusty/xenial/g' /etc/apt/sources.list
   - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv B6391CB2CFBA643D
   - sudo apt-add-repository "deb http://zeroc.com/download/Ice/3.7/ubuntu16.04 stable main"
   - sudo apt-get update -y
@@ -51,51 +50,51 @@ matrix:
   include:
 
       ######## LINUX GCC ########
-#    - os: linux
-#      addons:
-#        apt:
-#          sources:
-#            - ubuntu-toolchain-r-test
-#          packages:
-#            - g++-4.9
-#      env:
-#        - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
-#    - os: linux
-#      addons:
-#        apt:
-#          sources:
-#            - ubuntu-toolchain-r-test
-#          packages:
-#            - g++-5
-#      env:
-#        - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
-#    - os: linux
-#      addons:
-#        apt:
-#          sources:
-#            - ubuntu-toolchain-r-test
-#          packages:
-#            - g++-6
-#      env:
-#        - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
     - os: linux
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-7
+            - g++-4.9
       env:
-        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+        - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
     - os: linux
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-8
+            - g++-5
       env:
-        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
+        - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-6
+      env:
+        - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
+#    - os: linux
+#      addons:
+#        apt:
+#          sources:
+#            - ubuntu-toolchain-r-test
+#          packages:
+#            - g++-7
+#      env:
+#        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+#    - os: linux
+#      addons:
+#        apt:
+#          sources:
+#            - ubuntu-toolchain-r-test
+#          packages:
+#            - g++-8
+#      env:
+#        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
 
     ######## LINUX CLANG ########
     - os: linux
