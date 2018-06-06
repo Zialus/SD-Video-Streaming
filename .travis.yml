@@ -1,5 +1,5 @@
 language: cpp
-dist: trusty
+dist: xenial
 sudo: required
 
 script:
@@ -16,9 +16,9 @@ before_script:
     - eval "${MATRIX_EVAL}"
 
 before_install:
-  ##### CMAKE 3.11.2 #####
-  - wget https://cmake.org/files/v3.11/cmake-3.11.2-Linux-x86_64.sh
-  - sudo sh cmake-3.11.2-Linux-x86_64.sh --prefix=/home/travis/.local/ --exclude-subdir
+  ##### CMAKE 3.11.3 #####
+  - wget https://cmake.org/files/v3.11/cmake-3.11.3-Linux-x86_64.sh
+  - sudo sh cmake-3.11.3-Linux-x86_64.sh --prefix=/home/travis/.local/ --exclude-subdir
   ##### FFMPEG + TCLAP + NGINX DEPENDENCIES #####
   - sudo add-apt-repository ppa:jonathonf/ffmpeg-3 -y
   - sudo apt-get update -y
@@ -29,10 +29,10 @@ before_install:
   - pushd .
   - sudo mkdir ~/build-nginx && cd ~/build-nginx
   - sudo wget https://github.com/arut/nginx-rtmp-module/archive/v1.2.1.tar.gz
-  - sudo wget https://nginx.org/download/nginx-1.13.9.tar.gz
-  - sudo tar xzvf nginx-1.13.9.tar.gz
+  - sudo wget https://nginx.org/download/nginx-1.15.0.tar.gz
+  - sudo tar xzvf nginx-1.15.0.tar.gz
   - sudo tar xzvf v1.2.1.tar.gz
-  - cd nginx-1.13.9
+  - cd nginx-1.15.0
   - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module-1.2.1
   - sudo make
   - sudo make install
@@ -40,7 +40,7 @@ before_install:
   - sudo /usr/local/nginx/sbin/nginx
   - popd
   ##### ZERO ICE 3.7 #####
-  - sudo sed -i 's/trusty/xenial/g' /etc/apt/sources.list
+#  - sudo sed -i 's/trusty/xenial/g' /etc/apt/sources.list
   - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv B6391CB2CFBA643D
   - sudo apt-add-repository "deb http://zeroc.com/download/Ice/3.7/ubuntu16.04 stable main"
   - sudo apt-get update -y
@@ -51,33 +51,33 @@ matrix:
   include:
 
       ######## LINUX GCC ########
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-4.9
-      env:
-        - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-5
-      env:
-        - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-6
-      env:
-        - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
+#    - os: linux
+#      addons:
+#        apt:
+#          sources:
+#            - ubuntu-toolchain-r-test
+#          packages:
+#            - g++-4.9
+#      env:
+#        - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
+#    - os: linux
+#      addons:
+#        apt:
+#          sources:
+#            - ubuntu-toolchain-r-test
+#          packages:
+#            - g++-5
+#      env:
+#        - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
+#    - os: linux
+#      addons:
+#        apt:
+#          sources:
+#            - ubuntu-toolchain-r-test
+#          packages:
+#            - g++-6
+#      env:
+#        - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
     - os: linux
       addons:
         apt:
@@ -116,24 +116,24 @@ matrix:
             - clang-4.0
       env:
         - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++-4.0"
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - llvm-toolchain-trusty-5.0
-          packages:
-            - clang-5.0
-      env:
-        - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - llvm-toolchain-trusty-6.0
-          packages:
-            - clang-6.0
-      env:
-        - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0"
+#    - os: linux
+#      addons:
+#        apt:
+#          sources:
+#            - llvm-toolchain-trusty-5.0
+#          packages:
+#            - clang-5.0
+#      env:
+#        - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
+#    - os: linux
+#      addons:
+#        apt:
+#          sources:
+#            - llvm-toolchain-trusty-6.0
+#          packages:
+#            - clang-6.0
+#      env:
+#        - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0"
 
 
     ######## OSX CLANG ########
