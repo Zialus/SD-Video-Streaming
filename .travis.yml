@@ -16,9 +16,9 @@ before_script:
     - eval "${MATRIX_EVAL}"
 
 before_install:
-  ##### CMAKE 3.11.3 #####
-  - wget https://cmake.org/files/v3.11/cmake-3.11.3-Linux-x86_64.sh
-  - sudo sh cmake-3.11.3-Linux-x86_64.sh --prefix=/home/travis/.local/ --exclude-subdir
+  ##### CMAKE 3.12.0 #####
+  - wget https://cmake.org/files/v3.12/cmake-3.12.0-Linux-x86_64.sh
+  - sudo sh cmake-3.12.0-Linux-x86_64.sh --prefix=/home/travis/.local/ --exclude-subdir
   ##### FFMPEG + TCLAP + NGINX DEPENDENCIES #####
   - sudo add-apt-repository ppa:jonathonf/ffmpeg-3 -y
   - sudo apt-get update -y
@@ -29,10 +29,10 @@ before_install:
   - pushd .
   - sudo mkdir ~/build-nginx && cd ~/build-nginx
   - sudo wget https://github.com/arut/nginx-rtmp-module/archive/v1.2.1.tar.gz
-  - sudo wget https://nginx.org/download/nginx-1.15.0.tar.gz
-  - sudo tar xzvf nginx-1.15.0.tar.gz
+  - sudo wget https://nginx.org/download/nginx-1.15.1.tar.gz
+  - sudo tar xzvf nginx-1.15.1.tar.gz
   - sudo tar xzvf v1.2.1.tar.gz
-  - cd nginx-1.15.0
+  - cd nginx-1.15.1
   - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module-1.2.1
   - sudo make
   - sudo make install
@@ -54,7 +54,7 @@ matrix:
       addons:
         apt:
           sources:
-            - ubuntu-toolchain-r-test
+            - sourceline: 'ppa:ubuntu-toolchain-r/test'
           packages:
             - g++-4.9
       env:
@@ -63,7 +63,7 @@ matrix:
       addons:
         apt:
           sources:
-            - ubuntu-toolchain-r-test
+            - sourceline: 'ppa:ubuntu-toolchain-r/test'
           packages:
             - g++-5
       env:
@@ -72,36 +72,36 @@ matrix:
       addons:
         apt:
           sources:
-            - ubuntu-toolchain-r-test
+            - sourceline: 'ppa:ubuntu-toolchain-r/test'
           packages:
             - g++-6
       env:
         - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
-#    - os: linux
-#      addons:
-#        apt:
-#          sources:
-#            - ubuntu-toolchain-r-test
-#          packages:
-#            - g++-7
-#      env:
-#        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
-#    - os: linux
-#      addons:
-#        apt:
-#          sources:
-#            - ubuntu-toolchain-r-test
-#          packages:
-#            - g++-8
-#      env:
-#        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
-
+    - os : linux
+      addons:
+        apt:
+          sources:
+            - sourceline: 'ppa:ubuntu-toolchain-r/test'
+          packages:
+            - g++-7
+      env:
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+    - os : linux
+      addons:
+        apt:
+          sources:
+            - sourceline: 'ppa:ubuntu-toolchain-r/test'
+          packages:
+            - g++-8
+      env:
+        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
     ######## LINUX CLANG ########
     - os: linux
       addons:
         apt:
           sources:
-            - llvm-toolchain-trusty-3.9
+            - sourceline: 'https://apt.llvm.org/xenial/ llvm-toolchain-xenial-3.9 main'
+              key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
           packages:
             - clang-3.9
       env:
@@ -110,29 +110,32 @@ matrix:
       addons:
         apt:
           sources:
-            - llvm-toolchain-trusty-4.0
+            - sourceline: 'https://apt.llvm.org/xenial/ llvm-toolchain-xenial-4.0 main'
+              key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
           packages:
             - clang-4.0
       env:
         - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++-4.0"
-#    - os: linux
-#      addons:
-#        apt:
-#          sources:
-#            - llvm-toolchain-trusty-5.0
-#          packages:
-#            - clang-5.0
-#      env:
-#        - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
-#    - os: linux
-#      addons:
-#        apt:
-#          sources:
-#            - llvm-toolchain-trusty-6.0
-#          packages:
-#            - clang-6.0
-#      env:
-#        - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0"
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - sourceline: 'https://apt.llvm.org/xenial/ llvm-toolchain-xenial-5.0 main'
+              key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+          packages:
+            - clang-5.0
+      env:
+        - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - sourceline: 'https://apt.llvm.org/xenial/ llvm-toolchain-xenial-6.0 main'
+              key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+          packages:
+            - clang-6.0
+      env:
+        - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0"
 
 
     ######## OSX CLANG ########
