@@ -27,14 +27,13 @@ before_install:
   - sudo apt-get install libssl-dev
   ##### NGINX + RTMP MODULE + CONF FILE #####
   - pushd .
-  - sudo mkdir ~/build-nginx && cd ~/build-nginx
-  - sudo wget https://github.com/arut/nginx-rtmp-module/archive/v1.2.1.tar.gz
-  - sudo wget https://nginx.org/download/nginx-1.15.3.tar.gz
-  - sudo tar xzvf nginx-1.15.3.tar.gz
-  - sudo tar xzvf v1.2.1.tar.gz
+  - mkdir ~/build-nginx && cd ~/build-nginx
+  - git clone https://github.com/sergey-dryabzhinsky/nginx-rtmp-module.git
+  - wget https://nginx.org/download/nginx-1.15.3.tar.gz
+  - tar xzf nginx-1.15.3.tar.gz
   - cd nginx-1.15.3
-  - sudo ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module-1.2.1
-  - sudo make
+  - ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module
+  - make -j 2
   - sudo make install
   - sudo cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/nginx/conf/
   - sudo /usr/local/nginx/sbin/nginx
@@ -143,130 +142,75 @@ matrix:
       osx_image: xcode10
       env:
         - MATRIX_EVAL="CC=clang-3.9 && CXX=clang++"
-      before_install:
+      before_install: &mac_setup
         - brew update
-        - brew tap denji/nginx
+        - brew install -v ffmpeg --with-x265
         - brew install tclap
         - brew install ice
-        - brew install -v ffmpeg --with-x265
+        - brew tap denji/nginx
         - brew install nginx-full --with-rtmp-module
-        - brew cask uninstall oclint && brew install llvm@3.9 && brew link --overwrite llvm@3.9 --force
         - cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/etc/nginx/
         - nginx
+      install:
+        - brew cask uninstall oclint && brew install llvm@3.9 && brew link --overwrite llvm@3.9 --force
     - os: osx
       osx_image: xcode10
       env:
         - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++"
-      before_install:
-        - brew update
-        - brew tap denji/nginx
-        - brew install tclap
-        - brew install ice
-        - brew install -v ffmpeg --with-x265
-        - brew install nginx-full --with-rtmp-module
+      before_install: *mac_setup
+      install:
         - brew cask uninstall oclint && brew install llvm@4 && brew link --overwrite llvm@4 --force
-        - cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/etc/nginx/
-        - nginx
     - os: osx
       osx_image: xcode10
       env:
         - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++"
-      before_install:
-        - brew update
-        - brew tap denji/nginx
-        - brew install tclap
-        - brew install ice
-        - brew install -v ffmpeg --with-x265
-        - brew install nginx-full --with-rtmp-module
+      before_install: *mac_setup
+      install:
         - brew cask uninstall oclint && brew install llvm@5 && brew link --overwrite llvm@5 --force
-        - cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/etc/nginx/
-        - nginx
     - os: osx
       osx_image: xcode10
       env:
         - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++"
-      before_install:
-        - brew update
-        - brew tap denji/nginx
-        - brew install tclap
-        - brew install ice
-        - brew install -v ffmpeg --with-x265
-        - brew install nginx-full --with-rtmp-module
+      before_install: *mac_setup
+      install:
         - brew cask uninstall oclint && brew install llvm@6 && brew link --overwrite llvm@6 --force
-        - cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/etc/nginx/
-        - nginx
 
     ######## OSX GCC ########
     - os: osx
       osx_image: xcode10
       env:
         - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
-      before_install:
-        - brew update
-        - brew tap denji/nginx
-        - brew install tclap
-        - brew install ice
-        - brew install -v ffmpeg --with-x265
-        - brew install nginx-full --with-rtmp-module
+      before_install: *mac_setup
+      install:
         - brew cask uninstall oclint && brew install gcc@4.9
-        - cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/etc/nginx/
-        - nginx
     - os: osx
       osx_image: xcode10
       env:
         - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
-      before_install:
-        - brew update
-        - brew tap denji/nginx
-        - brew install tclap
-        - brew install ice
-        - brew install -v ffmpeg --with-x265
-        - brew install nginx-full --with-rtmp-module
-        - brew cask uninstall oclint && brew install gcc@5
-        - cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/etc/nginx/
-        - nginx
+      before_install: *mac_setup
+      install:
+      - brew cask uninstall oclint && brew install gcc@5
     - os: osx
       osx_image: xcode10
       env:
         - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
-      before_install:
-        - brew update
-        - brew tap denji/nginx
-        - brew install tclap
-        - brew install ice
-        - brew install -v ffmpeg --with-x265
-        - brew install nginx-full --with-rtmp-module
-        - brew cask uninstall oclint && brew install gcc@6
-        - cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/etc/nginx/
-        - nginx
+      before_install: *mac_setup
+      install:
+      - brew cask uninstall oclint && brew install gcc@6
     - os: osx
       osx_image: xcode10
       env:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
-      before_install:
-        - brew update
-        - brew tap denji/nginx
-        - brew install tclap
-        - brew install ice
-        - brew install -v ffmpeg --with-x265
-        - brew install nginx-full --with-rtmp-module
-        - brew cask uninstall oclint && brew install gcc@7
-        - cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/etc/nginx/
-        - nginx
+      before_install: *mac_setup
+      install:
+      - brew cask uninstall oclint && brew install gcc@7
     - os: osx
       osx_image: xcode10
       env:
         - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
-      before_install:
-        - brew update
-        - brew tap denji/nginx
-        - brew install tclap
-        - brew install ice
-        - brew install -v ffmpeg --with-x265
-        - brew install nginx-full --with-rtmp-module
-        - brew cask uninstall oclint && brew install gcc@8
-        - cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/etc/nginx/
-        - nginx
+      before_install: *mac_setup
+      install:
+      - brew cask uninstall oclint && brew install gcc@8
 
 
   allow_failures:
