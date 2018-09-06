@@ -3,17 +3,17 @@ dist: xenial
 sudo: required
 
 script:
-    - mkdir build
-    - cd build
-    - cmake ..
-    - make
-    - cd ..
-    - ./set_things_up.sh
-    - ./download_videos.sh
-    - ./run_basic_test.sh
+  - mkdir build
+  - cd build
+  - cmake ..
+  - make
+  - cd ..
+  - ./set_things_up.sh
+  - ./download_videos.sh
+  - ./run_basic_test.sh
 
 before_script:
-    - eval "${MATRIX_EVAL}"
+  - eval "${MATRIX_EVAL}"
 
 before_install:
   ##### CMAKE #####
@@ -139,7 +139,7 @@ matrix:
 
     ######## OSX CLANG ########
     - os: osx
-      osx_image: xcode10
+      osx_image: xcode9.2
       env:
         - MATRIX_EVAL="CC=clang-3.9 && CXX=clang++"
       before_install: &mac_setup
@@ -154,21 +154,21 @@ matrix:
       install:
         - brew cask uninstall oclint && brew install llvm@3.9 && brew link --overwrite llvm@3.9 --force
     - os: osx
-      osx_image: xcode10
+      osx_image: xcode9.2
       env:
         - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++"
       before_install: *mac_setup
       install:
         - brew cask uninstall oclint && brew install llvm@4 && brew link --overwrite llvm@4 --force
     - os: osx
-      osx_image: xcode10
+      osx_image: xcode9.2
       env:
         - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++"
       before_install: *mac_setup
       install:
         - brew cask uninstall oclint && brew install llvm@5 && brew link --overwrite llvm@5 --force
     - os: osx
-      osx_image: xcode10
+      osx_image: xcode9.2
       env:
         - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++"
       before_install: *mac_setup
@@ -177,40 +177,40 @@ matrix:
 
     ######## OSX GCC ########
     - os: osx
-      osx_image: xcode10
+      osx_image: xcode9.2
       env:
         - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
       before_install: *mac_setup
       install:
         - brew cask uninstall oclint && brew install gcc@4.9
     - os: osx
-      osx_image: xcode10
+      osx_image: xcode9.2
       env:
         - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
       before_install: *mac_setup
       install:
-      - brew cask uninstall oclint && brew install gcc@5
+        - brew cask uninstall oclint && brew install gcc@5
     - os: osx
-      osx_image: xcode10
+      osx_image: xcode9.2
       env:
         - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
       before_install: *mac_setup
       install:
-      - brew cask uninstall oclint && brew install gcc@6
+        - brew cask uninstall oclint && brew install gcc@6
     - os: osx
-      osx_image: xcode10
+      osx_image: xcode9.2
       env:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
       before_install: *mac_setup
       install:
-      - brew cask uninstall oclint && brew install gcc@7
+        - brew cask uninstall oclint && brew install gcc@7
     - os: osx
-      osx_image: xcode10
+      osx_image: xcode9.2
       env:
         - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
       before_install: *mac_setup
       install:
-      - brew cask uninstall oclint && brew install gcc@8
+        - brew cask uninstall oclint && brew install gcc@8
 
 
   allow_failures:
