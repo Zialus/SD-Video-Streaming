@@ -52,7 +52,7 @@ StringSequence keywords;
 bool useHLS;
 bool useDASH;
 
-void commandLineParsing(int argc, char* argv[]);
+void commandLineParsing(int argc, char** argv);
 
 class Server : public Ice::Application {
 public:
@@ -473,7 +473,7 @@ int Server::run(int argc, char* argv[]) {
 
 }
 
-void commandLineParsing(int argc, char* argv[]) {
+void commandLineParsing(int argc, char** argv) {
 
     try {
         TCLAP::CmdLine cmd("Streaming Server", ' ', "1.0", true);
@@ -541,7 +541,7 @@ void commandLineParsing(int argc, char* argv[]) {
 
 }
 
-int main(int argc, const char* const* argv) {
+int main(int argc, const char* const argv[]) {
 
     Server app;
     app.main(argc, argv);
