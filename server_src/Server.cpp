@@ -166,6 +166,7 @@ int Server::run(int argc, char* argv[]) {
 
         } else { // Parent will only start executing after child calls execvp because we are using vfork()
 
+            printf("00000000000");
             sleep(1); //wait for initial ffmpeg to be execed
 
             if (useDASH) {
@@ -417,8 +418,6 @@ int Server::run(int argc, char* argv[]) {
                 struct ip_mreq mreq;
                 char message[BUFFERSIZE];
 
-                bzero(message, sizeof(message));
-
                 /* set up socket */
                 sock = socket(AF_INET, SOCK_DGRAM, 0);
                 if (sock < 0) {
@@ -435,6 +434,7 @@ int Server::run(int argc, char* argv[]) {
                 /* send */
                 addr.sin_addr.s_addr = inet_addr("127.0.0.1");
                 while (true) {
+//                    bzero(message, sizeof(message)*BUFFERSIZE);
                     read(socketToReceiveVideoFD, message, BUFFERSIZE);
                     cnt = (int) sendto(sock, message, sizeof(message), 0, (struct sockaddr *) &addr, (socklen_t) addrlen);
                     if (cnt < 0) {
@@ -453,9 +453,11 @@ int Server::run(int argc, char* argv[]) {
 
     } catch (const Ice::Exception& ex) {
         std::cerr << ex << std::endl;
+        printf("111111111111\n");
         status = 1;
     } catch (const char* msg) {
         std::cerr << msg << std::endl;
+        printf("22222222222222222\n");
         status = 1;
     }
 
