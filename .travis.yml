@@ -17,8 +17,8 @@ before_script:
 
 before_install:
   ##### CMAKE #####
-  - wget https://cmake.org/files/v3.12/cmake-3.12.2-Linux-x86_64.sh
-  - sudo sh cmake-3.12.2-Linux-x86_64.sh --prefix=/home/travis/.local/ --exclude-subdir
+  - wget https://cmake.org/files/v3.12/cmake-3.12.3-Linux-x86_64.sh
+  - sudo sh cmake-3.12.3-Linux-x86_64.sh --prefix=/home/travis/.local/ --exclude-subdir
   ##### FFMPEG #####
   - sudo add-apt-repository ppa:jonathonf/ffmpeg-4 -y
   - sudo apt-get update
@@ -30,9 +30,10 @@ before_install:
   - pushd .
   - mkdir ~/build-nginx && cd ~/build-nginx
   - git clone https://github.com/sergey-dryabzhinsky/nginx-rtmp-module.git
-  - wget https://nginx.org/download/nginx-1.15.4.tar.gz
-  - tar xzf nginx-1.15.4.tar.gz
-  - cd nginx-1.15.4
+  - export NGX_VERSION=1.15.5
+  - wget https://nginx.org/download/nginx-${NGX_VERSION}.tar.gz
+  - tar xzf nginx-${NGX_VERSION}.tar.gz
+  - cd nginx-${NGX_VERSION}
   - ./configure --with-http_ssl_module --add-module=../nginx-rtmp-module
   - make -j 2
   - sudo make install
@@ -156,7 +157,7 @@ matrix:
         - MATRIX_EVAL="CC=clang-3.9 && CXX=clang++"
       before_install: &mac_setup
         - brew update
-        - brew install -v ffmpeg --with-x265
+        - brew install ffmpeg
         - brew install tclap
         - brew install ice
         - brew tap denji/nginx
