@@ -1,6 +1,5 @@
 language: cpp
 dist: xenial
-sudo: required
 
 script:
   - mkdir build
@@ -16,9 +15,11 @@ before_script:
   - eval "${MATRIX_EVAL}"
 
 before_install:
-  ##### CMAKE #####
-  - wget https://cmake.org/files/v3.12/cmake-3.12.3-Linux-x86_64.sh
-  - sudo sh cmake-3.12.3-Linux-x86_64.sh --prefix=/home/travis/.local/ --exclude-subdir
+  ##### ZERO ICE 3.7 #####
+  - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv B6391CB2CFBA643D
+  - sudo apt-add-repository "deb http://zeroc.com/download/Ice/3.7/ubuntu16.04 stable main"
+  - sudo apt-get update
+  - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev
   ##### FFMPEG #####
   - sudo add-apt-repository ppa:jonathonf/ffmpeg-4 -y
   - sudo apt-get update
@@ -30,7 +31,7 @@ before_install:
   - pushd .
   - mkdir ~/build-nginx && cd ~/build-nginx
   - git clone https://github.com/sergey-dryabzhinsky/nginx-rtmp-module.git
-  - export NGX_VERSION=1.15.5
+  - export NGX_VERSION=1.15.6
   - wget https://nginx.org/download/nginx-${NGX_VERSION}.tar.gz
   - tar xzf nginx-${NGX_VERSION}.tar.gz
   - cd nginx-${NGX_VERSION}
@@ -40,11 +41,11 @@ before_install:
   - sudo cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/nginx/conf/
   - sudo /usr/local/nginx/sbin/nginx
   - popd
-  ##### ZERO ICE 3.7 #####
-  - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv B6391CB2CFBA643D
-  - sudo apt-add-repository "deb http://zeroc.com/download/Ice/3.7/ubuntu16.04 stable main"
-  - sudo apt-get update
-  - sudo apt-get install zeroc-ice-all-runtime zeroc-ice-all-dev
+  ##### CMAKE #####
+  - export CMK_VERSION=3.12.4
+  - wget https://cmake.org/files/v${CMK_VERSION%.*}/cmake-${CMK_VERSION}-Linux-x86_64.sh
+  - sudo sh cmake-${CMK_VERSION}-Linux-x86_64.sh --prefix=/home/travis/.local/ --exclude-subdir
+  - rm cmake-${CMK_VERSION}-Linux-x86_64.sh
 
 
 matrix:
@@ -165,72 +166,72 @@ matrix:
         - cp ~/build/Zialus/SD-Video-Streaming/extras/nginx.conf /usr/local/etc/nginx/
         - nginx
       install:
-        - brew cask uninstall oclint && brew install llvm@3.9 && brew link --overwrite llvm@3.9 --force
+        - brew install llvm@3.9 && brew link --overwrite llvm@3.9 --force
     - os: osx
-      osx_image: xcode10
+      osx_image: xcode10.1
       env:
         - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++"
       before_install: *mac_setup
       install:
-        - brew cask uninstall oclint && brew install llvm@4 && brew link --overwrite llvm@4 --force
+        - brew install llvm@4 && brew link --overwrite llvm@4 --force
     - os: osx
-      osx_image: xcode10
+      osx_image: xcode10.1
       env:
         - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++"
       before_install: *mac_setup
       install:
-        - brew cask uninstall oclint && brew install llvm@5 && brew link --overwrite llvm@5 --force
+        - brew install llvm@5 && brew link --overwrite llvm@5 --force
     - os: osx
-      osx_image: xcode10
+      osx_image: xcode10.1
       env:
         - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++"
       before_install: *mac_setup
       install:
-        - brew cask uninstall oclint && brew install llvm@6 && brew link --overwrite llvm@6 --force
+        - brew install llvm@6 && brew link --overwrite llvm@6 --force
     - os: osx
-      osx_image: xcode9.4
+      osx_image: xcode9.4 # To avoid problems while linking llvm
       env:
         - MATRIX_EVAL="CC=clang-7 && CXX=clang++"
       before_install: *mac_setup
       install:
-        - brew cask uninstall oclint && brew install llvm@7 && brew link --overwrite llvm@7 --force
+        - brew install llvm@7 && brew link --overwrite llvm@7 --force
 
     ######## OSX GCC ########
     - os: osx
-      osx_image: xcode10
+      osx_image: xcode10.1
       env:
         - MATRIX_EVAL="CC=gcc-4.9 && CXX=g++-4.9"
       before_install: *mac_setup
       install:
-        - brew cask uninstall oclint && brew install gcc@4.9
+        - brew install gcc@4.9
     - os: osx
-      osx_image: xcode10
+      osx_image: xcode10.1
       env:
         - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
       before_install: *mac_setup
       install:
-        - brew cask uninstall oclint && brew install gcc@5
+        - brew install gcc@5
     - os: osx
-      osx_image: xcode10
+      osx_image: xcode10.1
       env:
         - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
       before_install: *mac_setup
       install:
-        - brew cask uninstall oclint && brew install gcc@6
+        - brew install gcc@6
     - os: osx
-      osx_image: xcode10
+      osx_image: xcode10.1
       env:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
       before_install: *mac_setup
       install:
-        - brew cask uninstall oclint && brew install gcc@7
+        - brew install gcc@7
     - os: osx
-      osx_image: xcode10
+      osx_image: xcode10 # To avoid problems while linking gcc
       env:
         - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
       before_install: *mac_setup
       install:
-        - brew cask uninstall oclint && brew install gcc@8
+        - brew install gcc@8
 
 
   allow_failures:
