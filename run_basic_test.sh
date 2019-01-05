@@ -50,17 +50,3 @@ sleep 5
 killall icebox
 
 sleep 2
-
-cat ~/VideoStreamerFCUP_Logs/client.txt
-
-cat ~/VideoStreamerFCUP_Logs/portal.txt
-
-#cat ~/VideoStreamerFCUP_Logs/serverAliBabaNORMAL.txt
-
-cat ~/VideoStreamerFCUP_Logs/serverAliBabaHLS.txt
-
-cat ~/VideoStreamerFCUP_Logs/serverPresidentNORMAL.txt
-
-cat ~/VideoStreamerFCUP_Logs/serverPresidentDASH.txt
-
-cat ~/VideoStreamerFCUP_Logs/icebox.txt
