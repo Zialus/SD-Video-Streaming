@@ -40,7 +40,7 @@ before_install:
   - pushd .
   - mkdir ~/build-nginx && cd ~/build-nginx
   - git clone https://github.com/sergey-dryabzhinsky/nginx-rtmp-module.git
-  - export NGX_VERSION=1.15.6
+  - export NGX_VERSION=1.15.8
   - wget https://nginx.org/download/nginx-${NGX_VERSION}.tar.gz
   - tar xzf nginx-${NGX_VERSION}.tar.gz
   - cd nginx-${NGX_VERSION}
@@ -51,7 +51,7 @@ before_install:
   - sudo /usr/local/nginx/sbin/nginx
   - popd
   ##### CMAKE #####
-  - export CMK_VERSION=3.12.4
+  - export CMK_VERSION=3.13.2
   - wget https://cmake.org/files/v${CMK_VERSION%.*}/cmake-${CMK_VERSION}-Linux-x86_64.sh
   - sudo sh cmake-${CMK_VERSION}-Linux-x86_64.sh --prefix=/home/travis/.local/ --exclude-subdir
   - rm cmake-${CMK_VERSION}-Linux-x86_64.sh
@@ -162,7 +162,7 @@ matrix:
 
     ######## OSX CLANG ########
     - os: osx
-      osx_image: xcode10
+      osx_image: xcode10.1
       env:
         - MATRIX_EVAL="CC=clang-3.9 && CXX=clang++"
       before_install: &mac_setup
@@ -198,12 +198,15 @@ matrix:
       install:
         - brew install llvm@6 && brew link --overwrite llvm@6 --force
     - os: osx
-      osx_image: xcode9.4 # To avoid problems while linking llvm
+      osx_image: xcode10.1
       env:
         - MATRIX_EVAL="CC=clang-7 && CXX=clang++"
       before_install: *mac_setup
       install:
         - brew install llvm@7 && brew link --overwrite llvm@7 --force
+        - export PATH="/usr/local/opt/llvm/bin:$PATH"
+        - export LDFLAGS="-L/usr/local/opt/llvm/lib"
+        - export CPPFLAGS="-I/usr/local/opt/llvm/include"
 
     ######## OSX GCC ########
     - os: osx
@@ -241,6 +244,31 @@ matrix:
       before_install: *mac_setup
       install:
         - brew install gcc@8
+
+    # SONARCLOUD
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-8
+        sonarcloud:
+          organization: "zialus-github"
+          token:
+            secure: "fCCPWI10lMDa6RNIRrB81iDF8/33tA3elhnNUDed5/6Su225tD2gV46Pwm4ideZvBWY9UuLnIlr5QZTOHEPUYrsWH8sblvkk5Tv0njs4cRs7XdWJrLc1gqsKo5lvu9Oe1l8BM9BzXNvp3/e2op9QSHj1cnBJeDpQuOwUG2BrLSmFU6vXi2P8V+O56bqWkx6WnrO1j+doTEHQgc5jljeF5pxi58CVBcTB/Gn1gpzKbjmcFVzvVKfoYYcpM4lFlh4R3TklLGftkfmBso6plRRbIfyKDdsmDHswqASHgOlk33Q51awJhE3H7/+OjU0fSn+/ulJNnT8l2o308rbSdYSY9D3Q4LtKjFJaZgqaoG8VCrSDjKtBNv6lOReuE0HIcFaE1Ahx6F246RJn0XPkjaLyp76VOeL2x1/D1Ist6BJ914SyukyfYuzxjgzAv/udMkw/3LZUGStVZKDHJFmX0KYI+c8Jz0ZZ49ICGPGQgyU0yjVMzJkgIoM9FI+JpYWZz1WinyJEayKo19Sz9fVBlOYe2U40m55iFsYxnrZlp5OTYVOi/aUKXH/o8YMhasNgcid9s5dIZt762GY0G9oJu2r6pgxnHViMkyAkdzCRfTRO2kqX8kL7Cd72MfVt/61DsofjwCOwKPjDT16+txPYZqb8pvOnLZJvxjZJGVMnADrPekg="
+      script:
+        - git fetch --unshallow
+        - mkdir build && cd build
+        - cmake -DCMAKE_BUILD_TYPE=Release ..
+        - build-wrapper-linux-x86-64 --out-dir bw-output make clean all
+        - cd ..
+        - sonar-scanner
+      after_script:
+        - echo "Sonar Cloud"
+      env:
+        - SONAR_CLOUD="YUP"
+        - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
 
 
   allow_failures:
