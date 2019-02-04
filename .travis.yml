@@ -238,12 +238,12 @@ matrix:
       install:
         - brew install gcc@7
     - os: osx
-      osx_image: xcode10 # To avoid problems while linking gcc
+      osx_image: xcode10.1
       env:
         - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
       before_install: *mac_setup
       install:
-        - brew install gcc@8
+        - brew link gcc@8
 
     # SONARCLOUD
     - os: linux

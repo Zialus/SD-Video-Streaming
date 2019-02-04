@@ -1,0 +1,22 @@
+image:
+  - Visual Studio 2017
+  - Visual Studio 2015
+  - Visual Studio 2013
+
+install:
+
+  - git clone https://github.com/eile/tclap.git
+  - set CXXFLAGS=-I.\tclap\include\
+  - set NUGETDIR=C:\NUGET
+  - nuget install zeroc.ice.v141 -Version 3.7.1 -OutputDirectory %NUGETDIR%
+  - set ICE_HOME=%NUGETDIR%\zeroc.ice.v141.3.7.1\
+  - dir %ICE_HOME%
+
+build_script:
+  - cmake --version
+  - mkdir build && cd build
+  - cmake ..
+  - cmake --build . --config Release
+
+test_script:
+  - ctest -V -C Release
