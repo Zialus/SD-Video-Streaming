@@ -225,7 +225,7 @@ int Client::run(int argc, char* argv[]) {
         Ice::ObjectPrxPtr base = communicator()->propertyToProxy("Portal.Proxy");
         portal = Ice::checkedCast<PortalCommunicationPrx>(base);
         if (!portal) {
-            throw "Invalid proxy";
+            std::cerr << "Invalid Proxy" << std::endl;
         }
 
         rl_attempted_completion_function = command_name_completion;

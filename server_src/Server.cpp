@@ -122,7 +122,7 @@ int Server::run(int argc, char* argv[]) {
         Ice::ObjectPrxPtr base = communicator()->propertyToProxy("Portal.Proxy");
         portal = Ice::checkedCast<PortalCommunicationPrx>(base);
         if (!portal) {
-            throw "Invalid proxy";
+            std::cerr << "Invalid Proxy" << std::endl;
         }
 
         StreamServerEntry allMyInfoTCP;
