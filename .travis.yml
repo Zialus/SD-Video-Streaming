@@ -270,6 +270,26 @@ matrix:
         - SONAR_CLOUD="YUP"
         - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"
 
+    # COVERITY_SCAN
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-7 # Max version supported by coverity scan right now
+        coverity_scan:
+          project:
+            name: "Zialus/SD-Video-Streaming"
+          notification_email: raulmendesferreira@gmail.com
+          build_command_prepend: "git fetch --unshallow && cov-configure --comptype gcc --compiler gcc-7 --template && mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .."
+          build_command: "make"
+          branch_pattern: master
+      script:
+        - echo "Coverity Scan"
+      env:
+        - secure: "ccogIZtGCpsF8HhX2UkH0VC+kJ5UHyBsGH6k4yHJ5B58Tn6aI7nKzYnnta9Qy6IJJiXteMsJ2Y+Rty1KV4Eu3bSGYb9DDQOVi5edVs293oetE0mZKMHggdTKot/90Sjv1puKLpTUBatqp3F+66Bj0GNFY3UvyDctPYsjWEhksTLbSe59ZRzZanaoE47oOM1kubEIy4NgOsonWTf2GaTat4wb01ttjtrfNZjnjaYoJCb3z/uAuj4NCXS+KOZF4Pmi/u4J+0e77hnAvvf2y9Q8PRFgKrnMZFbBLsvK7DZEkITj0hAvaNHys6bEkau5D098wFCEIZ+dblGxndxuC6V4fh/x4dyCyvMtoL0HCgZeaLvGkV8YoCqQyqbiJFl8rqOQvR7rd9SVODT/3SS6Eit9XDgUNaAQLq7mmtrUulT0seF4wH2zxFzwomL7dxXGinCPI32nyEsFvqQCE43I4Pfi7ALWptopsDA8JevbB8DxcpLvkjeuyklLnjNmSPWAgD795LI1XOVNhbcdwm/J+GFLWDp1dKXfo7fX339iMvZp2KpvVD1ha2yY6v6rwpAqq27pjst9j0fSVkVwCYgx8wsZwd36iPMmIcCcrBoZ7d/ZZSERwXLD2GMVj3qUmqmmPeZ+vQZIHaOk+mXfQJCKP5/VBZH+Wlw5KVhAVI+86cU5iFg="
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
 
   allow_failures:
     - env:
