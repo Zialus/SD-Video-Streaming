@@ -38,17 +38,21 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/executables)
 
 add_compile_options("-DICE_CPP11_MAPPING")
 
-add_executable(server ${server_HDR} ${server_SRC} ${ice_HDR} ${ice_SRC} auxiliary/Auxiliary.h )
-add_executable(client ${client_HDR} ${client_SRC} ${ice_HDR} ${ice_SRC} auxiliary/Auxiliary.h )
-add_executable(portal ${portal_HDR} ${portal_SRC} ${ice_HDR} ${ice_SRC} auxiliary/Auxiliary.h )
+add_executable(server ${server_HDR} ${server_SRC} ${ice_HDR} ${ice_SRC} auxiliary/Auxiliary.h)
+add_executable(client ${client_HDR} ${client_SRC} ${ice_HDR} ${ice_SRC} auxiliary/Auxiliary.h)
+add_executable(portal ${portal_HDR} ${portal_SRC} ${ice_HDR} ${ice_SRC} auxiliary/Auxiliary.h)
 
-include_directories(server ${PROJECT_SOURCE_DIR}/ice ${Ice_INCLUDE_DIRS})
-include_directories(client ${PROJECT_SOURCE_DIR}/ice ${Ice_INCLUDE_DIRS})
-include_directories(portal ${PROJECT_SOURCE_DIR}/ice ${Ice_INCLUDE_DIRS})
+include_directories(server ${PROJECT_SOURCE_DIR}/ice)
+include_directories(client ${PROJECT_SOURCE_DIR}/ice)
+include_directories(portal ${PROJECT_SOURCE_DIR}/ice)
 
-target_link_libraries(server ${Ice_LIBRARIES} pthread)
-target_link_libraries(client ${Ice_LIBRARIES} pthread readline)
-target_link_libraries(portal ${Ice_LIBRARIES} pthread)
+if (UNIX)
+    set(MAYBE_PTHREADS "pthread")
+endif (UNIX)
+
+target_link_libraries(server Ice::Ice++11 ${MAYBE_PTHREADS})
+target_link_libraries(client Ice::Ice++11 ${MAYBE_PTHREADS} Ice::IceStorm++11 readline)
+target_link_libraries(portal Ice::Ice++11 ${MAYBE_PTHREADS} Ice::IceStorm++11)
 
 add_dependencies(server IceGenerated)
 add_dependencies(client IceGenerated)
